@@ -8,9 +8,9 @@ Tools for reconstructing, processing and evaluating a surface mesh from a point 
 All tools have a couple of common command line parameters. To get a more complete and detailed list of all possible parameters use
 the help command.
 
-| Command<img width=300/> | Description                                                                             |
+| Command                 | Description                                                                             |
 |:------------------------|:----------------------------------------------------------------------------------------|
-| `-h`                    | Display a help message, explaining all command line options of the specific tool.       |
+| `-h`   <img width=200/> | Display a help message, explaining all command line options of the specific tool.       |
 | `-w path/to/workingDir` | All input and output files are located inside the specified directory.                  |
 | `-i inputFileName`      | The file name of the input for the tool. The file ending does not have to be specified. |
 | `-o outputFileName`     | The file name of the output file(s). If left empty, the input file name is used.        |
