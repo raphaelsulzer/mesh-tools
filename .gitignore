@@ -3,4 +3,5 @@ build
 ./build/*
 build/*
 CMakeLists.txt.user
+CMakeLists.txt*
 .idea
