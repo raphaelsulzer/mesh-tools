@@ -31,7 +31,7 @@ Extract points, normals and sensors from an [OpenMVS](https://github.com/cdcseac
 
 ### labatut
 
-Reconstruct a mesh from a point cloud using the algorithm presented in [Labatut et al. 2009](https://diglib.eg.org/handle/10.2312/CGF.v28i8pp2275-2290).
+Reconstruct a mesh from a point cloud with visibility information using the algorithm presented in [Labatut et al. 2009](https://diglib.eg.org/handle/10.2312/CGF.v28i8pp2275-2290).
 
 ### feat
 
@@ -41,7 +41,7 @@ If a ground truth file is specified, ground truth occupancies for each cell of t
 
 ### occ2mesh
 
-Transform ground truth cell occupancies as computed by `feat` to a surface mesh.
+Transform cell occupancies as computed by `feat` or [DGNN](https://github.com/raphaelsulzer/dgnn) to a surface mesh.
 
 ### normal
 
@@ -49,11 +49,11 @@ Estimate (oriented) normals for a point cloud.
 
 ### sample
 
-Sample a mesh.
+Sample points on a mesh.
 
 ### collapse
 
-Apply the edge collapse algorithm.
+Apply the edge collapse algorithm to a triangle mesh.
 
 
 ## Installation
