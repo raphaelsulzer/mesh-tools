@@ -8,7 +8,7 @@ Tools for reconstructing, processing and evaluating a surface mesh from a point 
 All tools have a couple of common command line parameters. To get a more complete and detailed list of all possible parameters use
 the help command.
 
-| <div style="width:200px">Command</div> | Description                                                                             |
+| <div style="width:300px">Command</div> | Description                                                                             |
 |:---------------------------------------|:----------------------------------------------------------------------------------------|
 | `-h`                                   | Display a help message, explaining all command line options of the specific tool.       |
 | `-w path/to/workingDir`                | All input and output files are located inside the specified directory.                  |
