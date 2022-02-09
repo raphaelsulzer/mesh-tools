@@ -10,7 +10,7 @@ the help command.
 
 | Command                 | Description                                                                             |
 |:------------------------|:----------------------------------------------------------------------------------------|
-| `-h`<img width=150/>    | Display a help message, explaining all command line options of the specific tool.       |
+| `-h`<img width=180/>    | Display a help message, explaining all command line options of the specific tool.       |
 | `-w path/to/workingDir` | All input and output files are located inside the specified directory.                  |
 | `-i inputFileName`      | The file name of the input for the tool. The file ending does not have to be specified. |
 | `-o outputFileName`     | The file name of the output file(s). If left empty, the input file name is used.        |
