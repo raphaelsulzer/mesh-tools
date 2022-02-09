@@ -45,7 +45,7 @@ Transform ground truth cell occupancies as computed by `feat` to a surface mesh.
 
 ### normal
 
-Estimate normals for a mesh.
+Estimate (oriented) normals for a point cloud.
 
 ### sample
 
