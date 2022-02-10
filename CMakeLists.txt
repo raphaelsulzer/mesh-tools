@@ -450,20 +450,18 @@ if(LABATUT)
                         ${OCV_EXTERNAL_LIBRARIES}
                         ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
                         ${RECONBENCH_EXTERNAL_LIBRARIES}
-    #                    ${O3D_EXTERNAL_LIBRARIES}
                         ${PCL_EXTERNAL_LIBRARIES}
                         ${Boost_LIBRARIES}
                         ${CMAKE_DL_LIBS}
                         ${GLOG_LIBRARIES}
                         ${CERES_LIBRARIES}
                         ${GCO_LIBRARY}
-    #                    ${CGAL_LIBRARY}
                         ${GMP_LIBRARY}
                         ${MPFR_LIBRARY}
-    #                    Open3D::Open3D
                         ${Open3D_LIBRARIES}
                         CGAL::CGAL
                         OpenMP::OpenMP_CXX
+                        ZLIB::ZLIB
                         xtensor
                         xtensor-io
                         )
@@ -483,20 +481,18 @@ if(OCC2MESH)
                         ${OCV_EXTERNAL_LIBRARIES}
                         ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
                         ${RECONBENCH_EXTERNAL_LIBRARIES}
-    #                    ${O3D_EXTERNAL_LIBRARIES}
                         ${PCL_EXTERNAL_LIBRARIES}
                         ${Boost_LIBRARIES}
                         ${CMAKE_DL_LIBS}
                         ${GLOG_LIBRARIES}
                         ${CERES_LIBRARIES}
                         ${GCO_LIBRARY}
-    #                    ${CGAL_LIBRARY}
                         ${GMP_LIBRARY}
                         ${MPFR_LIBRARY}
-    #                    Open3D::Open3D
                         ${Open3D_LIBRARIES}
                         CGAL::CGAL
                         OpenMP::OpenMP_CXX
+                        ZLIB::ZLIB
                         xtensor
                         xtensor-io
                         )
@@ -518,22 +514,19 @@ if(FEAT)
                         ${OCV_EXTERNAL_LIBRARIES}
                         ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
                         ${RECONBENCH_EXTERNAL_LIBRARIES}
-    #                    ${O3D_EXTERNAL_LIBRARIES}
                         ${PCL_EXTERNAL_LIBRARIES}
                         ${Boost_LIBRARIES}
                         ${GLOG_LIBRARIES}
                         ${CERES_LIBRARIES}
                         ${GCO_LIBRARY}
-    #                    ${CGAL_LIBRARY}
                         ${GMP_LIBRARY}
                         ${MPFR_LIBRARY}
-    #                    Open3D::Open3D
                         ${Open3D_LIBRARIES}
                         CGAL::CGAL
                         OpenMP::OpenMP_CXX
+                        ZLIB::ZLIB
                         xtensor
                         xtensor-io
-    #                    OpenMVS::MVS
                         )
 endif()
 
