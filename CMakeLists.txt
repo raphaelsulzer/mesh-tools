@@ -28,10 +28,11 @@ option(STATIC "Whether to compile for standalone use" OFF)
 ################################################################################
 # Programs to build
 ################################################################################
-option(LABATUT "Whether to labatut exe" ON)
-option(DGNN2MESH "Whether to labatut exe" ON)
-option(SCAN "Whether to labatut exe" ON)
-option(FEAT "Whether to labatut exe" ON)
+option(LABATUT "Whether to build labatut exe" ON)
+option(OCC2MESH "Whether to build occ2mesh exe" OFF)
+option(SCAN "Whether to build scan exe" ON)
+option(FEAT "Whether to build feat exe" ON)
+option(OMVS2NPZ "Whether to build omvs2npz exe" OFF)
 
 
 if(STATIC)
@@ -436,155 +437,158 @@ add_library(processing
 target_link_libraries(processing
     util)
 
+if(LABATUT)
+    add_executable(labatut
+        src/exe/labatut.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(labatut
+                        fileIO
+                        rPLY
+                        util
+                        processing
+                        ${OCV_EXTERNAL_LIBRARIES}
+                        ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
+                        ${RECONBENCH_EXTERNAL_LIBRARIES}
+    #                    ${O3D_EXTERNAL_LIBRARIES}
+                        ${PCL_EXTERNAL_LIBRARIES}
+                        ${Boost_LIBRARIES}
+                        ${CMAKE_DL_LIBS}
+                        ${GLOG_LIBRARIES}
+                        ${CERES_LIBRARIES}
+                        ${GCO_LIBRARY}
+    #                    ${CGAL_LIBRARY}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+    #                    Open3D::Open3D
+                        ${Open3D_LIBRARIES}
+                        CGAL::CGAL
+                        OpenMP::OpenMP_CXX
+                        xtensor
+                        xtensor-io
+                        )
+endif()
 
-add_executable(labatut
-    src/exe/labatut.cpp
-    src/exe/inputParser.cpp
-    )
-target_link_libraries(labatut
-                    fileIO
-                    rPLY
-                    util
-                    processing
-                    ${OCV_EXTERNAL_LIBRARIES}
-                    ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
-                    ${RECONBENCH_EXTERNAL_LIBRARIES}
-#                    ${O3D_EXTERNAL_LIBRARIES}
-                    ${PCL_EXTERNAL_LIBRARIES}
-                    ${Boost_LIBRARIES}
-                    ${CMAKE_DL_LIBS}
-                    ${GLOG_LIBRARIES}
-                    ${CERES_LIBRARIES}
-                    ${GCO_LIBRARY}
-#                    ${CGAL_LIBRARY}
-                    ${GMP_LIBRARY}
-                    ${MPFR_LIBRARY}
-#                    Open3D::Open3D
-                    ${Open3D_LIBRARIES}
-                    CGAL::CGAL
-                    OpenMP::OpenMP_CXX
-                    xtensor
-                    xtensor-io
-                    )
+if(OCC2MESH)
+    add_executable(occ2mesh
+        src/exe/occ2mesh.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(occ2mesh
+                        fileIO
+                        rPLY
+                        learning
+                        util
+                        processing
+                        ${OCV_EXTERNAL_LIBRARIES}
+                        ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
+                        ${RECONBENCH_EXTERNAL_LIBRARIES}
+    #                    ${O3D_EXTERNAL_LIBRARIES}
+                        ${PCL_EXTERNAL_LIBRARIES}
+                        ${Boost_LIBRARIES}
+                        ${CMAKE_DL_LIBS}
+                        ${GLOG_LIBRARIES}
+                        ${CERES_LIBRARIES}
+                        ${GCO_LIBRARY}
+    #                    ${CGAL_LIBRARY}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+    #                    Open3D::Open3D
+                        ${Open3D_LIBRARIES}
+                        CGAL::CGAL
+                        OpenMP::OpenMP_CXX
+                        xtensor
+                        xtensor-io
+                        )
+endif()
 
+if(FEAT)
+    add_executable(feat
+        src/exe/feat.cpp
+        src/exe/inputParser.cpp
+        ${OMVS_CPP_FILES}
+        ${OMVS_INCLUDE_DIRS}
+        )
+    target_link_libraries(feat
+                        fileIO
+                        learning
+                        rPLY
+                        util
+                        processing
+                        ${OCV_EXTERNAL_LIBRARIES}
+                        ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
+                        ${RECONBENCH_EXTERNAL_LIBRARIES}
+    #                    ${O3D_EXTERNAL_LIBRARIES}
+                        ${PCL_EXTERNAL_LIBRARIES}
+                        ${Boost_LIBRARIES}
+                        ${GLOG_LIBRARIES}
+                        ${CERES_LIBRARIES}
+                        ${GCO_LIBRARY}
+    #                    ${CGAL_LIBRARY}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+    #                    Open3D::Open3D
+                        ${Open3D_LIBRARIES}
+                        CGAL::CGAL
+                        OpenMP::OpenMP_CXX
+                        xtensor
+                        xtensor-io
+    #                    OpenMVS::MVS
+                        )
+endif()
 
-#add_executable(dgnn2mesh
-#    src/exe/dgnn2mesh.cpp
-#    src/exe/inputParser.cpp
-#    )
-#target_link_libraries(dgnn2mesh
-#                    fileIO
-#                    rPLY
-#                    learning
-#                    util
-#                    processing
-#                    ${OCV_EXTERNAL_LIBRARIES}
-#                    ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
-#                    ${RECONBENCH_EXTERNAL_LIBRARIES}
-##                    ${O3D_EXTERNAL_LIBRARIES}
-#                    ${PCL_EXTERNAL_LIBRARIES}
-#                    ${Boost_LIBRARIES}
-#                    ${CMAKE_DL_LIBS}
-#                    ${GLOG_LIBRARIES}
-#                    ${CERES_LIBRARIES}
-#                    ${GCO_LIBRARY}
-##                    ${CGAL_LIBRARY}
-#                    ${GMP_LIBRARY}
-#                    ${MPFR_LIBRARY}
-##                    Open3D::Open3D
-#                    ${Open3D_LIBRARIES}
-#                    CGAL::CGAL
-#                    OpenMP::OpenMP_CXX
-#                    xtensor
-#                    xtensor-io
-#                    )
+if(OMVS2NPZ)
+    add_executable(omvs2npz
+        src/exe/omvs2npz.cpp
+        src/exe/inputParser.cpp
+        ${OMVS_CPP_FILES}
+        ${OMVS_INCLUDE_DIRS}
+        )
+    target_link_libraries(omvs2npz
+                        fileIO
+                        learning
+                        rPLY
+                        util
+                        processing
+                        ${OCV_EXTERNAL_LIBRARIES}
+                        ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
+                        ${RECONBENCH_EXTERNAL_LIBRARIES}
+                        ${PCL_EXTERNAL_LIBRARIES}
+                        ${Boost_LIBRARIES}
+                        ${GLOG_LIBRARIES}
+                        ${CERES_LIBRARIES}
+                        ${GCO_LIBRARY}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        ${Open3D_LIBRARIES}
+                        CGAL::CGAL
+                        OpenMP::OpenMP_CXX
+                        xtensor
+                        xtensor-io
+    #                    OpenMVS::MVS
+                        )
+endif()
 
-
-add_executable(feat
-    src/exe/feat.cpp
-    src/exe/inputParser.cpp
-    ${OMVS_CPP_FILES}
-    ${OMVS_INCLUDE_DIRS}
-    )
-target_link_libraries(feat
-                    fileIO
-                    learning
-                    rPLY
-                    util
-                    processing
-                    ${OCV_EXTERNAL_LIBRARIES}
-                    ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
-                    ${RECONBENCH_EXTERNAL_LIBRARIES}
-#                    ${O3D_EXTERNAL_LIBRARIES}
-                    ${PCL_EXTERNAL_LIBRARIES}
-                    ${Boost_LIBRARIES}
-                    ${GLOG_LIBRARIES}
-                    ${CERES_LIBRARIES}
-                    ${GCO_LIBRARY}
-#                    ${CGAL_LIBRARY}
-                    ${GMP_LIBRARY}
-                    ${MPFR_LIBRARY}
-#                    Open3D::Open3D
-                    ${Open3D_LIBRARIES}
-                    CGAL::CGAL
-                    OpenMP::OpenMP_CXX
-                    xtensor
-                    xtensor-io
-#                    OpenMVS::MVS
-                    )
-
-#add_executable(omvs2npz
-#    src/exe/omvs2npz.cpp
-#    src/exe/inputParser.cpp
-#    ${OMVS_CPP_FILES}
-#    ${OMVS_INCLUDE_DIRS}
-#    )
-#target_link_libraries(omvs2npz
-#                    fileIO
-#                    learning
-#                    rPLY
-#                    util
-#                    processing
-#                    ${OCV_EXTERNAL_LIBRARIES}
-#                    ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
-#                    ${RECONBENCH_EXTERNAL_LIBRARIES}
-##                    ${O3D_EXTERNAL_LIBRARIES}
-#                    ${PCL_EXTERNAL_LIBRARIES}
-#                    ${Boost_LIBRARIES}
-#                    ${GLOG_LIBRARIES}
-#                    ${CERES_LIBRARIES}
-#                    ${GCO_LIBRARY}
-##                    ${CGAL_LIBRARY}
-#                    ${GMP_LIBRARY}
-#                    ${MPFR_LIBRARY}
-##                    Open3D::Open3D
-#                    ${Open3D_LIBRARIES}
-#                    CGAL::CGAL
-#                    OpenMP::OpenMP_CXX
-#                    xtensor
-#                    xtensor-io
-##                    OpenMVS::MVS
-#                    )
-
-add_executable(scan
-    src/exe/scan.cpp
-    src/exe/inputParser.cpp
-    )
-target_link_libraries(scan
-                    fileIO
-                    rPLY
-                    util
-                    processing
-                    learning
-                    ${Boost_LIBRARIES}
-                    ${GMP_LIBRARY}
-                    ${MPFR_LIBRARY}
-                    CGAL::CGAL
-                    ${OMVS_EXTERNAL_LIBS}
-                    OpenMP::OpenMP_CXX
-                    ${CMAKE_DL_LIBS}
-                    )
-
+if(SCAN)
+    add_executable(scan
+        src/exe/scan.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(scan
+                        fileIO
+                        rPLY
+                        util
+                        processing
+                        learning
+                        ${Boost_LIBRARIES}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        CGAL::CGAL
+                        ${OMVS_EXTERNAL_LIBS}
+                        OpenMP::OpenMP_CXX
+                        ${CMAKE_DL_LIBS}
+                        )
+endif()
 
 
 
@@ -662,6 +666,7 @@ target_link_libraries(scan
 #                    ${OMVS_EXTERNAL_LIBS}
 #                    OpenMP::OpenMP_CXX
 #                    )
+
 #add_executable(sample
 #    src/exe/sample.cpp
 #    src/exe/inputParser.cpp
@@ -770,6 +775,7 @@ target_link_libraries(scan
 #                        CGAL::CGAL
 #                        OpenMP::OpenMP_CXX
 #                    )
+
 #add_executable(poisson
 #    src/poisson/poisson.cpp
 #    )
