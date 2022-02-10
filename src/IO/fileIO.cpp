@@ -211,87 +211,79 @@ int importPLYPoints(dirHolder dir, dataHolder& data)
 }
 
 
-int importPLYMeshWithSensorStructure(dirHolder dir, dataHolder& data){
+//int importPLYMeshWithSensorStructure(dirHolder dir, dataHolder& data){
 
-    // TODO: use tinyply for importing ply meshes, and get rid of the custom version of rPLY which is currently used
+//    // TODO: use tinyply for importing ply meshes, and get rid of the custom version of rPLY which is currently used
 
-    string ifn=dir.path+dir.read_file+".ply";
+//    string ifn=dir.path+dir.read_file+".ply";
 
-    std::cout << "\nRead mesh PLY file with (sensor) topology " << dir.read_file << std::endl;
+//    std::cout << "\nRead mesh PLY file with (sensor) topology " << dir.read_file << std::endl;
 
-    auto start = chrono::high_resolution_clock::now();
+//    auto start = chrono::high_resolution_clock::now();
 
-    // read Binary PLY with sensor
-    Mesh_ply aMesh;
-    Import_PLY(ifn.c_str(), &aMesh);
+//    // read Binary PLY with sensor
+//    Mesh_ply aMesh;
+//    Import_PLY(ifn.c_str(), &aMesh);
 
-    assert(aMesh.mVertices.size() > 0);
+//    assert(aMesh.mVertices.size() > 0);
 
-    data.has_sensor = !(aMesh.mvCapture.size() == 0);
-    data.has_normal = !(aMesh.mNormals.size() == 0);
-    data.has_color = !(aMesh.mvColors.size() == 0);
+//    data.has_sensor = !(aMesh.mvCapture.size() == 0);
+//    data.has_normal = !(aMesh.mNormals.size() == 0);
+//    data.has_color = !(aMesh.mvColors.size() == 0);
 
-    if(!data.has_sensor && !data.has_normal){
-        cout << "\nWARNING: NEITHER NORMALS NOR SENSOR INFORMATION FOUND IN THE INPUT FILE!\n" << endl;
-    }
-    for(int i = 0; i < aMesh.mVertices.size(); i++){
-        // save points
-        Point pt(aMesh.mVertices[i].x, aMesh.mVertices[i].y, aMesh.mVertices[i].z);
-        data.points.push_back(pt);
-        // save infos
-        vertex_info vec_inf;
-        // sensor
-        if(aMesh.mvCapture.size()>0){
-            Vector vec(aMesh.mvCapture[i].x - pt.x(), aMesh.mvCapture[i].y - pt.y(), aMesh.mvCapture[i].z - pt.z());
-            vec_inf.sensor_vec = vec;
-            vec_inf.sensor_positions.push_back(Point(aMesh.mvCapture[i].x, aMesh.mvCapture[i].y, aMesh.mvCapture[i].z));
-        }
-        // color
-        unsigned char r,g,b;
-        if(aMesh.mvColors.size() > 0){
-            r = aMesh.mvColors[i].x * 255;
-            g = aMesh.mvColors[i].y * 255;
-            b = aMesh.mvColors[i].z * 255;
-            CGAL::Color col(r,g,b);
-            vec_inf.color = col;
-        }
-        // save vertex info
-        data.infos.push_back(vec_inf);
-    }
-
-    // save incident sensor triangles in each 3DT vertex
-    for(int i = 0; i < aMesh.mIndices.size()/3; i++){
-        array<size_t,3> poly;
-        size_t id0 = aMesh.mIndices[(i*3)+0];
-        size_t id1 = aMesh.mIndices[(i*3)+1];
-        size_t id2 = aMesh.mIndices[(i*3)+2];
-        poly[0]=id0;
-        poly[1]=id1;
-        poly[2]=id2;
-        data.facets.push_back(poly);
-
-        // save incident sensor triangles in each 3DT vertex
-        data.infos[id0].sensor_tet.push_back(i);
-        data.infos[id1].sensor_tet.push_back(i);
-        data.infos[id2].sensor_tet.push_back(i);
-        // basically just integrating the loop below in here.
-
-    }
-//    // save incident sensor triangles in each 3DT vertex
-//    for(int i = 0; i < sensor_triangle.size(); i++){
-//        for(int j = 0; j < 3; j++){
-//            int current_vertex = sensor_triangle[i][j];
-//            infos[current_vertex].sensor_tet.push_back(i);
+//    if(!data.has_sensor && !data.has_normal){
+//        cout << "\nWARNING: NEITHER NORMALS NOR SENSOR INFORMATION FOUND IN THE INPUT FILE!\n" << endl;
+//    }
+//    for(int i = 0; i < aMesh.mVertices.size(); i++){
+//        // save points
+//        Point pt(aMesh.mVertices[i].x, aMesh.mVertices[i].y, aMesh.mVertices[i].z);
+//        data.points.push_back(pt);
+//        // save infos
+//        vertex_info vec_inf;
+//        // sensor
+//        if(aMesh.mvCapture.size()>0){
+//            Vector vec(aMesh.mvCapture[i].x - pt.x(), aMesh.mvCapture[i].y - pt.y(), aMesh.mvCapture[i].z - pt.z());
+//            vec_inf.sensor_vec = vec;
+//            vec_inf.sensor_positions.push_back(Point(aMesh.mvCapture[i].x, aMesh.mvCapture[i].y, aMesh.mvCapture[i].z));
 //        }
+//        // color
+//        unsigned char r,g,b;
+//        if(aMesh.mvColors.size() > 0){
+//            r = aMesh.mvColors[i].x * 255;
+//            g = aMesh.mvColors[i].y * 255;
+//            b = aMesh.mvColors[i].z * 255;
+//            CGAL::Color col(r,g,b);
+//            vec_inf.color = col;
+//        }
+//        // save vertex info
+//        data.infos.push_back(vec_inf);
 //    }
 
+//    // save incident sensor triangles in each 3DT vertex
+//    for(int i = 0; i < aMesh.mIndices.size()/3; i++){
+//        array<size_t,3> poly;
+//        size_t id0 = aMesh.mIndices[(i*3)+0];
+//        size_t id1 = aMesh.mIndices[(i*3)+1];
+//        size_t id2 = aMesh.mIndices[(i*3)+2];
+//        poly[0]=id0;
+//        poly[1]=id1;
+//        poly[2]=id2;
+//        data.facets.push_back(poly);
 
-    auto stop = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::seconds>(stop - start);
-    cout << "\t-points: " << data.points.size() << endl;
-    cout << "\t-facets: " << data.facets.size() << endl;
-    cout << "\t-in " << duration.count() << "s" << endl;
-}
+//        // save incident sensor triangles in each 3DT vertex
+//        data.infos[id0].sensor_tet.push_back(i);
+//        data.infos[id1].sensor_tet.push_back(i);
+//        data.infos[id2].sensor_tet.push_back(i);
+//        // basically just integrating the loop below in here.
+
+//    }
+
+//    auto stop = chrono::high_resolution_clock::now();
+//    auto duration = chrono::duration_cast<chrono::seconds>(stop - start);
+//    cout << "\t-points: " << data.points.size() << endl;
+//    cout << "\t-facets: " << data.facets.size() << endl;
+//    cout << "\t-in " << duration.count() << "s" << endl;
+//}
 
 int importPLYMesh(dirHolder& dir, SurfaceMesh& import_mesh){
     cout << "\nRead file " << dir.read_file+".ply" << endl;

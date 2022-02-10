@@ -81,7 +81,7 @@ if(STATIC)
 endif()
 #find_package(GMP REQUIRED) # is automatically linked by cgal
 #find_package(MPFR REQUIRED)
-find_package(GCO REQUIRED)
+#find_package(GCO REQUIRED)    # added gco to external
 find_package(xtl REQUIRED) # for xtensor
 find_package(ZLIB REQUIRED) # for xtensor
 find_package(xtensor REQUIRED)
@@ -360,7 +360,7 @@ include_directories(
 #    ${GLEW_INCLUDE_DIRS}
     ${GMP_INCLUDE_DIR}
     ${MPFR_INCLUDE_DIR}
-    ${GCO_ROOT}
+#    ${GCO_ROOT}
     ${CGAL_INCLUDE_DIRS}
     ${xtensor_INCLUDE_DIRS}
     ${xtensor-io_INCLUDE_DIRS}
@@ -437,6 +437,18 @@ add_library(processing
 target_link_libraries(processing
     util)
 
+add_library(gco
+    external/gco-v3.0/GCoptimization.cpp
+    external/gco-v3.0/LinkedBlockList.cpp
+#    external/gco-v3.0/GCoptimization.h
+#    external/gco-v3.0/LinkedBlockList.h
+#    external/gco-v3.0/block.h
+#    external/gco-v3.0/energy.h
+#    external/gco-v3.0/graph.h
+    )
+target_link_libraries(gco)
+
+
 if(LABATUT)
     add_executable(labatut
         src/exe/labatut.cpp
@@ -447,6 +459,7 @@ if(LABATUT)
                         rPLY
                         util
                         processing
+                        gco
                         ${OCV_EXTERNAL_LIBRARIES}
                         ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
                         ${RECONBENCH_EXTERNAL_LIBRARIES}
@@ -455,7 +468,7 @@ if(LABATUT)
                         ${CMAKE_DL_LIBS}
                         ${GLOG_LIBRARIES}
                         ${CERES_LIBRARIES}
-                        ${GCO_LIBRARY}
+#                        ${GCO_LIBRARY}
                         ${GMP_LIBRARY}
                         ${MPFR_LIBRARY}
                         ${Open3D_LIBRARIES}
@@ -478,6 +491,7 @@ if(OCC2MESH)
                         learning
                         util
                         processing
+                        gco
                         ${OCV_EXTERNAL_LIBRARIES}
                         ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
                         ${RECONBENCH_EXTERNAL_LIBRARIES}
@@ -486,7 +500,6 @@ if(OCC2MESH)
                         ${CMAKE_DL_LIBS}
                         ${GLOG_LIBRARIES}
                         ${CERES_LIBRARIES}
-                        ${GCO_LIBRARY}
                         ${GMP_LIBRARY}
                         ${MPFR_LIBRARY}
                         ${Open3D_LIBRARIES}
@@ -518,7 +531,6 @@ if(FEAT)
                         ${Boost_LIBRARIES}
                         ${GLOG_LIBRARIES}
                         ${CERES_LIBRARIES}
-                        ${GCO_LIBRARY}
                         ${GMP_LIBRARY}
                         ${MPFR_LIBRARY}
                         ${Open3D_LIBRARIES}
@@ -550,7 +562,6 @@ if(OMVS2NPZ)
                         ${Boost_LIBRARIES}
                         ${GLOG_LIBRARIES}
                         ${CERES_LIBRARIES}
-                        ${GCO_LIBRARY}
                         ${GMP_LIBRARY}
                         ${MPFR_LIBRARY}
                         ${Open3D_LIBRARIES}
@@ -701,7 +712,6 @@ endif()
 #                    rPLY
 #                    util
 #                    processing
-#                    ${GCO_LIBRARY}
 #                    ${Boost_LIBRARIES}
 #                    ${GMP_LIBRARY}
 #                    ${MPFR_LIBRARY}

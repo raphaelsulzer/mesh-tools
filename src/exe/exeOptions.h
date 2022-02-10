@@ -66,7 +66,7 @@ struct runningOptions{
     int fix_nm_edges = 0;
 
     // evaluation
-    int evaluate_mesh;
+    bool evaluate_mesh = false;
 
     // learning scanning
     int number_of_cameras;

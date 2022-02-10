@@ -100,11 +100,11 @@ po::options_description cliParser::initOutput(){
             ("output_options,e", po::value<string>()->default_value("i"),"Specify export options as list of letters (without seperator):"
                                                                           "\n\t-n = normals"
                                                                           "\n\t-r = rgb color"
-                                                                          "\n\t-v = sensor_vec"
-                                                                          "\n\t-p = sensor_pos"
+                                                                          "\n\t-v = sensor vector"
+                                                                          "\n\t-p = sensor position"
                                                                           "\n-k = cameras"
-                                                                         "\n-i = interface"
-                                                                         "\n-z = isosurface"
+                                                                          "\n-i = interface"
+                                                                          "\n-z = isosurface"
                                                                           "\n-x = scan"
                                                                           "\n-m = mesh"
                                                                           "\n-s = sampling"
@@ -114,7 +114,7 @@ po::options_description cliParser::initOutput(){
             ("output_sampling", po::value<string>(), "Sample points on output mesh"
                                                                            "\n-gs,X = grid sampling + grid size"
                                                                            "\n-ps,X = point sampling + #points"
-                                                                           "\n-as,X = point sampling + #points per area unit")
+                                                                           "\n-as,X = point sampling + #points per area")
 
         ;
 
@@ -132,116 +132,90 @@ po::options_description cliParser::initLabatut(){
 
     po::options_description clf_options("\nRECONSTRUCTION OPTIONS");
     clf_options.add_options()
-//        ("help", "produce help message")
-            ("adt", po::value<double>()->default_value(-1), "Epsilon for adaptive 3DT.")
-            ("method,m", po::value<string>()->default_value("rt,labatut,1,-1,32"), "Specify unary and binary types:"
-                                              "\n\t-rt,paper,#cameras,sigma,alpha with paper=[labatut, wasure or bodis], #cameras=[1,inf) and sigma=[-1,inf)"
-                                               "\n\t-cl,read_scoring_method"
-                                               "\n\t-clrt,#cameras"
-                                               "\n\t-cs,#cameras"
-                                               "\n\t-csrt,#cameras"
-                                              "\n\t-lrt,#cameras"
-                                              "\n\t-lrtcs,#samplePointsPerCell")
-            ("gclosed", po::value<int>()->default_value(1), "Is ground truth closed?")
+            ("cameras,c", po::value<int>()->default_value(1), "cameras==[1,inf). Number of cameras for ray tracing.")
+            ("sigma", po::value<double>()->default_value(-1), "sigma=[-1,inf). -1 => mean noise with PCA.")
+            ("alpha", po::value<double>()->default_value(32), "alpha=(0,inf).")
             ("gco", po::value<string>(), "Graph-cut optimization."
              "\nSpecify Binary: Type1-Weight1[;Type2-Weight2;Type3-Weight3]"
              "\nwith Type=[area,angle,cc] and Weight=(0,inf)")
-            ("smooth", po::value<int>()->default_value(0), "Smoothend the piecewise constant function.")
-            ("iso", po::value<string>()->default_value("30.0,0.1,0.1"), "Number of connected components of output to keep. Default = all.")
-            ("ocomp", po::value<int>()->default_value(0), "Number of connected components of output to keep. Default = all.")
-            ("omanifold", po::value<int>()->default_value(0), "Try to make output mesh manifold.")
-            ("oclose", po::value<int>()->default_value(0), "Try to close output open meshes with hole filling.")
-            ("clean", po::value<int>()->default_value(0), "Apply OpenMVS mesh cleaning.")
-            ("simplify", po::value<int>()->default_value(0), "Simplify mesh")
-            ("eval", po::value<int>()->default_value(0), "Evaluate mesh.")
+//            ("smooth", po::value<int>()->default_value(0), "Smoothend the piecewise constant function.")
+//            ("iso", po::value<string>()->default_value("30.0,0.1,0.1"), "Number of connected components of output to keep. Default = all.")
+//            ("ocomp", po::value<int>()->default_value(0), "Number of connected components of output to keep. Default = all.")
+//            ("omanifold", po::value<int>()->default_value(0), "Try to make output mesh manifold.")
+//            ("oclose", po::value<int>()->default_value(0), "Try to close output open meshes with hole filling.")
+//            ("clean", po::value<int>()->default_value(0), "Apply OpenMVS mesh cleaning.")
+//            ("simplify", po::value<int>()->default_value(0), "Simplify mesh")
+//            ("eval", po::value<int>()->default_value(0), "Evaluate mesh.")
         ;
-
-
-
-    ///// OLD
-//    // fix manifold
-//    args::Flag manifold(clf_group, "manifold", "Remove non-manifold edges", {"rnm"}, false);
-//    // OFF mesh generation
-//    args::ValueFlag<int> lff(clf_group, "facet_factor", "Factor Y to determine surface area threshold X for removing large facets, with X = Y * mean_surface_area.", {"lff"}, 0);
-
 
     return clf_options;
 }
 
 int cliParser::getLabatut(){
 
-    // Delaunay
-    ro.Dt_epsilon = vm["adt"].as<double>();
+
 
     // reconstruction and optimization
-    vector<string> scoring;
-    splitString(vm["method"].as<string>(), scoring, ',');
-    ro.scoring = scoring[0];
-    // classification
-    if(ro.scoring == "clrt"){
-        if(scoring.size() < 5){
-            cout << "ERROR: missing option in scoring" << endl;
-            cout << "put e.g. clrt,lo,1,-1,32" << endl;
-            return 1;
+    ro.scoring = "rt";
+    ro.prediction_type = "labatut";
+    ro.number_of_rays =  vm["cameras"].as<int>();
+    ro.labatut_sigma = vm["sigma"].as<double>();
+    ro.labatut_alpha = vm["alpha"].as<double>();
 
-        }
-        ro.prediction_type = scoring[1];
-        ro.number_of_rays = stoi(scoring[2]);
-        ro.labatut_sigma = stod(scoring[3]);
-        ro.labatut_alpha = stod(scoring[4]);
-    }
-    else if(ro.scoring == "cl"){
-        if(scoring.size() < 2){
-            cout << "ERROR: missing option in scoring" << endl;
-            cout << "put e.g. cl,sm" << endl;
-            return 1;
 
-        }
-        ro.prediction_type = scoring[1];
-    }
-    else if(ro.scoring == "clcs"){
-        if(scoring.size() < 3){
-            cout << "ERROR: missing option in scoring" << endl;
-            cout << "put e.g. clcs,500,sm" << endl;
-            return 1;
+//    }
+//    else if(ro.scoring == "cl"){
+//        if(scoring.size() < 2){
+//            cout << "ERROR: missing option in scoring" << endl;
+//            cout << "put e.g. cl,sm" << endl;
+//            return 1;
 
-        }
-        ro.prediction_type = scoring[1];
-        ro.number_of_points_per_cell = stoi(scoring[2]);
-    }
-    else if(ro.scoring == "cs")
-        ro.number_of_points_per_cell = stoi(scoring[1]);
-    else if(ro.scoring == "csrt"){
-        ro.number_of_points_per_cell = stoi(scoring[1]);
-        if(scoring.size() < 6){
-            cout << "ERROR: scoring method rt requires number_of_rays, type and labatut_sigma" << endl;
-            return 1;
-        }
-        ro.number_of_points_per_cell = stoi(scoring[1]);
-        ro.score_type = scoring[2];
-        ro.number_of_rays = stoi(scoring[3]);
-        ro.labatut_sigma = stod(scoring[4]);
-        ro.labatut_alpha = stod(scoring[5]);
-    }
-    else if(ro.scoring == "lrtcs")
-        ro.number_of_points_per_cell = stoi(scoring[1]);
-    else if(ro.scoring == "lrt")
-        ro.number_of_rays = stoi(scoring[1]);
-    else if(ro.scoring == "rt"){
-        if(scoring.size() < 5){
-            cout << "ERROR: scoring method rt requires type (=labatut), number_of_rays, labatut_sigma, labatut_alpha" << endl;
-            return 1;
-        }
-        ro.score_type = scoring[1];
-        ro.number_of_rays = stoi(scoring[2]);
-        ro.labatut_sigma = stod(scoring[3]);
-        ro.labatut_alpha = stod(scoring[4]);
-    }
-    else{
-        cerr << "\nNOT A VALID SCORING TYPE.\n" << endl;
-        cerr << "\nto see available scoring types type sure --help\n" << endl;
-        return 1;
-    }
+//        }
+//        ro.prediction_type = scoring[1];
+//    }
+//    else if(ro.scoring == "clcs"){
+//        if(scoring.size() < 3){
+//            cout << "ERROR: missing option in scoring" << endl;
+//            cout << "put e.g. clcs,500,sm" << endl;
+//            return 1;
+
+//        }
+//        ro.prediction_type = scoring[1];
+//        ro.number_of_points_per_cell = stoi(scoring[2]);
+//    }
+//    else if(ro.scoring == "cs")
+//        ro.number_of_points_per_cell = stoi(scoring[1]);
+//    else if(ro.scoring == "csrt"){
+//        ro.number_of_points_per_cell = stoi(scoring[1]);
+//        if(scoring.size() < 6){
+//            cout << "ERROR: scoring method rt requires number_of_rays, type and labatut_sigma" << endl;
+//            return 1;
+//        }
+//        ro.number_of_points_per_cell = stoi(scoring[1]);
+//        ro.score_type = scoring[2];
+//        ro.number_of_rays = stoi(scoring[3]);
+//        ro.labatut_sigma = stod(scoring[4]);
+//        ro.labatut_alpha = stod(scoring[5]);
+//    }
+//    else if(ro.scoring == "lrtcs")
+//        ro.number_of_points_per_cell = stoi(scoring[1]);
+//    else if(ro.scoring == "lrt")
+//        ro.number_of_rays = stoi(scoring[1]);
+//    else if(ro.scoring == "rt"){
+//        if(scoring.size() < 5){
+//            cout << "ERROR: scoring method rt requires type (=labatut), number_of_rays, labatut_sigma, labatut_alpha" << endl;
+//            return 1;
+//        }
+//        ro.score_type = scoring[1];
+//        ro.number_of_rays = stoi(scoring[2]);
+//        ro.labatut_sigma = stod(scoring[3]);
+//        ro.labatut_alpha = stod(scoring[4]);
+//    }
+//    else{
+//        cerr << "\nNOT A VALID SCORING TYPE.\n" << endl;
+//        cerr << "\nto see available scoring types type sure --help\n" << endl;
+//        return 1;
+//    }
 
     vector<string> optimization;
     if(vm.count("gco")){
@@ -273,32 +247,32 @@ int cliParser::getLabatut(){
 
         }
     }
-    vector<string> iso_options;
-    splitString(vm["iso"].as<string>(), iso_options, ',');
-    if(iso_options.size() < 3){
-        cout << "ERROR: need all three iso options (angle,radius,distance) in comma seperated form." << endl;
-        return 1;
-    }
-    ro.options[0] = stod(iso_options[0]);
-    ro.options[1] = stod(iso_options[1]);
-    ro.options[2] = stod(iso_options[2]);
+//    vector<string> iso_options;
+//    splitString(vm["iso"].as<string>(), iso_options, ',');
+//    if(iso_options.size() < 3){
+//        cout << "ERROR: need all three iso options (angle,radius,distance) in comma seperated form." << endl;
+//        return 1;
+//    }
+//    ro.options[0] = stod(iso_options[0]);
+//    ro.options[1] = stod(iso_options[1]);
+//    ro.options[2] = stod(iso_options[2]);
 
-    if(vm.count("smooth"))
-        ro.smooth_field = vm["smooth"].as<int>();
-    if(vm.count("clean"))
-        ro.clean_mesh = vm["clean"].as<int>();
-    if(vm.count("ocomp"))
-        ro.number_of_components_to_keep = vm["ocomp"].as<int>();
-    if(vm.count("oclose"))
-        ro.try_to_close = vm["oclose"].as<int>();
-    if(vm.count("omanifold"))
-        ro.try_to_make_manifold = vm["omanifold"].as<int>();
-    if(vm.count("simplify"))
-        ro.simplify = vm["simplify"].as<int>();
-    if(vm.count("eval"))
-        ro.evaluate_mesh = vm["eval"].as<int>();
-    if(vm.count("gclosed"))
-        ro.gt_isclosed = vm["gclosed"].as<int>();
+//    if(vm.count("smooth"))
+//        ro.smooth_field = vm["smooth"].as<int>();
+//    if(vm.count("clean"))
+//        ro.clean_mesh = vm["clean"].as<int>();
+//    if(vm.count("ocomp"))
+//        ro.number_of_components_to_keep = vm["ocomp"].as<int>();
+//    if(vm.count("oclose"))
+//        ro.try_to_close = vm["oclose"].as<int>();
+//    if(vm.count("omanifold"))
+//        ro.try_to_make_manifold = vm["omanifold"].as<int>();
+//    if(vm.count("simplify"))
+//        ro.simplify = vm["simplify"].as<int>();
+//    if(vm.count("eval"))
+//        ro.evaluate_mesh = vm["eval"].as<int>();
+//    if(vm.count("gclosed"))
+//        ro.gt_isclosed = vm["gclosed"].as<int>();
     return 0;
 }
 
@@ -308,9 +282,8 @@ po::options_description cliParser::initFeat(){
     po::options_description options("\nFEATURE EXTRACTION OPTIONS");
     options.add_options()
             ("gclosed", po::value<int>()->default_value(1), "Is ground truth closed?")
-            ("adt", po::value<double>()->default_value(-1), "Epsilon for adaptive 3DT.")
-            ("rays", po::value<int>()->default_value(1), "Number of rays to trace. Default = 1")
-            ("pcp", po::value<int>()->default_value(100), "Number of points to sample per cell. Default = 100")
+            ("rays", po::value<int>()->default_value(1), "Number of rays to trace.")
+            ("pcp", po::value<int>()->default_value(100), "Number of points to sample per cell.")
             ("export", po::value<string>()->default_value("ply"), "Export to [ply,npz,all].")
         ;
     return options;
@@ -318,7 +291,6 @@ po::options_description cliParser::initFeat(){
 int cliParser::getFeat(){
 
     // Delaunay
-    ro.Dt_epsilon = vm["adt"].as<double>();
     ro.number_of_rays = vm["rays"].as<int>();
     ro.number_of_points_per_cell = vm["pcp"].as<int>();
     if(vm.count("gclosed"))
@@ -349,10 +321,10 @@ po::options_description cliParser::initNormals(){
     ////////////////// COLLAPSE OPTIONS /////////////////
     po::options_description normal_options("\nNORMAL ESTIMATION OPTIONS");
     normal_options.add_options()
-            ("method", po::value<string>()->default_value("jet"), "[pca, jet (default), vsm]")
-            ("neighborhood", po::value<int>()->default_value(0), "Neighborhood size to consider. 0 = automatic (default)")
-            ("orient", po::value<int>()->default_value(2), "Orientation. 0 = no, 1 = sensor, 2 = mst (default).")
-            ("overwrite", po::value<int>()->default_value(0), "Overwrite existing normals (default = 0).")
+            ("method", po::value<string>()->default_value("jet"), "[pca, jet, vsm]")
+            ("neighborhood", po::value<int>()->default_value(0), "Neighborhood size to consider. 0 = automatic")
+            ("orient", po::value<int>()->default_value(2), "Orientation. 0 = no, 1 = sensor, 2 = mst.")
+            ("overwrite", po::value<int>()->default_value(0), "Overwrite existing normals.")
 
         ;
     return normal_options;
@@ -371,11 +343,11 @@ int cliParser::getNormals(){
 po::options_description cliParser::initIso(){
     po::options_description options("\nISO EXTRACTION OPTIONS");
     options.add_options()
-            ("method", po::value<string>()->default_value("mit"), "[mit (default), boissonnat]")
-            ("field", po::value<string>()->default_value("occ"), "[occ (default), sdf]")
-            ("value", po::value<double>()->default_value(0), "Neighborhood size to consider. 0 = automatic (default)")
-            ("options", po::value<string>()->default_value("30.0,0.1,0.1"), "Number of connected components of output to keep. Default = all.")
-            ("add_points", po::value<int>()->default_value(0), "Number of additional points to add for MIT. Default = 0.")
+            ("method", po::value<string>()->default_value("mit"), "[mit, boissonnat]")
+            ("field", po::value<string>()->default_value("occ"), "[occ, sdf]")
+            ("value", po::value<double>()->default_value(0), "Neighborhood size to consider. 0 = automatic")
+            ("options", po::value<string>()->default_value("30.0,0.1,0.1"), "Number of connected components of output to keep.")
+            ("add_points", po::value<int>()->default_value(0), "Number of additional points to add for MIT.")
         ;
     return options;
 }
@@ -428,7 +400,7 @@ po::options_description cliParser::initVsa(){
     po::options_description vsa_options("\nRECONSTRUCTION OPTIONS");
     vsa_options.add_options()
             ("proxies", po::value<int>()->required(), "Max number of proxies")
-            ("comp", po::value<int>(), "Number of connected components to keep. Default = all.")
+            ("comp", po::value<int>(), "Number of connected components to keep.")
             ("close", po::value<int>(), "Try to close open meshes with hole filling.")
             ("clean", po::value<int>(), "Apply OpenMVS mesh cleaning")
             ("eval", po::value<int>(), "Evaluate mesh")
@@ -506,16 +478,17 @@ po::options_description cliParser::initInput(){
             ("source,s", po::value<string>()->default_value("ply"), "Data source and options:"
                                                             "\n\t-ply"
                                                             "\n\t-npz"
-                                                           "\n\t-colmap"
-                                                           "\n\t-omvs"
-                                                           "\n\t-scan,#points,#cameras,std_noise,%outliers"
-                                                           "\n\t-tt,#scans"
-                                                           "\n\t-eth")
+                                                            "\n\t-colmap"
+                                                            "\n\t-omvs"
+                                                            "\n\t-scan,#points,#cameras,std_noise,%outliers"
+                                                            "\n\t-tt,#scans"
+                                                            "\n\t-eth")
             ("groundtruth_file,g", po::value<string>(), "Groundtruth file")
             ("prediction_file,p", po::value<string>(), "Prediction file")
             ("transformation_file,t", po::value<string>(), "Transformation file")
             ("crop_file,c", po::value<string>(), "Crop file")
             ("scale", po::value<double>()->default_value(0.0), "Scale mean edge length of Delaunay to this value")
+            ("adt", po::value<double>()->default_value(-1), "Epsilon for adaptive 3DT.")
             ("icomp", po::value<int>()->default_value(1), "Number of connected components of input to keep. Default = all.")
             ("iclose", po::value<int>()->default_value(1), "Try to close input open meshes with hole filling.")
         ;
@@ -524,6 +497,7 @@ po::options_description cliParser::initInput(){
 int cliParser::getInput(){
 
     /////////////// PATH & FILE INPUT ARGS + OUTPUT ARGS ///////////////
+
 
     /// required
     dh.path =  vm["working_dir"].as<string>();
@@ -606,6 +580,9 @@ int cliParser::getInput(){
     if(vm.count("gt_poly_file"))
         dh.gt_poly_file = vm["gt_poly_file"].as<string>();
 
+    // Delaunay
+    if(vm.count("adt"))
+        ro.Dt_epsilon = vm["adt"].as<double>();
 
     if(vm.count("iclose"))
         ro.try_to_close = vm["iclose"].as<int>();

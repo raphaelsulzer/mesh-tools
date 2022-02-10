@@ -5,49 +5,30 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "GCoptimization.h"
+#include "gco-v3.0/GCoptimization.h"
 #include <processing/meshProcessing.h>
 #include <util/geometricOperations.h>
 
 ////////////////////////////////////////////////////////////
 ////////////////////// Feature scaling /////////////////////
 ////////////////////////////////////////////////////////////
+
+
+typedef float gtype;
+
 struct ForSmoothFn{
-    double *data;
+    gtype *data;
 };
 
-typedef double gtype;
-
-//double smoothCost(int s1, int s2, int l1, int l2, void *data){
-
-//    gtype *a = (gtype*)data;
-//    ForSmoothFn *myData = (ForSmoothFn *) data;
-
-//    // difference of outside observation of s1 and s2
-//    double g = myData->data[s1*2] - myData->data[s2*2];
-
-//    double smooth_cost;
-
-//    if(l1 == 0 && l2 == 1)
-//        smooth_cost = exp(-pow(g-1,2) * 2);
-//    else if(l1 == 1 && l2 == 0)
-//        smooth_cost = exp(-pow(g+1,2) * 2);
-//    else
-//        smooth_cost = 0;
-////        smooth_cost = (exp(-pow(g-1,2) * 2) + exp(-pow(g+1,2) * 2) - 2*exp(-2) ) / 2;
-
-//    return smooth_cost;
-//}
-
-double smoothCost(int s1, int s2, int l1, int l2, void *data){
+gtype smoothCost(int s1, int s2, int l1, int l2, void *data){
 
     gtype *a = (gtype*)data;
     ForSmoothFn *myData = (ForSmoothFn *) data;
 
     // difference of outside observation of s1 and s2
-    double g = myData->data[s1*2] - myData->data[s2*2];
+    gtype g = myData->data[s1*2] - myData->data[s2*2];
 
-    double smooth_cost;
+    gtype smooth_cost;
 
     if(l1 == 0 && l2 == 1)
         smooth_cost = 0.5*(1+g);
@@ -72,7 +53,7 @@ double smoothCost(int s1, int s2, int l1, int l2, void *data){
 void graphCutTet(dataHolder& data, runningOptions options)
 {
 
-    double div = 1;
+    gtype div = 1.0;
 
     if(options.area_reg_weight > 0.0)
         calculateMeanTriangleArea(data);
@@ -102,8 +83,8 @@ void graphCutTet(dataHolder& data, runningOptions options)
     GCoptimizationGeneralGraph *gc = new GCoptimizationGeneralGraph(num_cells,num_labels);
 
     // first set up the array for data costs and set the initial label in the same loop
-    double *data_term = new double[num_cells*num_labels];
-    double *gt_unaries = new double[num_cells*num_labels];
+    gtype *data_term = new gtype[num_cells*num_labels];
+    gtype *gt_unaries = new gtype[num_cells*num_labels];
     int idx = 0;
     Delaunay::All_cells_iterator cft;
     // iterate over the all_cells map
@@ -153,7 +134,7 @@ void graphCutTet(dataHolder& data, runningOptions options)
     }
 
     // next set up the array for smooth costs
-    double *smooth_term = new double[num_labels*num_labels];
+    gtype *smooth_term = new gtype[num_labels*num_labels];
     for ( int l1 = 0; l1 < num_labels; l1++ )
         for (int l2 = 0; l2 < num_labels; l2++ )
             if(l1 == l2){smooth_term[l1+l2*num_labels] = 0.0;}
@@ -191,7 +172,7 @@ void graphCutTet(dataHolder& data, runningOptions options)
                 continue;
 
             // calc smoothness term
-            double total_local_weight,area_weight,angle_weight,ob_weight;
+            gtype total_local_weight,area_weight,angle_weight,ob_weight;
             Facet current_facet(current_cell, i);
             if(data.Dt.is_infinite(current_facet))
                 area_weight = 1;
@@ -248,7 +229,7 @@ void graphCutTet(dataHolder& data, runningOptions options)
 
 void graphCutFacet(dataHolder& data, runningOptions options)
 {
-    double div = 1;
+    gtype div = 1;
 
 
     // TODO:
@@ -347,7 +328,7 @@ void graphCutFacet(dataHolder& data, runningOptions options)
 //                continue;
 
             // calc smoothness term
-            double area_weight,angle_weight;
+            gtype area_weight,angle_weight;
             Facet current_facet(current_cell, i);
             if(data.Dt.is_infinite(current_facet))
                 area_weight = 1;

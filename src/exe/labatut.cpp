@@ -15,28 +15,18 @@
 #include <util/geometricOperations.h>
 
 #include <processing/meshProcessing.h>
-#include <processing/edgeManifoldness.h>
 #include <processing/graphCut.h>
-
 #include <processing/pointSetProcessing.h>
 #include <processing/normalAndSensorProcessing.h>
 #include <processing/evaluation.h>
 #include <processing/rayTracingFacet.h>
 
-#include <learning/learning.h>
-#include <learning/learningMath.h>
-#include <learning/learningRayTracing.h>
-#include <learning/learningRayTracingGroundTruth.h>
-#include <learning/learningIO.h>
-
-#include <CGAL/refine_mesh_3.h>
 
 #ifdef Open3D
 #include "open3d/Open3D.h"
 #include "open3d/geometry/TetraMesh.h"
 #endif
 
-#include <CGAL/optimal_bounding_box.h>
 #include <boost/filesystem.hpp>
 using namespace boost::filesystem;
 
@@ -49,7 +39,7 @@ using namespace boost::filesystem;
 int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, exportOptions& exportO){
 
     // TOOD: add an assert for checking that there are no duplicate points in the input for the 3DT, because the ray tracing crashes
-    // if there are. Maybe it would however be best to change my data.points+data.infos vector to a CLGA::Point_set_3
+    // if there are. Maybe it would however be best to change my data.points+data.infos vector to a CGAL::Point_set_3
     // with property maps for each info.
 
 
@@ -135,6 +125,9 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
         cout << "\nd parameter of Labatu set to " << options.labatut_sigma << endl;
     }
 
+    //////////////////////////////////////
+    ///////////// RAY TRACING ////////////
+    //////////////////////////////////////
     auto rc = processing::RayCaster(data, options);
     rc.run(1);
 
@@ -166,49 +159,6 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
     ////////////////////////////
     ////////// EXPORT //////////
     ////////////////////////////
-
-
-    //// export features and labels
-//    if(options.scoring == "_lrtcs" || options.scoring == "_lrt"){
-//        // check if labels directory exists, if not create it
-//        path lpath(dir.path);
-//        // this shitty problem here is not present on the laptop
-//        lpath /= string("gt");
-//        if(!is_directory(lpath))
-//            create_directory(lpath);
-//        // export the features and labels
-//        exportGraph(dir, options, data.Dt);
-//    }
-
-
-
-    // make new 3DT with old 3DT cell centers, attribute cell score to vertices
-
-
-//    #ifdef Open3D
-////    Delaunay Dt;
-////    Vertex_handle vh;
-////    vertex_info vi;
-////    Point p1,p2,p3,p4,centroid;
-////    for(auto cit = data.Dt.finite_cells_begin(); cit != data.Dt.finite_cells_end(); cit++){
-////        p1 = cit->vertex(0)->point();
-////        p2 = cit->vertex(1)->point();
-////        p3 = cit->vertex(2)->point();
-////        p4 = cit->vertex(3)->point();
-////        centroid = CGAL::centroid(p1,p2,p3,p4);
-////        vh = Dt.insert(centroid);
-////        vi.occupancy = cit->info().outside_score;
-////        vh->info() = vi;
-////    }
-////    exportIsoSurface(dir, Dt, 0);
-////    exportConvexHull(dir, Dt);
-
-//    if(exportO.isosurface)
-//        exportMITSurface(dir, data.Dt, 1, 0.5);
-
-//    #endif
-
-
 
     //// export interface
     if(exportO.interface)
@@ -251,7 +201,7 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
         }
         sampleMesh(data, exportO);
         dir.suffix = "_sampled";
-        // turn of color and sensor_vec export, because mesh sampling obviously does not have that
+        // turn off color and sensor_vec export, because mesh sampling obviously does not have that
         exportO.sensor_vec = false;
         exportO.sensor_position = false;
         exportO.color = false;
@@ -293,7 +243,7 @@ int main(int argc, char const *argv[]){
         return 1;
 
     auto start = std::chrono::high_resolution_clock::now();
-    cout << "\n-----DELAUNAY-GRAPH-CUT-BASED SURFACE RECONSTRUCTION-----" << endl;
+    cout << "\n-----LABATUT SURFACE RECONSTRUCTION-----" << endl;
     cout << "\nWorking dir set to:\n\t-" << ip.dh.path << endl;
 
     dataHolder data;
@@ -302,7 +252,7 @@ int main(int argc, char const *argv[]){
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-    cout << "\n-----DELAUNAY-GRAPH-CUT-BASED SURFACE RECONSTRUCTION FINISHED in "<< duration.count() << "s -----\n" << endl;
+    cout << "\n-----LABATUT SURFACE RECONSTRUCTION FINISHED in "<< duration.count() << "s -----\n" << endl;
 
     return 0;
 

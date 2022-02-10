@@ -98,7 +98,7 @@ struct vertex_info{
     int sensor_idx; // the index of the sensor which recorded this point.
     // TODO: for LiDAR this should be running same as the point idx; and for MVS this is simply the camera idx.
     // thus at some point maybe this index should be incooperated in the sensor_positions vector.
-    vector<int> sensor_tet; // see fileOP.cpp for explanation
+//    vector<int> sensor_tet; // see fileOP.cpp for explanation
     // learning
     vector<ray_intersection_info> ray; // the int here is the index of one of the cells that this ray has passed
     int outlier;
@@ -106,11 +106,6 @@ struct vertex_info{
     // iso surface extraction
     double field_value;
 
-
-    // image stuff
-//    std::vector<int> images;
-    // this is just a vector for convenience reasons (because in colmap it becomes a vector before exporting)
-    // but only includes non-duplicate indices
 };
 typedef CGAL::Triangulation_vertex_base_with_info_3<vertex_info, EPICK>    VB;
 
@@ -127,10 +122,10 @@ struct cell_info{
     // graph_cut, cell based
     double inside_score = 0.0; // used for occupancy and ray scoring, depending on mode
     double outside_score = 0.0;
-    int inside_count = 0;
-    int outside_count = 0;
-    double outside_dist = 0.0;
-    double inside_dist = 0.0;
+//    int inside_count = 0;
+//    int outside_count = 0;
+//    double outside_dist = 0.0;
+//    double inside_dist = 0.0;
 
     // graph_cut, facet based
     vector<double> facet_weights = vector<double>(4);

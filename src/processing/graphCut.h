@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "GCoptimization.h"
+#include "gco-v3.0/GCoptimization.h"
 
 #include <base/cgal_typedefs.h>
 #include "exe/exeOptions.h"
@@ -15,7 +15,7 @@
 
 #include <util/geometricOperations.h>
 
-typedef double gtype;
+typedef float gtype;
 
 
 ////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ void softmax(Delaunay& Dt);
 //////////////////////// Optimization //////////////////////
 ////////////////////////////////////////////////////////////
 
-double smoothCost(int s1, int s2, int l1, int l2, void *data);
+gtype smoothCost(int s1, int s2, int l1, int l2, void *data);
 
 //// in this version, set data and smoothness terms using arrays
 //// grid neighborhood is set up "manually". Uses spatially varying terms. Namely
