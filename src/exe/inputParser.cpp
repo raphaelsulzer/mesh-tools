@@ -474,22 +474,25 @@ po::options_description cliParser::initInput(){
             ("working_dir,w", po::value<string>()->required(), "Working directory.\nAll paths will be treated relative to this directory.")
             ("input_file,i", po::value<string>()->required(), "Input file")
             ("output_file,o", po::value<string>(), "Output file")
-
-            ("source,s", po::value<string>()->default_value("ply"), "Data source and options:"
+//            ("source,s", po::value<string>()->default_value("ply"), "Data source and options:"
+//                                                            "\n\t-ply"
+//                                                            "\n\t-npz"
+//                                                            "\n\t-colmap"
+//                                                            "\n\t-omvs"
+//                                                            "\n\t-scan,#points,#cameras,std_noise,%outliers"
+//                                                            "\n\t-tt,#scans"
+//                                                            "\n\t-eth")
+            ("source,s", po::value<string>()->default_value("ply"), "Data source:"
                                                             "\n\t-ply"
                                                             "\n\t-npz"
-                                                            "\n\t-colmap"
-                                                            "\n\t-omvs"
-                                                            "\n\t-scan,#points,#cameras,std_noise,%outliers"
-                                                            "\n\t-tt,#scans"
-                                                            "\n\t-eth")
+                                                            "\n\t-omvs (an OpenMVS project file)")
             ("groundtruth_file,g", po::value<string>(), "Groundtruth file")
-            ("prediction_file,p", po::value<string>(), "Prediction file")
+            ("prediction_file,p", po::value<string>(), "Prediction file for dgnn2mesh")
             ("transformation_file,t", po::value<string>(), "Transformation file")
             ("crop_file,c", po::value<string>(), "Crop file")
             ("scale", po::value<double>()->default_value(0.0), "Scale mean edge length of Delaunay to this value")
             ("adt", po::value<double>()->default_value(-1), "Epsilon for adaptive 3DT.")
-            ("icomp", po::value<int>()->default_value(1), "Number of connected components of input to keep. Default = all.")
+            ("icomp", po::value<int>()->default_value(1), "Number of connected components of input to keep. -1 = all.")
             ("iclose", po::value<int>()->default_value(1), "Try to close input open meshes with hole filling.")
         ;
     return input_options;

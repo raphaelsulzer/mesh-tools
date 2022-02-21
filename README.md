@@ -1,5 +1,6 @@
 # mesh-tools
-Tools for reconstructing, processing and evaluating a surface mesh from a point cloud.
+This repository contains tools for reconstructing, processing and evaluating point clouds and triangular surface meshes. 
+The code is based on several scientific publications and makes heavy use of [CGAL](https://www.cgal.org/).
 
 
 
@@ -22,16 +23,19 @@ the help command.
 
 ### scan
 
-Synthetically scan a polygonal mesh, e.g. for [Deep Surface Reconstruction from Point Clouds with Visibility Information](https://github.com/raphaelsulzer/dsrv-data).
+<img style="width:100px;" src="src/scan.png">
+
+Sample a point cloud on a mesh using a virtual scanning procedure, e.g. for [Deep Surface Reconstruction from Point Clouds with Visibility Information](https://github.com/raphaelsulzer/dsrv-data).
+You can vary the number of scanned points and cameras, and add noise and outliers to the point cloud.
 
 ### omvs2npz
 
-Extract points, normals and sensors from an [OpenMVS](https://github.com/cdcseacave/openMVS) project file and save them as arrays in an `.npz` file.
+Extract points, normals and sensor positions from an [OpenMVS](https://github.com/cdcseacave/openMVS) project file and save them as arrays in a numpy `.npz` file.
 
 
 ### labatut
 
-Reconstruct a mesh from a point cloud with visibility information using the algorithm presented in [Labatut et al. 2009](https://diglib.eg.org/handle/10.2312/CGF.v28i8pp2275-2290).
+Reconstruct a 2-manifold surface mesh from a point cloud with visibility information using the algorithm presented in [Labatut et al. 2009](https://diglib.eg.org/handle/10.2312/CGF.v28i8pp2275-2290).
 
 ### feat
 
@@ -41,19 +45,19 @@ If a ground truth file is specified, ground truth occupancies for each cell of t
 
 ### occ2mesh
 
-Transform cell occupancies as computed by `feat` or [DGNN](https://github.com/raphaelsulzer/dgnn) to a surface mesh.
+Transform a 3D Delaunay triangulation with cell occupancies as computed by `feat` or [DGNN](https://github.com/raphaelsulzer/dgnn) to a surface mesh.
 
 ### normal
 
-Estimate (oriented) normals for a point cloud.
+Estimate (oriented) normals for a point cloud using different algorithms implemented in [CGAL](https://www.cgal.org/).
 
 ### sample
 
-Sample points on a mesh.
+Sample points on a surface mesh.
 
 ### collapse
 
-Apply the edge collapse algorithm to a triangle mesh.
+Apply the edge collapse algorithm implemented in [CGAL](https://www.cgal.org/) to simplify a triangle surface mesh.
 
 
 ## Installation
