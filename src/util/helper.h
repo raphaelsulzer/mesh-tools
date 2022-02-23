@@ -3,7 +3,6 @@
 
 
 #include <base/cgal_typedefs.h>
-#include <IO/fileIO.h>
 
 using namespace std;
 
@@ -18,9 +17,6 @@ const Point eigen2Cgal(const Eigen::Vector3f p);
 
 vector<Eigen::Vector3d> cgal2Eigen(vector<Point> in);
 vector<Point> eigen2Cgal(const vector<Eigen::Vector3d> in);
-
-int toXTensor(dataHolder& data);
-
 
 Polyhedron_Exact inexact2exactPolyhedron(Polyhedron in);
 

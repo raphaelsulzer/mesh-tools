@@ -8,7 +8,6 @@ using namespace std;
 
 // export functinos
 void raySegmentTriangleTest(string out_path, int n_samples);
-void rayTriangleIntersection(string out_path, int n_samples);
 
 void segmentTriangleTest(string out_path, int n_samples);
 void segmentPlaneIntersection(string out_path, int n_samples);

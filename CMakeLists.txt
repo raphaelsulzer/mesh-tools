@@ -78,6 +78,9 @@ if(STATIC)
     set(MPFR_STATIC_LIBRARY TRUE)
     set(OpenCV_STATIC ON)
     set(OpenCV_SHARED OFF)
+    set(ZLIB_STATIC ON)
+    set(CGAL_Boost_USE_STATIC_LIBS ON)
+    set(Boost_USE_STATIC_LIBS ON)
 endif()
 #find_package(GMP REQUIRED) # is automatically linked by cgal
 #find_package(MPFR REQUIRED)
@@ -86,7 +89,6 @@ find_package(xtl REQUIRED) # for xtensor
 find_package(ZLIB REQUIRED) # for xtensor
 find_package(xtensor REQUIRED)
 find_package(xtensor-io REQUIRED)
-
 
 ####################################
 ############### EIGEN ##############
@@ -190,7 +192,6 @@ if(OMVS_ENABLED)
         message(STATUS "  Libraries : ${OpenMVS_LIBRARIES}")
         list(APPEND OMVS_INCLUDE_DIRS ${OpenMVS_INCLUDE_DIRS})
         list(APPEND OMVS_EXTERNAL_LIBRARIES ${OpenMVS_LIBRARIES} dl MVS)
-        list(APPEND OMVS_CPP_FILES src/IO/mvIO.cpp)
     else()
         message(SEND_ERROR "OpenMVS not found")
     endif()
@@ -297,12 +298,8 @@ endif()
 set(CGAL_PMP_REMOVE_SELF_INTERSECTION_DEBUG 1)
 set(CGAL_PMP_REMOVE_SELF_INTERSECTION_OUTPUT 1)
 
-
-if(STATIC)
-    set(CGAL_Boost_USE_STATIC_LIBS   ON)
-endif()
 # to use local CGAL one has to set Xpackage_DIR variable to the path where the XpackageConfig.cmake file is located
-set(CGAL_DIR /home/adminlocal/PhD/cpp/CGAL/lib/cmake/CGAL)
+#set(CGAL_DIR /home/adminlocal/PhD/cpp/CGAL/lib/cmake/CGAL)
 find_package(CGAL 5.1.1 REQUIRED CONFIG)
 if(CGAL_FOUND)
     set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE TRUE)
@@ -313,19 +310,19 @@ else()
     message(STATUS "Disabling CGAL support")
 endif()
 #set(CGAL_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../CGAL/)
+
+
 ####################################
 ############## BOOST ###############
 ####################################
-if(STATIC)
-    set(Boost_USE_STATIC_LIBS   ON)
-endif()
 # adding boost explicitly after CGAL because CGAL also calls find_package(boost)
 # but without the required components, and thus sets Boost_Libraries to empty.
 FIND_PACKAGE(Boost REQUIRED COMPONENTS iostreams program_options system serialization filesystem)
-#if(Boost_FOUND)
-#        ADD_DEFINITIONS(${Boost_DEFINITIONS} -D_USE_BOOST)
-#        SET(_USE_BOOST TRUE)
-#endif()
+if(Boost_FOUND)
+        ADD_DEFINITIONS(${Boost_DEFINITIONS} -D_USE_BOOST)
+        SET(_USE_BOOST TRUE)
+endif()
+message("boost libs: " ${Boost_LIBRARIES})
 
 ####################################
 ############## OPENCV ##############
@@ -338,7 +335,7 @@ if(OMVS_ENABLED)
             SET(_USE_OPENCV TRUE)
             MESSAGE(STATUS "OpenCV ${OpenCV_VERSION} found (include: ${OpenCV_INCLUDE_DIRS})")
             list(APPEND OCV_EXTERNAL_LIBRARIES ${OpenCV_LIBS})
-            message("ocv libs ${OpenCV_LIBS}")
+#            message("OpenCV libs: ${OpenCV_LIBS}")
     else()
             MESSAGE("-- Can't find OpenCV. Please specify OpenCV directory using OpenCV_DIR variable")
     endif()
@@ -346,10 +343,11 @@ endif()
 
 
 
+
+
 ################################################################################
 ############################### BUILD PROJECT ##################################
 ################################################################################
-
 include_directories(
     src
     external
@@ -381,8 +379,8 @@ include_directories(
 #    link_directories(${Open3D_LIBRARY_DIRS})
 #endif()
 
-message("CMAKE_CXX_FLAGS: " "${CMAKE_CXX_FLAGS}")
-message("CMAKE_CXX_LINKER_FLAGS: " "${CMAKE_LINKER_FLAGS}")
+#message("CMAKE_CXX_FLAGS: " "${CMAKE_CXX_FLAGS}")
+#message("CMAKE_CXX_LINKER_FLAGS: " "${CMAKE_LINKER_FLAGS}")
 
 add_library(rPLY
     external/rPLY/mesh.cpp
@@ -394,16 +392,14 @@ add_library(util
     src/util/helper.cpp
     )
 target_link_libraries(util
-    ${Boost_LIBRARIES}
     CGAL::CGAL
     )
 
 add_library(fileIO
     src/IO/fileIO.cpp
-#    src/IO/ttIO.cpp
-    src/IO/simplificationIO.cpp
+#    src/IO/simplificationIO.cpp
     ${OpenMVS_INCLUDE_DIRS}
-    ${OMVS_CPP_FILES})
+    )
 
 target_link_libraries(fileIO
 #    ${CNPY_LIBRARY}
@@ -423,7 +419,8 @@ add_library(learning
     )
 target_link_libraries(learning
     util
-    ZLIB::ZLIB)
+    ZLIB::ZLIB
+    )
 
 add_library(processing
     src/processing/evaluation.cpp
@@ -435,7 +432,8 @@ add_library(processing
     src/processing/field.cpp
     )
 target_link_libraries(processing
-    util)
+    util
+    )
 
 add_library(gco
     external/gco-v3.0/GCoptimization.cpp
@@ -446,7 +444,7 @@ add_library(gco
 #    external/gco-v3.0/energy.h
 #    external/gco-v3.0/graph.h
     )
-target_link_libraries(gco)
+#target_link_libraries(gco)
 
 
 if(LABATUT)
@@ -515,7 +513,6 @@ if(FEAT)
     add_executable(feat
         src/exe/feat.cpp
         src/exe/inputParser.cpp
-        ${OMVS_CPP_FILES}
         ${OMVS_INCLUDE_DIRS}
         )
     target_link_libraries(feat
@@ -546,7 +543,6 @@ if(OMVS2NPZ)
     add_executable(omvs2npz
         src/exe/omvs2npz.cpp
         src/exe/inputParser.cpp
-        ${OMVS_CPP_FILES}
         ${OMVS_INCLUDE_DIRS}
         )
     target_link_libraries(omvs2npz

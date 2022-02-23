@@ -5,9 +5,6 @@
 #include <IO/fileIO.h>
 #include <IO/ttIO.h>
 #include <IO/ethIO.h>
-#ifdef OpenMVS
-#include <IO/mvIO.h>
-#endif
 #ifdef COLMAP
 #include <IO/colmapIO.h>
 #endif
@@ -75,7 +72,7 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
     #endif
     #ifdef OpenMVS
     else if(options.data_source == "omvs"){
-        if(loadOMVSScene(dir, data))
+        if(importOMVSScene(dir, data))
             return 1;
     }
     #endif

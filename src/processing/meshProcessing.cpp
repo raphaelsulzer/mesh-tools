@@ -953,6 +953,61 @@ void createSurfaceMesh(dataHolder& data, meshProcessingOptions& options)
 
 }
 
+
+#ifdef OpenMVS
+// fix with PI from here: https://github.com/cdcseacave/openMVS/issues/643
+// otherwise nameclash with some CGAL headers
+#pragma push_macro("PI")
+#undef PI
+#include "MVS.h"
+#pragma pop_macro("PI")
+#include <boost/filesystem.hpp>
+using namespace MVS;
+
+int omvsCleanMesh(dirHolder& dir, dataHolder& data){
+
+    auto start = std::chrono::high_resolution_clock::now();
+    cout << "\nOMVS clean mesh..." << endl;
+    cout << "\t-from densify file " << dir.path+"openMVS/densify_file.mvs" << endl;
+    cout << "\t-from mesh " << dir.path+dir.write_file+dir.suffix+".ply" << endl;
+
+    Scene scene(0);
+    scene.Load(dir.path+"openMVS/densify_file.mvs");
+
+    if(!scene.mesh.Load(dir.path+dir.write_file+dir.suffix+".ply")){
+            cout << "ERROR in loading the mesh file" << endl;
+            return 1;
+    };
+
+
+    int nItersFixNonManifold = 4; // also hardcoded to 4 in omvs code
+    for (unsigned i=0; i<nItersFixNonManifold; ++i)
+        if (!scene.mesh.FixNonManifold())
+            break;
+
+//    dir.suffix = "_nm";
+//    scene.mesh.Save(dir.path+dir.write_file+dir.suffix+".ply");
+
+    // clean the mesh
+    scene.mesh.Clean(1.f, 20.f, true, 30.f, 2.f, false);
+    scene.mesh.Clean(1.f, 0.f, true, 30.f, 0, false); // extra cleaning trying to close more holes
+    scene.mesh.Clean(1.f, 0.f, false, 0, 0, true); // extra cleaning to remove non-manifold problems created by closing holes
+
+    dir.suffix = "_cleaned";
+    scene.mesh.Save(dir.path+dir.write_file+dir.suffix+".ply");
+
+
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::seconds>(stop - start);
+    cout << "\t-saved to " << dir.path+dir.write_file+dir.suffix+".ply" << endl;
+    cout << "\t-done after " << duration.count() << "s" << endl;
+
+    return 0;
+}
+
+#endif
+
+
 ////////////////////////////////////////////////////////////
 /////////////////// info functions ////////////////
 ////////////////////////////////////////////////////////////

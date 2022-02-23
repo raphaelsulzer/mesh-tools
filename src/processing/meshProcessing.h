@@ -77,6 +77,7 @@ void removeLargeFaces(dataHolder& data, int factor);
 
 void createSurfaceMesh(dataHolder& data,
                        meshProcessingOptions& options);
+int omvsCleanMesh(dirHolder& dir, dataHolder& data);
 
 
 ////////////////////////////////////////////////////////////

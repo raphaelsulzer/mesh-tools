@@ -25,7 +25,7 @@ the help command.
 
 <img style="width:150px;" src="src/scan.png">
 
-Sample a point cloud on a mesh using a virtual scanning procedure, e.g. for [Deep Surface Reconstruction from Point Clouds with Visibility Information](https://github.com/raphaelsulzer/dsrv-data).
+Sample a points on a surface mesh using a virtual scanning procedure, e.g. for [Deep Surface Reconstruction from Point Clouds with Visibility Information](https://github.com/raphaelsulzer/dsrv-data).
 You can vary the number of scanned points and cameras, and add noise and outliers to the point cloud.
 
 ### omvs2npz
@@ -60,12 +60,25 @@ Sample points on a surface mesh.
 Apply the edge collapse algorithm implemented in [CGAL](https://www.cgal.org/) to simplify a triangle surface mesh.
 
 
+
+
+
+## Dependencies
+
+- CGAL (required, >= v5.1.1)
+- OpenMVS (optional, for loading point clouds from an OpenMVS project)
+- COLMAP (optional, for loading point clouds from a COLMAP project) TODO: needs to be fixed
+- Open3D (optional, for Marching Irregular Tetrahedra)
+
+
 ## Installation
 
 ```bash
 git clone git@github.com:raphaelsulzer/mesh-tools.git
 cd mesh-tools
 mkdir build && cd build
-cmake .. -DCMAKE_BUILD_TYPE=RELEASE
+cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DTOOLX=ON
 make -j
 ```
+where TOOLX is the name of a tool listed above. 
+

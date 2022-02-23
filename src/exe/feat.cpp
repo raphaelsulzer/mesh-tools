@@ -4,9 +4,6 @@
 #include <IO/fileIO.h>
 #include <IO/ttIO.h>
 #include <IO/ethIO.h>
-#ifdef OpenMVS
-#include <IO/mvIO.h>
-#endif
 #ifdef COLMAP
 #include <IO/colmapIO.h>
 #endif
@@ -75,17 +72,17 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
     else if(options.data_source == "npz"){
         importNPZ(dir, data);
     }
-    #ifdef COLMAP
-    else if(options.data_source == "colmap"){
-        readColmapFiles(dir, data);
-    }
-    #endif
-//    #ifdef OpenMVS
-//    else if(options.data_source == "omvs"){
-//        if(loadOMVSScene(dir, data))
-//            return 1;
+//    #ifdef COLMAP
+//    else if(options.data_source == "colmap"){
+//        readColmapFiles(dir, data);
 //    }
 //    #endif
+    #ifdef OpenMVS
+    else if(options.data_source == "omvs"){
+        if(importOMVSScene(dir, data))
+            return 1;
+    }
+    #endif
     else{
         cout << "ERROR: not a valid reconstruction input" << endl;
         return 1;

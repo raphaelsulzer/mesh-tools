@@ -154,6 +154,8 @@ struct exportOptions{
 //////////////////////////////////////////////////////////
 void concatenateData(dataHolder& data1, dataHolder& data2,int copyInfo = 1);
 
+int toXTensor(dataHolder& data);
+
 int importImplicit(dirHolder dir, dataHolder& data);
 
 int importTransformationMatrix(dirHolder dir, dataHolder& data);
@@ -169,6 +171,7 @@ int importOFFMesh(const string path, Polyhedron& import_poly);
 int importOFFMesh(dirHolder& dir, SurfaceMesh& import_mesh);
 int importNPZ(dirHolder& dir, dataHolder& data);
 
+int importOMVSScene(dirHolder dir, dataHolder& data);
 
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////// OUTPUT //////////////////////////////

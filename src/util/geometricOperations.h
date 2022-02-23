@@ -1,5 +1,4 @@
-#ifndef VECTORARITHMETIC_H
-#define VECTORARITHMETIC_H
+#pragma once
 
 #include <base/cgal_typedefs.h>
 #include <Eigen/Core>
@@ -63,4 +62,3 @@ const Point barycenter(const Cell_handle& ch);
 
 
 
-#endif // VECTORARITHMETIC_H

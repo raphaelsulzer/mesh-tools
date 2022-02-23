@@ -5,12 +5,7 @@
 #include <util/geometricOperations.h>
 #include <util/helper.h>
 #include <CGAL/Point_set_3/IO.h>
-
 #include <rPLY/ply.h>
-#ifdef RECONBENCH
-#include "modeling/shape_loader.h"
-#endif
-
 
 using namespace std;
 

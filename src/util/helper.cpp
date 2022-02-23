@@ -16,37 +16,6 @@ const Vector3RB point2Vector3RB(const Point p){
 }
 #endif
 
-int toXTensor(dataHolder& data){
-
-    data.xpoints.clear();
-    data.xnormals.clear();
-    data.xgtnormals.clear();
-    data.xsensor_positions.clear();
-    for(int i = 0; i < data.points.size(); i++){
-        data.xpoints.push_back(data.points[i].x());
-        data.xpoints.push_back(data.points[i].y());
-        data.xpoints.push_back(data.points[i].z());
-        if(data.has_normal){
-            data.xnormals.push_back(data.infos[i].normal.x());
-            data.xnormals.push_back(data.infos[i].normal.y());
-            data.xnormals.push_back(data.infos[i].normal.z());
-        }
-        if(data.has_gt_normal){
-            data.xgtnormals.push_back(data.infos[i].gt_normal.x());
-            data.xgtnormals.push_back(data.infos[i].gt_normal.y());
-            data.xgtnormals.push_back(data.infos[i].gt_normal.z());
-        }
-        if(data.has_sensor){
-            data.xsensor_positions.push_back(data.infos[i].sensor_positions[0].x());
-            data.xsensor_positions.push_back(data.infos[i].sensor_positions[0].y());
-            data.xsensor_positions.push_back(data.infos[i].sensor_positions[0].z());
-        }
-    }
-
-    return 0;
-}
-
-
 const Eigen::Vector3d cgal2Eigen(const Point p){
 
     return Eigen::Vector3d(p.x(), p.y(), p.z());

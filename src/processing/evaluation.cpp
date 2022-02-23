@@ -1,8 +1,5 @@
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>
-#include <processing/pointSetProcessing.h>
-#include <processing/meshProcessing.h>
-#include <processing/evaluation.h>
 #include <CGAL/Polygon_mesh_processing/connected_components.h>
 
 using namespace std;

@@ -1,14 +1,16 @@
 #include <base/cgal_typedefs.h>
+
 #include <CGAL/IO/read_ply_points.h> // CGAL file that is not present in CGAL version < 4.11, so copied it to my IO folder
 
 #include <IO/fileIO.h>
-#include <util/geometricOperations.h>
-#include <util/helper.h>
+//#include <util/geometricOperations.h>
+//#include <util/helper.h>
 #include <CGAL/Point_set_3/IO.h>
 
 #include <boost/filesystem.hpp>
 
 #include <rPLY/ply.h>
+
 #ifdef RECONBENCH
 #include "modeling/shape_loader.h"
 #endif
@@ -94,6 +96,39 @@ void concatenateData(dataHolder& data1, dataHolder& data2, int copyInfo)
         }
     }
 }
+
+// removed this from helper.cpp, because it was the only function there which needed the fileIO library
+int toXTensor(dataHolder& data){
+
+    data.xpoints.clear();
+    data.xnormals.clear();
+    data.xgtnormals.clear();
+    data.xsensor_positions.clear();
+    for(int i = 0; i < data.points.size(); i++){
+        data.xpoints.push_back(data.points[i].x());
+        data.xpoints.push_back(data.points[i].y());
+        data.xpoints.push_back(data.points[i].z());
+        if(data.has_normal){
+            data.xnormals.push_back(data.infos[i].normal.x());
+            data.xnormals.push_back(data.infos[i].normal.y());
+            data.xnormals.push_back(data.infos[i].normal.z());
+        }
+        if(data.has_gt_normal){
+            data.xgtnormals.push_back(data.infos[i].gt_normal.x());
+            data.xgtnormals.push_back(data.infos[i].gt_normal.y());
+            data.xgtnormals.push_back(data.infos[i].gt_normal.z());
+        }
+        if(data.has_sensor){
+            data.xsensor_positions.push_back(data.infos[i].sensor_positions[0].x());
+            data.xsensor_positions.push_back(data.infos[i].sensor_positions[0].y());
+            data.xsensor_positions.push_back(data.infos[i].sensor_positions[0].z());
+        }
+    }
+
+    return 0;
+}
+
+
 
 //int importTransformationMatrix(dirHolder dir, dataHolder& data){
 
@@ -445,6 +480,120 @@ int importNPZ(dirHolder& dir, dataHolder& data){
 
 
 }
+
+
+
+#ifdef OpenMVS
+// fix with PI from here: https://github.com/cdcseacave/openMVS/issues/643
+// otherwise nameclash with some CGAL headers
+#pragma push_macro("PI")
+#undef PI
+#include "MVS.h"
+#pragma pop_macro("PI")
+using namespace MVS;
+
+int importOMVSScene(dirHolder dir, dataHolder& data){
+
+    auto start = std::chrono::high_resolution_clock::now();
+    cout << "\nRead dense point cloud..." << endl;
+    cout << "\t-from " << dir.path+"openMVS/densify_file.mvs" << endl;
+
+
+    if ( !boost::filesystem::exists(dir.path+"openMVS/densify_file.mvs")){
+        cout << "\nERROR: densify_file.mvs does not exist in the given path!" << std::endl;
+        return 1;
+    }
+
+    Scene scene(0);
+    scene.Load(dir.path+"openMVS/densify_file.mvs");
+
+
+    // make a sensor map (for debbuging)
+    FOREACH(k, scene.images){
+        Image& imageData = scene.images[k];
+        // skip invalid, uncalibrated or discarded images
+        if (!imageData.IsValid())
+            continue;
+        // reset image resolution
+//        imageData.ReloadImage(0, false);
+        if(!imageData.ReloadImage(0, false)){
+            #ifdef RECMESH_USE_OPENMP
+            bAbort = true;
+            #pragma omp flush (bAbort)
+            continue;
+//            #else
+//            return EXIT_FAILURE;
+            #endif
+        }
+        imageData.UpdateCamera(scene.platforms);
+        // select neighbor views
+        if (imageData.neighbors.IsEmpty()) {
+            IndexArr points;
+            scene.SelectNeighborViews(k, points);
+        }
+        Camera& camera = imageData.camera;
+        data.sensor_map[k] = Point(camera.C.x,camera.C.y,camera.C.z);
+    };
+
+
+    // fetch points
+    FOREACH(i, scene.pointcloud.points){
+        // first check if the point has valid images attached
+        const PointCloud::ViewArr& views = scene.pointcloud.pointViews[i];
+        if(views.IsEmpty())
+            continue;
+
+        // read points
+        const PointCloud::Point& P(scene.pointcloud.points[i]);
+        Point current_point(P.x, P.y, P.z);
+        data.points.push_back(current_point);
+
+        vertex_info vinf;
+        // read normal
+        if(scene.pointcloud.normals.size()>0){
+            const PointCloud::Normal& N(scene.pointcloud.normals[i]);
+            Vector current_normal(N.x, N.y, N.z);
+            vinf.normal = current_normal;
+            data.has_normal = 1;
+        }
+
+
+        // read color
+        const PointCloud::Color& C(scene.pointcloud.colors[i]);
+        vinf.color = {C.r,C.g,C.b};
+
+        // read views
+        FOREACH(j, views) {
+            const PointCloud::View viewID(views[j]);
+            const Image& imageData = scene.images[viewID];
+            if(!imageData.IsValid())
+                continue;
+            const Camera& camera = imageData.camera;
+            vinf.sensor_positions.push_back(Point(camera.C.x, camera.C.y, camera.C.z));
+        }
+        // if no sensor is associated with point, delete point and go to next one (without adding the point info of course)
+        if(vinf.sensor_positions.size() < 1){
+            data.points.pop_back();
+            continue;
+        }
+        vinf.sensor_vec = Vector(vinf.sensor_positions[0]-current_point);
+        vinf.global_idx=i;
+        data.infos.push_back(vinf);
+    }
+
+    // set has color and has normal
+    data.has_color = 1;
+    data.has_sensor = 1;
+
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::seconds>(stop - start);
+    cout << "\t-" << data.points.size() << " points read" << endl;
+    cout << "\t-in " << duration.count() << "s" << endl;
+
+    return 0;
+}
+#endif
+
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////// OUTPUT ////////////////////////////////////////////////////////////////////////////////////
