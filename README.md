@@ -25,7 +25,7 @@ the help command.
 
 <img style="width:150px;" src="src/scan.png">
 
-Sample a points on a surface mesh using a virtual scanning procedure, e.g. for [Deep Surface Reconstruction from Point Clouds with Visibility Information](https://github.com/raphaelsulzer/dsrv-data).
+Sample points on a surface mesh using a virtual scanning procedure, e.g. for [Deep Surface Reconstruction from Point Clouds with Visibility Information](https://github.com/raphaelsulzer/dsrv-data).
 You can vary the number of scanned points and cameras, and add noise and outliers to the point cloud.
 
 ### omvs2npz
