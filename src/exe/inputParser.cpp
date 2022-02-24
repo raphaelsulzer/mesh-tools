@@ -284,7 +284,7 @@ po::options_description cliParser::initFeat(){
             ("gclosed", po::value<int>()->default_value(1), "Is ground truth closed?")
             ("rays", po::value<int>()->default_value(1), "Number of rays to trace.")
             ("pcp", po::value<int>()->default_value(100), "Number of points to sample per cell.")
-            ("export", po::value<string>()->default_value("ply"), "Export to [ply,npz,all].")
+            ("export", po::value<string>()->default_value(""), "Export the point cloud to [ply,npz,all].")
         ;
     return options;
 }
@@ -306,10 +306,6 @@ int cliParser::getFeat(){
             eo.toply = true;
         else if(etype == "npz")
             eo.tonpz = true;
-        else{
-            cerr << "\nERROR: not a valid exoport type, choose either." << endl;
-            return 1;
-        }
     }
     return 0;
 

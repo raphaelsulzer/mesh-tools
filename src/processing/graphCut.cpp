@@ -229,7 +229,7 @@ void graphCutTet(dataHolder& data, runningOptions options)
 
 void graphCutFacet(dataHolder& data, runningOptions options)
 {
-    gtype div = 1;
+    gtype div = 100;
 
 
     // TODO:

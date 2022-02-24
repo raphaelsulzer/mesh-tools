@@ -166,12 +166,6 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
     else
         makeDelaunayWithInfo(data);
 
-    if(options.labatut_sigma == -1.0 && (options.scoring == "_rt" || options.scoring == "_clrt"))
-        options.labatut_sigma = pcaKNN(data.Dt);
-    else{
-        cout << "\nd parameter of Labatu set to " << options.labatut_sigma << endl;
-    }
-
 //    cout << "Mean edge length after scaling: " << calcMeanEdgeLength(data) << endl;
 
 
