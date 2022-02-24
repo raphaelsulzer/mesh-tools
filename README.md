@@ -65,10 +65,17 @@ Apply the edge collapse algorithm implemented in [CGAL](https://www.cgal.org/) t
 
 ## Dependencies
 
-- CGAL (required, >= v5.1.1)
-- OpenMVS (optional, for loading point clouds from an OpenMVS project)
-- COLMAP (optional, for loading point clouds from a COLMAP project) TODO: needs to be fixed
-- Open3D (optional, for Marching Irregular Tetrahedra)
+### Required
+- [Boost](https://www.boost.org/) (>= v1.6.5, install with `sudo apt install libboost-all-dev`)
+- [CGAL](https://www.cgal.org/) (>= v5.1.1)
+- [ZLIB](https://zlib.net/) (for reading and writing `.npz` files, install with `sudo apt install zlib`)
+- [xtensor](https://xtensor.readthedocs.io/en/latest/) (for reading and writing `.npz` files)
+- [xtensor-io](https://xtensor-io.readthedocs.io/en/latest/) (for reading and writing `.npz` files)
+
+### Optional
+- [OpenMVS](https://github.com/cdcseacave/openMVS) (for loading point clouds from an OpenMVS project)
+- [COLMAP](https://colmap.github.io/) (for loading point clouds from a COLMAP project) TODO: needs to be fixed
+- [Open3D](http://www.open3d.org/) (for Marching Irregular Tetrahedra)
 
 
 ## Installation

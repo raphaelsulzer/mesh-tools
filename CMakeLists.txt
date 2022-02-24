@@ -28,11 +28,16 @@ option(STATIC "Whether to compile for standalone use" OFF)
 ################################################################################
 # Programs to build
 ################################################################################
-option(LABATUT "Whether to build labatut exe" ON)
-option(OCC2MESH "Whether to build occ2mesh exe" OFF)
 option(SCAN "Whether to build scan exe" ON)
-option(FEAT "Whether to build feat exe" ON)
 option(OMVS2NPZ "Whether to build omvs2npz exe" OFF)
+option(LABATUT "Whether to build labatut exe" ON)
+option(FEAT "Whether to build feat exe" ON)
+option(OCC2MESH "Whether to build occ2mesh exe" OFF)
+option(NORMAL "Whether to build normal exe" OFF)
+option(SAMPLE "Whether to build sample exe" OFF)
+option(COLLAPSE "Whether to build collapse exe" OFF)
+option(SIMPLIFY "Whether to build simplify exe" OFF)
+option(EVAL "Whether to build eval exe" OFF)
 
 
 if(STATIC)
@@ -591,203 +596,218 @@ if(SCAN)
 endif()
 
 
-
-#add_executable(vsa
-#    src/exe/vsa.cpp
-#    src/exe/inputParser.cpp
-#    )
-#target_link_libraries(vsa
-#                    fileIO
-#                    rPLY
-#                    util
-#                    processing
-#                    ${Boost_LIBRARIES}
-#                    ${GMP_LIBRARY}
-#                    ${MPFR_LIBRARY}
-#                    CGAL::CGAL
-#                    ${OMVS_EXTERNAL_LIBS}
-#                    OpenMP::OpenMP_CXX
-#                    )
-
-
-
-#add_executable(collapse
-#    src/exe/collapse.cpp
-#    src/exe/inputParser.cpp
-#    )
-#target_link_libraries(collapse
-#                    fileIO
-#                    rPLY
-#                    util
-#                    processing
-#                    ${Boost_LIBRARIES}
-#                    ${GMP_LIBRARY}
-#                    ${MPFR_LIBRARY}
-#                    CGAL::CGAL
-#                    ${OMVS_EXTERNAL_LIBS}
-#                    OpenMP::OpenMP_CXX
-#                    )
+if(VSA)
+    add_executable(vsa
+        src/exe/vsa.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(vsa
+                        fileIO
+                        rPLY
+                        util
+                        processing
+                        ${Boost_LIBRARIES}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        CGAL::CGAL
+                        ${OMVS_EXTERNAL_LIBS}
+                        OpenMP::OpenMP_CXX
+    )
+endif()
 
 
-
-#add_executable(eval
-#    src/exe/eval.cpp
-#    src/exe/inputParser.cpp
-#    )
-#target_link_libraries(eval
-#                    fileIO
-#                    rPLY
-#                    util
-#                    processing
-#                    ${Boost_LIBRARIES}
-#                    ${GMP_LIBRARY}
-#                    ${MPFR_LIBRARY}
-#                    CGAL::CGAL
-#                    ${OMVS_EXTERNAL_LIBS}
-#                    OpenMP::OpenMP_CXX
-#                    )
-
-
-
-#add_executable(iso
-#    src/exe/iso.cpp
-#    src/exe/inputParser.cpp
-#    )
-#target_link_libraries(iso
-#                    fileIO
-#                    rPLY
-#                    util
-#                    processing
-#                    learning
-#                    ${Boost_LIBRARIES}
-#                    ${GMP_LIBRARY}
-#                    ${MPFR_LIBRARY}
-#                    CGAL::CGAL
-#                    ${OMVS_EXTERNAL_LIBS}
-#                    OpenMP::OpenMP_CXX
-#                    )
-
-#add_executable(sample
-#    src/exe/sample.cpp
-#    src/exe/inputParser.cpp
-#    )
-#target_link_libraries(sample
-#                    fileIO
-#                    rPLY
-#                    util
-#                    processing
-#                    ${Boost_LIBRARIES}
-#                    ${GMP_LIBRARY}
-#                    ${MPFR_LIBRARY}
-#                    CGAL::CGAL
-#                    OpenMP::OpenMP_CXX
-#                    )
+if(COLLAPSE)
+    add_executable(collapse
+        src/exe/collapse.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(collapse
+                        fileIO
+                        rPLY
+                        util
+                        processing
+                        ${Boost_LIBRARIES}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        CGAL::CGAL
+                        ${OMVS_EXTERNAL_LIBS}
+                        OpenMP::OpenMP_CXX
+    )
+endif()
 
 
-#add_executable(boundingBox
-#    src/exe/boundingBox.cpp
-#    src/exe/inputParser.cpp
-#    )
-#target_link_libraries(boundingBox
-#                    fileIO
-#                    rPLY
-#                    util
-#                    ${Boost_LIBRARIES}
-#                    ${GMP_LIBRARY}
-#                    ${MPFR_LIBRARY}
-#                    CGAL::CGAL
-#                    OpenMP::OpenMP_CXX
-#                    )
-
-#add_executable(simplification
-#    src/exe/simplification.cpp
-#    src/exe/inputParser.cpp
-#    )
-#target_link_libraries(simplification
-#                    fileIO
-#                    rPLY
-#                    util
-#                    processing
-#                    ${Boost_LIBRARIES}
-#                    ${GMP_LIBRARY}
-#                    ${MPFR_LIBRARY}
-#                    ${Open3D_LIBRARIES}
-#                    CGAL::CGAL
-#                    ${OMVS_EXTERNAL_LIBS}
-#                    OpenMP::OpenMP_CXX
-#                    )
+if(EVAL)
+    add_executable(eval
+        src/exe/eval.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(eval
+                        fileIO
+                        rPLY
+                        util
+                        processing
+                        ${Boost_LIBRARIES}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        CGAL::CGAL
+                        ${OMVS_EXTERNAL_LIBS}
+                        OpenMP::OpenMP_CXX
+                        )
+endif()
 
 
-#add_executable(normal
-#    src/exe/normalEstimation.cpp
-#    src/exe/inputParser.cpp
-#    )
-#target_link_libraries(normal
-#                        fileIO
-#                        rPLY
-#                        processing
-#                        util
-#                        ${PCL_EXTERNAL_LIBRARIES}
-#                        ${Boost_LIBRARIES}
-#                        ${GMP_LIBRARY}
-#                        ${MPFR_LIBRARY}
-#                        CGAL::CGAL
-#                        OpenMP::OpenMP_CXX
-#                    )
+if(ISO)
+    add_executable(iso
+        src/exe/iso.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(iso
+                        fileIO
+                        rPLY
+                        util
+                        processing
+                        learning
+                        ${Boost_LIBRARIES}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        CGAL::CGAL
+                        ${OMVS_EXTERNAL_LIBS}
+                        OpenMP::OpenMP_CXX
+                        )
+endif()
+
+if(SAMPLE)
+    add_executable(sample
+        src/exe/sample.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(sample
+                        fileIO
+                        rPLY
+                        util
+                        processing
+                        ${Boost_LIBRARIES}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        CGAL::CGAL
+                        OpenMP::OpenMP_CXX
+                        )
+endif()
 
 
-#add_executable(eth3d
-#    src/exe/eth3d.cpp
-#    src/exe/inputParser.cpp
-#    src/IO/ethIO.cpp
-#    src/IO/tinyxml2.cpp
-#    src/IO/meshlab_project.cc
-#    )
-#target_link_libraries(eth3d
-#                        fileIO
-#                        rPLY
-#                        util
-#                        processing
-#                        ${OCV_EXTERNAL_LIBRARIES}
-#                        ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
-#                        ${PCL_EXTERNAL_LIBRARIES}
-#                        ${Boost_LIBRARIES}
-#                        ${GMP_LIBRARY}
-#                        ${MPFR_LIBRARY}
-#                        CGAL::CGAL
-#                        OpenMP::OpenMP_CXX
-#                    )
+if(BOUNDINGBOX)
+    add_executable(boundingBox
+        src/exe/boundingBox.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(boundingBox
+                        fileIO
+                        rPLY
+                        util
+                        ${Boost_LIBRARIES}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        CGAL::CGAL
+                        OpenMP::OpenMP_CXX
+                        )
+endif()
 
+if(SIMPLIFY)
+    add_executable(simplify
+        src/exe/simplification.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(simplify
+                        fileIO
+                        rPLY
+                        util
+                        processing
+                        ${Boost_LIBRARIES}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        ${Open3D_LIBRARIES}
+                        CGAL::CGAL
+                        ${OMVS_EXTERNAL_LIBS}
+                        OpenMP::OpenMP_CXX
+                        )
+endif()
 
-#add_executable(stats
-#    src/exe/stats.cpp
-#    src/exe/inputParser.cpp
-#    )
-#target_link_libraries(stats
-#                        fileIO
-#                        rPLY
-#                        processing
-#                        util
-#                        ${Boost_LIBRARIES}
-#                        ${GMP_LIBRARY}
-#                        ${MPFR_LIBRARY}
-#                        CGAL::CGAL
-#                        OpenMP::OpenMP_CXX
-#                    )
+if(NORMAL)
+    add_executable(normal
+        src/exe/normalEstimation.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(normal
+                            fileIO
+                            rPLY
+                            processing
+                            util
+                            ${PCL_EXTERNAL_LIBRARIES}
+                            ${Boost_LIBRARIES}
+                            ${GMP_LIBRARY}
+                            ${MPFR_LIBRARY}
+                            CGAL::CGAL
+                            OpenMP::OpenMP_CXX
+                        )
+endif()
 
-#add_executable(poisson
-#    src/poisson/poisson.cpp
-#    )
-#target_link_libraries(poisson
-#                    fileIO
-#                    rPLY
-#                    util
-#                    processing
-#                    ${Boost_LIBRARIES}
-#                    ${GMP_LIBRARY}
-#                    ${MPFR_LIBRARY}
-#                    ${CGAL_LIBRARY}
-#                    )
+if(ETH3D)
+    add_executable(eth3d
+        src/exe/eth3d.cpp
+        src/exe/inputParser.cpp
+        src/IO/ethIO.cpp
+        src/IO/tinyxml2.cpp
+        src/IO/meshlab_project.cc
+        )
+    target_link_libraries(eth3d
+                            fileIO
+                            rPLY
+                            util
+                            processing
+                            ${OCV_EXTERNAL_LIBRARIES}
+                            ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
+                            ${PCL_EXTERNAL_LIBRARIES}
+                            ${Boost_LIBRARIES}
+                            ${GMP_LIBRARY}
+                            ${MPFR_LIBRARY}
+                            CGAL::CGAL
+                            OpenMP::OpenMP_CXX
+                        )
+endif()
+
+if(STATS)
+    add_executable(stats
+        src/exe/stats.cpp
+        src/exe/inputParser.cpp
+        )
+    target_link_libraries(stats
+                            fileIO
+                            rPLY
+                            processing
+                            util
+                            ${Boost_LIBRARIES}
+                            ${GMP_LIBRARY}
+                            ${MPFR_LIBRARY}
+                            CGAL::CGAL
+                            OpenMP::OpenMP_CXX
+                        )
+endif()
+
+if(POISSON)
+    add_executable(poisson
+        src/poisson/poisson.cpp
+        )
+    target_link_libraries(poisson
+                        fileIO
+                        rPLY
+                        util
+                        processing
+                        ${Boost_LIBRARIES}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        ${CGAL_LIBRARY}
+                        )
+endif()
 
 
 
