@@ -84,10 +84,12 @@ struct ray_intersection_info{
 
 
 struct vertex_info{
+    typedef float vtype;
+
     // point/vertex information
     int global_idx = -1;
     int finite_idx = -1;
-    double sigma = 0.01; // noise of the point;
+    vtype sigma = 0.01; // noise of the point;
     int alpha = 1; // how many points this vertex represents, will be increased by adaptive Delaunay triangulation
     CGAL::Color color;
     Vector normal;
@@ -100,16 +102,18 @@ struct vertex_info{
     // thus at some point maybe this index should be incooperated in the sensor_positions vector.
 //    vector<int> sensor_tet; // see fileOP.cpp for explanation
     // learning
-    vector<ray_intersection_info> ray; // the int here is the index of one of the cells that this ray has passed
+//    vector<ray_intersection_info> ray; // the int here is the index of one of the cells that this ray has passed
     int outlier;
 
     // iso surface extraction
-    double field_value;
+    vtype field_value;
 
 };
 typedef CGAL::Triangulation_vertex_base_with_info_3<vertex_info, EPICK>    VB;
 
 struct cell_info{
+    typedef float ctype;
+
     // indices
     int global_idx = -1; // this is an ordered, contiguous zero-based index for the All_cells_iterator;
     int finite_idx = -1; // this is an ordered, contiguous zero-based index for the Finite_cells_iterator;
@@ -120,36 +124,36 @@ struct cell_info{
 
 
     // graph_cut, cell based
-    double inside_score = 0.0; // used for occupancy and ray scoring, depending on mode
-    double outside_score = 0.0;
+    ctype inside_score = 0.0; // used for occupancy and ray scoring, depending on mode
+    ctype outside_score = 0.0;
 //    int inside_count = 0;
 //    int outside_count = 0;
 //    double outside_dist = 0.0;
 //    double inside_dist = 0.0;
 
     // graph_cut, facet based
-    vector<double> facet_weights = vector<double>(4);
+    vector<ctype> facet_weights = vector<ctype>(4);
 
 
     // learning, cell based features
-    vector<double> cb_vertex_inside;
-    vector<double> cb_vertex_outside;
-    vector<double> cb_vertex_last;
-    vector<double> cb_facet_inside_first;
-    vector<double> cb_facet_inside_second;
-    vector<double> cb_facet_outside_first;
-    vector<double> cb_facet_outside_second;
-    vector<double> cb_facet_last_first;
-    vector<double> cb_facet_last_second;
+    vector<ctype> cb_vertex_inside;
+    vector<ctype> cb_vertex_outside;
+    vector<ctype> cb_vertex_last;
+    vector<ctype> cb_facet_inside_first;
+    vector<ctype> cb_facet_inside_second;
+    vector<ctype> cb_facet_outside_first;
+    vector<ctype> cb_facet_outside_second;
+    vector<ctype> cb_facet_last_first;
+    vector<ctype> cb_facet_last_second;
 
 
     // learning, facet based features
-    vector<vector<double>> fb_vertex_inside = vector<vector<double>>(4);
-    vector<vector<double>> fb_vertex_outside = vector<vector<double>>(4);
-    vector<vector<double>> fb_vertex_last = vector<vector<double>>(4);
-    vector<vector<double>> fb_facet_inside = vector<vector<double>>(4);
-    vector<vector<double>> fb_facet_outside = vector<vector<double>>(4);
-    vector<vector<double>> fb_facet_last = vector<vector<double>>(4);
+    vector<vector<ctype>> fb_vertex_inside = vector<vector<ctype>>(4);
+    vector<vector<ctype>> fb_vertex_outside = vector<vector<ctype>>(4);
+    vector<vector<ctype>> fb_vertex_last = vector<vector<ctype>>(4);
+    vector<vector<ctype>> fb_facet_inside = vector<vector<ctype>>(4);
+    vector<vector<ctype>> fb_facet_outside = vector<vector<ctype>>(4);
+    vector<vector<ctype>> fb_facet_last = vector<vector<ctype>>(4);
 
 
 
@@ -158,9 +162,9 @@ struct cell_info{
 //    int gt_outside_first = 0;
 //    int use_for_learning = 1;
 
-    // manifoldness
-    int manifold_label = 2; // 2 meaning no fixed label exists
-    vector<int> nm_edge_ids;
+//    // manifoldness
+//    int manifold_label = 2; // 2 meaning no fixed label exists
+//    vector<int> nm_edge_ids;
 
 
 };

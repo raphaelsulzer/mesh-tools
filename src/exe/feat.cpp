@@ -156,6 +156,7 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
         exportNPZ(dir,data);
     }
 
+    // TODO: change to float precision for features
 
 
     //////////////////////////////////////
