@@ -53,7 +53,7 @@ gtype smoothCost(int s1, int s2, int l1, int l2, void *data){
 void graphCutTet(dataHolder& data, runningOptions options)
 {
 
-    gtype div = 1.0;
+    gtype div = 100;
 
     if(options.area_reg_weight > 0.0)
         calculateMeanTriangleArea(data);

@@ -13,34 +13,38 @@ int cliParser::parse(int argc, char const* argv[]){
 
         po::options_description all("");
 
-        auto input_options = initInput();
-        all.add(input_options);
-        auto output_options = initOutput();
-        all.add(output_options);
+        auto ioptions = initInput();
+        all.add(ioptions);
+        auto ooptions = initOutput();
+        all.add(ooptions);
 
         if(mode == "labatut"){
             auto options = initLabatut();
             all.add(options);
         }
+        if(mode == "occ2mesh"){
+            auto options = initOcc2Mesh();
+            all.add(options);
+        }
         if(mode == "vsa"){
-            auto vsa_options = initVsa();
-            all.add(vsa_options);
+            auto options = initVsa();
+            all.add(options);
         }
         if(mode == "collapse"){
-            auto collapse_options = initCollapse();
-            all.add(collapse_options);
+            auto options = initCollapse();
+            all.add(options);
         }
         if(mode == "simplify"){
-            auto simplify_options = initSimplify();
-            all.add(simplify_options);
+            auto options = initSimplify();
+            all.add(options);
         }
         if(mode == "eval"){
-            auto eval_options = initEval();
-            all.add(eval_options);
+            auto options = initEval();
+            all.add(options);
         }
         if(mode == "sample"){
-            auto sample_options = initSample();
-            all.add(sample_options);
+            auto options = initSample();
+            all.add(options);
         }
         if(mode == "normals"){
             auto options = initNormals();
@@ -88,14 +92,125 @@ int cliParser::parse(int argc, char const* argv[]){
 }
 
 
+po::options_description cliParser::initInput(){
+
+    po::options_description input_options("\nINPUT OPTIONS",description_width);
+    input_options.add_options()
+            ("help,h", "Help message")
+            ("working_dir,w", po::value<string>()->required(), "Working directory.\nAll paths will be treated relative to this directory.")
+            ("input_file,i", po::value<string>()->required(), "Input file")
+            ("output_file,o", po::value<string>(), "Output file")
+//            ("source,s", po::value<string>()->default_value("ply"), "Data source and options:"
+//                                                            "\n\t-ply"
+//                                                            "\n\t-npz"
+//                                                            "\n\t-colmap"
+//                                                            "\n\t-omvs"
+//                                                            "\n\t-scan,#points,#cameras,std_noise,%outliers"
+//                                                            "\n\t-tt,#scans"
+//                                                            "\n\t-eth")
+            ("source,s", po::value<string>()->default_value("ply"), "Data source:"
+                                                            "\n\t-ply"
+                                                            "\n\t-npz"
+                                                            "\n\t-omvs (an OpenMVS project file)")
+            ("groundtruth_file,g", po::value<string>(), "Groundtruth file")
+            ("transformation_file,t", po::value<string>(), "Transformation file")
+            ("crop_file,c", po::value<string>(), "Crop file")
+            ("scale", po::value<double>()->default_value(0.0), "Scale mean edge length of Delaunay to this value.")
+            ("adt", po::value<double>()->default_value(-1), "Epsilon for adaptive 3DT.")
+            ("icomp", po::value<int>()->default_value(1), "Number of connected components of input to keep. -1 = all.")
+            ("iclose", po::value<int>()->default_value(1), "Try to close input open meshes with hole filling.")
+        ;
+    return input_options;
+}
+int cliParser::getInput(){
+
+    /////////////// PATH & FILE INPUT ARGS + OUTPUT ARGS ///////////////
+
+    /// required
+    dh.path =  vm["working_dir"].as<string>();
+    if(dh.path[dh.path.length()-1] != '/')
+        dh.path+="/";
+    dh.read_file = vm["input_file"].as<string>();
+    boost::filesystem::path rf(dh.read_file);
+    if(rf.has_extension()){
+        dh.read_file_type = rf.extension().string();
+        dh.read_file = dh.read_file.substr(0,dh.read_file.length() - 4);
+    }
+
+    /// data source
+    vector<string> data_source;
+    splitString(vm["source"].as<string>(), data_source, ',');
+    ro.data_source = data_source[0];
+    if(ro.data_source == "scan"){
+        if(data_source.size() < 5){
+            cout << "scan requires options #points,#cameras,std_noise,%outliers" << endl;
+            return 1;
+        }
+        ro.number_of_points_to_scan = stoi(data_source[1]);
+        ro.number_of_cameras = stoi(data_source[2]);
+        ro.noise_std = stod(data_source[3]);
+        ro.percentage_of_outliers = stod(data_source[4]);
+    }
+    else if(ro.data_source == "ply"){;}
+    else if(ro.data_source == "npz"){;}
+    else if(ro.data_source == "colmap"){;} // not really implemented anymore
+    else if(ro.data_source == "omvs"){;}
+    else if(ro.data_source == "eth"){;} // not really implemented anymore
+    else if(ro.data_source == "tt"){  // not really implemented anymore
+        if(data_source.size() < 5){
+            cout << "scan requires options #points,#cameras,std_noise,%outliers" << endl;
+            return 1;
+        }
+        ro.number_of_points_to_scan = stoi(data_source[1]);
+        ro.number_of_cameras = stoi(data_source[2]);
+        ro.noise_std = stod(data_source[3]);
+        ro.percentage_of_outliers = stod(data_source[4]);
+    }
+    else{
+        cerr << "\nNOT A VALID DATA SOURCE (-s).\n" << endl;
+        cerr << "\nto see available data sources type sure --help\n" << endl;
+        return 1;
+    }
+
+    /// optional
+    if(vm.count("output_file"))
+        dh.write_file =  vm["output_file"].as<string>();
+    else
+        dh.write_file = dh.read_file;
+    if(vm.count("transformation_file"))
+        dh.transformation_file = vm["transformation_file"].as<string>();
+    if(vm.count("crop_file"))
+        dh.crop_file = vm["crop_file"].as<string>();
+    if(vm.count("groundtruth_file"))
+        dh.gt_poly_file =  vm["groundtruth_file"].as<string>();
+
+    // gt truth stuff
+    if(vm.count("gt_poly_file"))
+        dh.gt_poly_file = vm["gt_poly_file"].as<string>();
+
+    // Delaunay
+    if(vm.count("adt"))
+        ro.Dt_epsilon = vm["adt"].as<double>();
+
+    if(vm.count("iclose"))
+        ro.try_to_close = vm["iclose"].as<int>();
+    if(vm.count("icomp"))
+        ro.number_of_components_to_keep = vm["icomp"].as<int>();
+
+    if(vm.count("scale"))
+        ro.scale = vm["scale"].as<double>();
+
+    return 0;
+
+}
 
 po::options_description cliParser::initOutput(){
 
 
     ////////////////// EXPORT OPTIONS //////////////////
 
-    po::options_description output_options("\nOUTPUT OPTIONS");
-    output_options.add_options()
+    po::options_description options("\nOUTPUT OPTIONS",description_width);
+    options.add_options()
 //        ("help", "produce help message")
             ("output_options,e", po::value<string>()->default_value("i"),"Specify export options as list of letters (without seperator):"
                                                                           "\n\t-n = normals"
@@ -119,8 +234,123 @@ po::options_description cliParser::initOutput(){
         ;
 
 
-    return output_options;
+    return options;
 
+}
+
+int cliParser::getOutput(){
+    vector<string> sampling;
+    if(vm.count("output_sampling")){
+        splitString(vm["output_sampling"].as<string>(), sampling, ',');
+        eo.sampling_method = sampling[0];
+        eo.sampling_method_option = stod(sampling[1]);
+    }
+    if(vm["output_options"].as<string>() == "all"){
+        eo.normals = false;
+        eo.color = true;
+        eo.sensor_vec = true;
+        eo.sensor_position = false;
+        eo.convexHull = true;
+        eo.sampling = true;
+        eo.scan = true;
+        eo.cameras = true;
+        eo.mesh = true;
+        eo.coloredFacets = true;
+        eo.cellScore = true;
+        eo.interface = true;
+        eo.isosurface = true;
+    }
+    else{
+        if (vm["output_options"].as<string>().find('n') != std::string::npos)
+            eo.normals = true;
+        if (vm["output_options"].as<string>().find('r') != std::string::npos)
+            eo.color = true;
+        if (vm["output_options"].as<string>().find('v') != std::string::npos)
+            eo.sensor_vec = true;
+        if (vm["output_options"].as<string>().find('p') != std::string::npos)
+            eo.sensor_position = true;
+
+        if (vm["output_options"].as<string>().find('k') != std::string::npos)
+            eo.cameras = true;
+        if (vm["output_options"].as<string>().find('i') == std::string::npos)
+            eo.interface = false;
+        if (vm["output_options"].as<string>().find('z') != std::string::npos)
+            eo.isosurface = true;
+        if (vm["output_options"].as<string>().find('x') != std::string::npos)
+            eo.scan = true;
+        if (vm["output_options"].as<string>().find('m') != std::string::npos)
+            eo.mesh = true;
+        if (vm["output_options"].as<string>().find('s') != std::string::npos)
+            eo.sampling = true;
+        if (vm["output_options"].as<string>().find('h') != std::string::npos)
+            eo.convexHull = true;
+        if (vm["output_options"].as<string>().find('f') != std::string::npos)
+            eo.coloredFacets = true;
+        if (vm["output_options"].as<string>().find('c') != std::string::npos)
+            eo.cellScore = true;
+    }
+    return 0;
+}
+
+po::options_description cliParser::initOcc2Mesh(){
+
+
+
+    po::options_description options("\nOCC2MESH OPTIONS",description_width);
+    options.add_options()
+            ("prediction_file,p", po::value<string>(), "Prediction file")
+            ("occupancy_type", po::value<string>()->default_value("lo"), "Prediction type := [so(ftmax), si(gmoid), lo(git)].")
+            ("gco", po::value<string>(), "Graph-cut optimization:"
+             "\nBinary Type-Weight[;Type2-Weight2;Type3-Weight3]"
+             "\nwith Type=[area,angle,cc] and Weight=(0,inf)")
+
+        ;
+
+    return options;
+}
+
+int cliParser::getOcc2Mesh(){
+
+    // reconstruction and optimization
+    dh.prediction_file = vm["prediction_file"].as<string>();
+    boost::filesystem::path rf(dh.prediction_file);
+    if(rf.has_extension()){
+        dh.read_file_type = rf.extension().string();
+        dh.prediction_file = dh.prediction_file.substr(0,dh.prediction_file.length() - 4);
+    }
+    ro.occupancy_type = vm["occupancy_type"].as<string>();
+
+    vector<string> optimization;
+    if(vm.count("gco")){
+        splitString(vm["gco"].as<string>(), optimization, ',');
+        ro.optimization = 1;
+        for(int i = 0; i < optimization.size(); i++){
+            vector<string> current_reg;
+            splitString(optimization[i],current_reg,'-');
+            if(current_reg.size()!=2){
+                cout<<"\nERROR: not a valid regularization. Enter e.g. --gco area-0.1 ."<<endl;
+                return 1;
+            }
+            if(current_reg[0] == "area")
+                ro.area_reg_weight = stod(current_reg[1]);
+            else if(current_reg[0] == "angle")
+                ro.angle_reg_weight = stod(current_reg[1]);
+            else if(current_reg[0] == "cc")
+                ro.cc_reg_weight = stod(current_reg[1]);
+            else if(current_reg[0] == "vol")
+                    ro.vol_reg = 1;
+            else if(current_reg[0] == "sv")
+                    ro.sv_reg_weight = stod(current_reg[1]);
+            else if(current_reg[0] == "ob")
+                    ro.ob_reg_weight = stod(current_reg[1]);
+            else{
+                cout << "ERROR: " << current_reg[0] << " is not a valid regularization term!" << endl;
+                return 1;
+            }
+
+        }
+    }
+    return 0;
 }
 
 
@@ -128,16 +358,17 @@ po::options_description cliParser::initOutput(){
 po::options_description cliParser::initLabatut(){
 
 
-    ////////////////// CLF OPTIONS /////////////////
 
-    po::options_description clf_options("\nRECONSTRUCTION OPTIONS");
-    clf_options.add_options()
-            ("cameras,c", po::value<int>()->default_value(1), "cameras==[1,inf). Number of cameras for ray tracing.")
+    po::options_description options("\nLABATUT OPTIONS",description_width);
+    options.add_options()
+            ("cameras,c", po::value<int>()->default_value(1), "cameras=[1,inf). Number of cameras for ray tracing.")
             ("sigma", po::value<double>()->default_value(-1), "sigma=[-1,inf). -1 => mean noise with PCA.")
             ("alpha", po::value<double>()->default_value(32), "alpha=(0,inf).")
-            ("gco", po::value<string>(), "Graph-cut optimization."
-             "\nSpecify Binary: Type1-Weight1[;Type2-Weight2;Type3-Weight3]"
+            ("gco", po::value<string>(), "Graph-cut optimization:"
+             "\nBinary Type-Weight[;Type2-Weight2;Type3-Weight3]"
              "\nwith Type=[area,angle,cc] and Weight=(0,inf)")
+
+            //// OLD:
 //            ("smooth", po::value<int>()->default_value(0), "Smoothend the piecewise constant function.")
 //            ("iso", po::value<string>()->default_value("30.0,0.1,0.1"), "Number of connected components of output to keep. Default = all.")
 //            ("ocomp", po::value<int>()->default_value(0), "Number of connected components of output to keep. Default = all.")
@@ -148,7 +379,7 @@ po::options_description cliParser::initLabatut(){
 //            ("eval", po::value<int>()->default_value(0), "Evaluate mesh.")
         ;
 
-    return clf_options;
+    return options;
 }
 
 int cliParser::getLabatut(){
@@ -157,7 +388,7 @@ int cliParser::getLabatut(){
 
     // reconstruction and optimization
     ro.scoring = "rt";
-    ro.prediction_type = "labatut";
+    ro.occupancy_type = "labatut";
     ro.number_of_rays =  vm["cameras"].as<int>();
     ro.labatut_sigma = vm["sigma"].as<double>();
     ro.labatut_alpha = vm["alpha"].as<double>();
@@ -171,7 +402,6 @@ int cliParser::getLabatut(){
 //            return 1;
 
 //        }
-//        ro.prediction_type = scoring[1];
 //    }
 //    else if(ro.scoring == "clcs"){
 //        if(scoring.size() < 3){
@@ -180,7 +410,6 @@ int cliParser::getLabatut(){
 //            return 1;
 
 //        }
-//        ro.prediction_type = scoring[1];
 //        ro.number_of_points_per_cell = stoi(scoring[2]);
 //    }
 //    else if(ro.scoring == "cs")
@@ -279,7 +508,7 @@ int cliParser::getLabatut(){
 
 po::options_description cliParser::initFeat(){
     ////////////////// FEATURE EXTRACTION OPTIONS /////////////////
-    po::options_description options("\nFEATURE EXTRACTION OPTIONS");
+    po::options_description options("\nFEATURE EXTRACTION OPTIONS",description_width);
     options.add_options()
             ("gclosed", po::value<int>()->default_value(1), "Is ground truth closed?")
             ("rays", po::value<int>()->default_value(1), "Number of rays to trace.")
@@ -315,7 +544,7 @@ int cliParser::getFeat(){
 po::options_description cliParser::initNormals(){
 //    ///////////////// CALCULATE NORMALS OPTIONS /////////////////
     ////////////////// COLLAPSE OPTIONS /////////////////
-    po::options_description normal_options("\nNORMAL ESTIMATION OPTIONS");
+    po::options_description normal_options("\nNORMAL ESTIMATION OPTIONS",description_width);
     normal_options.add_options()
             ("method", po::value<string>()->default_value("jet"), "[pca, jet, vsm]")
             ("neighborhood", po::value<int>()->default_value(0), "Neighborhood size to consider. 0 = automatic")
@@ -337,7 +566,7 @@ int cliParser::getNormals(){
 
 
 po::options_description cliParser::initIso(){
-    po::options_description options("\nISO EXTRACTION OPTIONS");
+    po::options_description options("\nISOSURFACE EXTRACTION OPTIONS",description_width);
     options.add_options()
             ("method", po::value<string>()->default_value("mit"), "[mit, boissonnat]")
             ("field", po::value<string>()->default_value("occ"), "[occ, sdf]")
@@ -371,7 +600,7 @@ int cliParser::getIso(){
 po::options_description cliParser::initCollapse(){
 
     ////////////////// COLLAPSE OPTIONS /////////////////
-    po::options_description collapse_options("\nRECONSTRUCTION OPTIONS");
+    po::options_description collapse_options("\nEDGE COLLAPSe OPTIONS",description_width);
     collapse_options.add_options()
             ("edges", po::value<double>()->required(), "Percentage of edges to keep")
             ("clean", po::value<int>(), "Apply OpenMVS mesh cleaning")
@@ -393,7 +622,7 @@ int cliParser::getCollapse(){
 
 po::options_description cliParser::initVsa(){
     ////////////////// VSA OPTIONS /////////////////
-    po::options_description vsa_options("\nRECONSTRUCTION OPTIONS");
+    po::options_description vsa_options("\nVSA OPTIONS",description_width);
     vsa_options.add_options()
             ("proxies", po::value<int>()->required(), "Max number of proxies")
             ("comp", po::value<int>(), "Number of connected components to keep.")
@@ -420,7 +649,7 @@ int cliParser::getVsa(){
 
 po::options_description cliParser::initSimplify(){
     ////////////////// VSA OPTIONS /////////////////
-    po::options_description ransac_options("\nRECONSTRUCTION OPTIONS");
+    po::options_description ransac_options("\nSIMPLIFY OPTIONS",description_width);
     ransac_options.add_options()
             ("repsilon", po::value<double>()->default_value(0.0), "Max distance point - plane [0, +inf)")
             ("rnormal", po::value<double>()->default_value(0.9, "0.9"), "Max normal variation point - plane [0,1]")
@@ -460,200 +689,8 @@ int cliParser::getSimplify(){
 }
 
 
-
-
-po::options_description cliParser::initInput(){
-
-    po::options_description input_options("\nINPUT OPTIONS");
-    input_options.add_options()
-            ("help,h", "Help message")
-            ("working_dir,w", po::value<string>()->required(), "Working directory.\nAll paths will be treated relative to this directory.")
-            ("input_file,i", po::value<string>()->required(), "Input file")
-            ("output_file,o", po::value<string>(), "Output file")
-//            ("source,s", po::value<string>()->default_value("ply"), "Data source and options:"
-//                                                            "\n\t-ply"
-//                                                            "\n\t-npz"
-//                                                            "\n\t-colmap"
-//                                                            "\n\t-omvs"
-//                                                            "\n\t-scan,#points,#cameras,std_noise,%outliers"
-//                                                            "\n\t-tt,#scans"
-//                                                            "\n\t-eth")
-            ("source,s", po::value<string>()->default_value("ply"), "Data source:"
-                                                            "\n\t-ply"
-                                                            "\n\t-npz"
-                                                            "\n\t-omvs (an OpenMVS project file)")
-            ("groundtruth_file,g", po::value<string>(), "Groundtruth file")
-            ("prediction_file,p", po::value<string>(), "Prediction file for dgnn2mesh")
-            ("transformation_file,t", po::value<string>(), "Transformation file")
-            ("crop_file,c", po::value<string>(), "Crop file")
-            ("scale", po::value<double>()->default_value(0.0), "Scale mean edge length of Delaunay to this value")
-            ("adt", po::value<double>()->default_value(-1), "Epsilon for adaptive 3DT.")
-            ("icomp", po::value<int>()->default_value(1), "Number of connected components of input to keep. -1 = all.")
-            ("iclose", po::value<int>()->default_value(1), "Try to close input open meshes with hole filling.")
-        ;
-    return input_options;
-}
-int cliParser::getInput(){
-
-    /////////////// PATH & FILE INPUT ARGS + OUTPUT ARGS ///////////////
-
-
-    /// required
-    dh.path =  vm["working_dir"].as<string>();
-    if(dh.path[dh.path.length()-1] != '/')
-        dh.path+="/";
-    dh.read_file = vm["input_file"].as<string>();
-    boost::filesystem::path rf(dh.read_file);
-    if(rf.has_extension()){
-        dh.read_file_type = rf.extension().string();
-        dh.read_file = dh.read_file.substr(0,dh.read_file.length() - 4);
-    }
-//    if(dh.read_file.size()>4){
-//        dh.read_file_type = dh.read_file.substr(dh.read_file.length() - 3);
-//        if(dh.read_file_type == "off" || dh.read_file_type == "ply" || dh.read_file_type == "npz"){
-//            dh.read_file = dh.read_file.substr(0,dh.read_file.length() - 4);
-//            dh.read_file_type == "";
-//        }
-//    }
-
-
-    /// data source
-    vector<string> data_source;
-    splitString(vm["source"].as<string>(), data_source, ',');
-    ro.data_source = data_source[0];
-    if(ro.data_source == "scan"){
-        if(data_source.size() < 5){
-            cout << "scan requires options #points,#cameras,std_noise,%outliers" << endl;
-            return 1;
-        }
-        ro.number_of_points_to_scan = stoi(data_source[1]);
-        ro.number_of_cameras = stoi(data_source[2]);
-        ro.noise_std = stod(data_source[3]);
-        ro.percentage_of_outliers = stod(data_source[4]);
-    }
-    else if(ro.data_source == "ply"){
-        ;
-    }
-    else if(ro.data_source == "npz"){
-        ;
-    }
-    else if(ro.data_source == "colmap"){
-        ;
-    }
-    else if(ro.data_source == "omvs"){
-        ;
-    }
-    else if(ro.data_source == "tt"){
-        if(data_source.size() < 5){
-            cout << "scan requires options #points,#cameras,std_noise,%outliers" << endl;
-            return 1;
-        }
-        ro.number_of_points_to_scan = stoi(data_source[1]);
-        ro.number_of_cameras = stoi(data_source[2]);
-        ro.noise_std = stod(data_source[3]);
-        ro.percentage_of_outliers = stod(data_source[4]);
-    }
-    else if(ro.data_source == "eth"){
-        ;
-    }
-    else{
-        cerr << "\nNOT A VALID DATA SOURCE (-s).\n" << endl;
-        cerr << "\nto see available data sources type sure --help\n" << endl;
-        return 1;
-    }
-
-
-    /// optional
-    if(vm.count("output_file"))
-        dh.write_file =  vm["output_file"].as<string>();
-    if(vm.count("transformation_file"))
-        dh.transformation_file = vm["transformation_file"].as<string>();
-    if(vm.count("crop_file"))
-        dh.crop_file = vm["crop_file"].as<string>();
-    if(vm.count("groundtruth_file"))
-        dh.gt_poly_file =  vm["groundtruth_file"].as<string>();
-    if(vm.count("prediction_file"))
-        dh.prediction_file =  vm["prediction_file"].as<string>();
-
-    // gt truth stuff
-    if(vm.count("gt_poly_file"))
-        dh.gt_poly_file = vm["gt_poly_file"].as<string>();
-
-    // Delaunay
-    if(vm.count("adt"))
-        ro.Dt_epsilon = vm["adt"].as<double>();
-
-    if(vm.count("iclose"))
-        ro.try_to_close = vm["iclose"].as<int>();
-    if(vm.count("icomp"))
-        ro.number_of_components_to_keep = vm["icomp"].as<int>();
-
-    if(vm.count("scale"))
-        ro.scale = vm["scale"].as<double>();
-
-    return 0;
-
-}
-
-
-
-int cliParser::getOutput(){
-    vector<string> sampling;
-    if(vm.count("output_sampling")){
-        splitString(vm["output_sampling"].as<string>(), sampling, ',');
-        eo.sampling_method = sampling[0];
-        eo.sampling_method_option = stod(sampling[1]);
-    }
-    if(vm["output_options"].as<string>() == "all"){
-        eo.normals = false;
-        eo.color = true;
-        eo.sensor_vec = true;
-        eo.sensor_position = false;
-        eo.convexHull = true;
-        eo.sampling = true;
-        eo.scan = true;
-        eo.cameras = true;
-        eo.mesh = true;
-        eo.coloredFacets = true;
-        eo.cellScore = true;
-        eo.interface = true;
-        eo.isosurface = true;
-    }
-    else{
-        if (vm["output_options"].as<string>().find('n') != std::string::npos)
-            eo.normals = true;
-        if (vm["output_options"].as<string>().find('r') != std::string::npos)
-            eo.color = true;
-        if (vm["output_options"].as<string>().find('v') != std::string::npos)
-            eo.sensor_vec = true;
-        if (vm["output_options"].as<string>().find('p') != std::string::npos)
-            eo.sensor_position = true;
-
-        if (vm["output_options"].as<string>().find('k') != std::string::npos)
-            eo.cameras = true;
-        if (vm["output_options"].as<string>().find('i') == std::string::npos)
-            eo.interface = false;
-        if (vm["output_options"].as<string>().find('z') != std::string::npos)
-            eo.isosurface = true;
-        if (vm["output_options"].as<string>().find('x') != std::string::npos)
-            eo.scan = true;
-        if (vm["output_options"].as<string>().find('m') != std::string::npos)
-            eo.mesh = true;
-        if (vm["output_options"].as<string>().find('s') != std::string::npos)
-            eo.sampling = true;
-        if (vm["output_options"].as<string>().find('h') != std::string::npos)
-            eo.convexHull = true;
-        if (vm["output_options"].as<string>().find('f') != std::string::npos)
-            eo.coloredFacets = true;
-        if (vm["output_options"].as<string>().find('c') != std::string::npos)
-            eo.cellScore = true;
-    }
-    return 0;
-}
-
-
 po::options_description cliParser::initEval(){
-    po::options_description eval_options("\nEVAL OPTIONS");
+    po::options_description eval_options("\nEVAL OPTIONS",description_width);
     eval_options.add_options()
             ("ocomp", po::value<int>()->default_value(0), "Number of connected components of output to keep. Default = all.")
             ("omanifold", po::value<int>()->default_value(0), "Try to make output mesh manifold.")
@@ -673,7 +710,7 @@ int cliParser::getEval(){
 
 
 po::options_description cliParser::initSample(){
-    po::options_description sample_options("\nSAMPLE OPTIONS");
+    po::options_description sample_options("\nSAMPLE OPTIONS",description_width);
     sample_options.add_options()
             ("ocomp", po::value<int>()->default_value(0), "Number of connected components of output to keep. Default = all.")
             ("omanifold", po::value<int>()->default_value(0), "Try to make output mesh manifold.")
@@ -692,7 +729,7 @@ int cliParser::getSample(){
 }
 
 po::options_description cliParser::initScan(){
-    po::options_description options("\nSCAN OPTIONS");
+    po::options_description options("\nSCAN OPTIONS",description_width);
     options.add_options()
             ("gclosed", po::value<int>()->default_value(1), "Is ground truth closed?")
             ("points,p", po::value<int>()->default_value(500), "Number of scanning points.")
@@ -746,7 +783,7 @@ int cliParser::getScan(){
 
 
 po::options_description cliParser::initETH(){
-    po::options_description options("\nSAMPLE OPTIONS");
+    po::options_description options("\nETH OPTIONS",description_width);
     options.add_options()
             ("method", po::value<string>()->default_value("jet"), "[pca, jet (default), vsm]")
             ("neighborhood", po::value<int>()->default_value(0), "Neighborhood size to consider. 0 = automatic (default)")

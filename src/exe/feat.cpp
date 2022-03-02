@@ -26,11 +26,6 @@
 #include <learning/learningIO_bin.h>
 
 
-#ifdef Open3D
-#include "open3d/Open3D.h"
-#include "open3d/geometry/TetraMesh.h"
-#endif
-
 #include <CGAL/optimal_bounding_box.h>
 #include <boost/filesystem.hpp>
 using namespace boost::filesystem;
@@ -55,18 +50,10 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
         dir.write_file = dir.read_file;
 
     ///////////////////////////////
-    ///////// IMPORT DATA /////////
+    ///////// IMPORT SCAN /////////
     ///////////////////////////////
     // sampling input
-    if(options.data_source == "scan"){
-        if(!options.ground_truth){
-            cout << "\nERROR: you need to load a ground truth polygon (with -g) for scanning it" << endl;
-            return 1;
-        };
-        if(scanObjectClosed(data, options))
-            return 1;
-    }
-    else if(options.data_source == "ply"){
+    if(options.data_source == "ply"){
         importPLYPoints(dir, data);
     }
     else if(options.data_source == "npz"){

@@ -427,7 +427,8 @@ void graphExporter::run(bool compress){
 int loadPrediction(dirHolder dir, dataHolder& data, runningOptions options){
 
 
-    fs::path path = fs::path(dir.path) / fs::path(dir.prediction_file);
+    fs::path path = fs::path(dir.path) / fs::path(dir.prediction_file).replace_extension(".npz");
+    path = path.lexically_normal();
     ifstream file(path.string());
 
     cout << "\nLoad prediction score..." << endl;
@@ -454,17 +455,17 @@ int loadPrediction(dirHolder dir, dataHolder& data, runningOptions options){
     int i = 0;
     array<size_t, 2> shape = { a, 2 };
     xt::xtensor<float, 2> pred(shape);
-    if(options.prediction_type == "lo"){
+    if(options.occupancy_type == "lo"){
         pred = npz_map["logits"].cast<float>();
     }
-    else if(options.prediction_type == "sm"){
+    else if(options.occupancy_type == "so"){
         pred = npz_map["softmax"].cast<float>();
     }
-    else if(options.prediction_type == "si"){
+    else if(options.occupancy_type == "si"){
         pred = npz_map["sigmoid"].cast<float>();
     }
     else{
-        cout << options.prediction_type << " is not a valid prediction type, choose either lo or sm" << endl;
+        cout << options.occupancy_type << " is not a valid occupancy type, choose either lo or sm" << endl;
         return 1;
     }
     for(fci = data.Dt.all_cells_begin(); fci != data.Dt.all_cells_end(); fci++){

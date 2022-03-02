@@ -75,7 +75,7 @@ struct runningOptions{
     double noise_std = 0.0;
     int number_of_points_per_cell;
     // learning import
-    string prediction_type;
+    string occupancy_type;
     // learning export
     int export_rays = 0;
     int export_noise;

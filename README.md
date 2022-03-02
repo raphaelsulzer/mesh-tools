@@ -87,5 +87,5 @@ mkdir build && cd build
 cmake .. -DCMAKE_BUILD_TYPE=RELEASE -DTOOLX=ON
 make -j
 ```
-where TOOLX is the name of a tool listed above. 
+where `TOOLX` is the name of a tool listed above. 
 

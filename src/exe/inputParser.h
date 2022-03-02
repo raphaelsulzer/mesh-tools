@@ -36,6 +36,7 @@ public:
     runningOptions ro;
     dirHolder dh;
     string mode;
+    int description_width = 160;
 
     cliParser(string mode_):
         mode(mode_)
@@ -47,6 +48,7 @@ public:
     po::options_description initOutput();
 
     po::options_description initLabatut();
+    po::options_description initOcc2Mesh();
     po::options_description initNormals();
     po::options_description initCollapse();
     po::options_description initVsa();
@@ -62,6 +64,7 @@ public:
     int getOutput(); // populate eo (exportOptions)
 
     int getLabatut(); // populate ro (runningOptions)
+    int getOcc2Mesh(); // populate ro (runningOptions)
     int getVsa(); // populate ro (runningOptions)
     int getSimplify(); // populate ro (runningOptions)
     int getCollapse(); // populate ro (runningOptions)
