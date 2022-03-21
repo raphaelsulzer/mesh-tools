@@ -645,7 +645,7 @@ int exportNPZ(dirHolder& dir, dataHolder& data){
 //    string outfile = p.stem().string();
 
 //    cout << "\nExport 3DT..." << endl;
-//    cout << "\t-to " << "gt/"+outfile+"_3dt.npz" << endl;
+//    cout << "\t-to " << "dgnn/"+outfile+"_3dt.npz" << endl;
 
 //    data.xverts.clear();
 //    data.xfacets.clear();
@@ -691,19 +691,19 @@ int exportNPZ(dirHolder& dir, dataHolder& data){
 
 //    std::vector<std::size_t> vshape = { data.Dt.number_of_vertices(), 3 };
 //    auto verts = xt::adapt(data.xverts, vshape);
-//    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","vertices",verts,true,false);
+//    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","vertices",verts,true,false);
 
 //    std::vector<std::size_t> fshape = { data.Dt.number_of_finite_facets(), 3 };
 //    auto facets = xt::adapt(data.xfacets, fshape);
-//    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","facets",facets,true,true);
+//    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","facets",facets,true,true);
 
 //    std::vector<std::size_t> fnshape = { data.Dt.number_of_finite_facets(), 2 };
 //    auto nfacets = xt::adapt(data.xnfacets, fnshape);
-//    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","nfacets",nfacets,true,true);
+//    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","nfacets",nfacets,true,true);
 
 //    std::vector<std::size_t> tshape = { data.Dt.number_of_finite_cells(), 4 };
 //    auto tets = xt::adapt(data.xtets, tshape);
-//    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","tetrahedra",tets,true,true);
+//    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","tetrahedra",tets,true,true);
 
 //    return 0;
 
@@ -715,7 +715,7 @@ int export3DT(const dirHolder dir, dataHolder data){
     string outfile = p.stem().string();
 
     cout << "\nExport 3DT..." << endl;
-    cout << "\t-to " << "gt/"+outfile+"_3dt.npz" << endl;
+    cout << "\t-to " << "dgnn/"+outfile+"_3dt.npz" << endl;
 
     data.xverts.clear();
     data.xfacets.clear();
@@ -761,19 +761,19 @@ int export3DT(const dirHolder dir, dataHolder data){
 
     std::vector<std::size_t> vshape = { data.Dt.number_of_vertices(), 3 };
     auto verts = xt::adapt(data.xverts, vshape);
-    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","vertices",verts,true,false);
+    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","vertices",verts,true,false);
 
     std::vector<std::size_t> fshape = { data.Dt.number_of_facets(), 3 };
     auto facets = xt::adapt(data.xfacets, fshape);
-    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","facets",facets,true,true);
+    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","facets",facets,true,true);
 
     std::vector<std::size_t> fnshape = { data.Dt.number_of_facets(), 2 };
     auto nfacets = xt::adapt(data.xnfacets, fnshape);
-    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","nfacets",nfacets,true,true);
+    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","nfacets",nfacets,true,true);
 
     std::vector<std::size_t> tshape = { data.Dt.number_of_cells(), 4 };
     auto tets = xt::adapt(data.xtets, tshape);
-    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","tetrahedra",tets,true,true);
+    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","tetrahedra",tets,true,true);
 
     return 0;
 
@@ -1280,7 +1280,7 @@ void exportConvexHull(dirHolder& dir, const Delaunay& Dt)
 //        dir.suffix="_colored_initial.ply";
     dir.suffix = "_convexHull.ply";
 
-                
+
     fstream fo;
     fo.open(dir.path+dir.write_file+dir.suffix, fstream::out);
     exportOptions eo;
