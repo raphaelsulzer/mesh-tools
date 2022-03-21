@@ -74,21 +74,21 @@ typedef CGAL::Polygon_2<EPICK> Polygon_2;
 #include <CGAL/Delaunay_triangulation_3.h>
 #include <CGAL/Triangulation_cell_base_with_info_3.h>
 #include <CGAL/Triangulation_vertex_base_with_info_3.h>
-struct ray_intersection_info{
+//struct ray_intersection_info{
 
-    int cell_idx;
-    double first_intersection;
-    double second_intersection;
-    int outside;
-};
+//    int cell_idx;
+//    double first_intersection;
+//    double second_intersection;
+//    int outside;
+//};
 
 
 struct vertex_info{
     typedef float vtype;
 
     // point/vertex information
-    bool global_idx = 0;
-    bool finite_idx = 0;
+    int global_idx = -1;
+    int finite_idx = -1;
     vtype sigma = 0.01; // noise of the point;
     int alpha = 1; // how many points this vertex represents, will be increased by adaptive Delaunay triangulation
     CGAL::Color color;

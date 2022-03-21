@@ -167,7 +167,7 @@ int toXTensor(dataHolder& data){
 
 
 
-int importPLYPoints(dirHolder dir, dataHolder& data)
+int importPLYPoints(const dirHolder dir, dataHolder& data)
 {
     // this reads a file with sensor data, saved as sx, sy, sz
     // optional, see readColmapRecon() function for reading a file where sensor is saved as nx, ny, nz
@@ -327,7 +327,7 @@ int importPLYPoints(dirHolder dir, dataHolder& data)
 //    cout << "\t-in " << duration.count() << "s" << endl;
 //}
 
-int importPLYMesh(dirHolder& dir, SurfaceMesh& import_mesh){
+int importPLYMesh(const dirHolder& dir, SurfaceMesh& import_mesh){
     cout << "\nRead file " << dir.read_file+".ply" << endl;
 //    cout << "\nRead file " << dir.path+dir.read_file+".off" << endl;
     ifstream in(dir.path+dir.read_file+".ply");
@@ -339,7 +339,7 @@ int importPLYMesh(dirHolder& dir, SurfaceMesh& import_mesh){
     return 0;
 }
 
-int importMesh(dirHolder& dir, dataHolder& data){
+int importMesh(const dirHolder& dir, dataHolder& data){
 
     // read file depending on file type
     if(dir.read_file_type == "off")
@@ -354,7 +354,7 @@ int importMesh(dirHolder& dir, dataHolder& data){
 }
 
 
-int importOFFMesh(dirHolder& dir, SurfaceMesh& import_mesh){
+int importOFFMesh(const dirHolder& dir, SurfaceMesh& import_mesh){
 
     cout << "Read file " << dir.read_file+".off" << endl;
     ifstream in(dir.path+dir.read_file+".off");
@@ -367,7 +367,7 @@ int importOFFMesh(dirHolder& dir, SurfaceMesh& import_mesh){
     return 0;
 
 }
-int importOFFMesh(dirHolder& dir, Polyhedron& import_poly){
+int importOFFMesh(const dirHolder& dir, Polyhedron& import_poly){
 
 
     cout << "\nRead file " << dir.read_file+".off" << endl;
@@ -404,7 +404,7 @@ int importOFFMesh(const string path, Polyhedron& import_poly){
 #include <xtensor/xfixed.hpp>
 #include <xtensor/xio.hpp>
 #include <xtensor/xtensor.hpp>
-int importNPZ(dirHolder& dir, dataHolder& data){
+int importNPZ(const dirHolder& dir, dataHolder& data){
 
     cout << "\nRead NPZ points..." << endl;
     cout << "\t-from " << dir.read_file << endl;
@@ -499,7 +499,7 @@ int importNPZ(dirHolder& dir, dataHolder& data){
 #pragma pop_macro("PI")
 using namespace MVS;
 
-int importOMVSScene(dirHolder dir, dataHolder& data){
+int importOMVSScene(const dirHolder dir, dataHolder& data){
 
     auto start = std::chrono::high_resolution_clock::now();
     cout << "\nRead dense point cloud..." << endl;
@@ -607,7 +607,7 @@ int importOMVSScene(dirHolder dir, dataHolder& data){
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-int exportNPZ(dirHolder& dir, dataHolder& data){
+int exportNPZ(const dirHolder& dir, dataHolder& data){
 
     if(data.xpoints.empty()){
         cerr << "\nERROR: xpoints is empty. Run toXTensor on dataHolder before exportNPZ." << endl;
@@ -709,7 +709,7 @@ int exportNPZ(dirHolder& dir, dataHolder& data){
 
 //}
 
-int export3DT(const dirHolder dir, dataHolder data){
+int export3DT(const dirHolder dir, dataHolder& data){
 
     boost::filesystem::path p(dir.write_file);
     string outfile = p.stem().string();
@@ -723,6 +723,7 @@ int export3DT(const dirHolder dir, dataHolder data){
     data.xtets.clear();
 
     for(Vertex_handle vh : data.Dt.all_vertex_handles()){
+//        cout << "vertex " << vh->info().global_idx << endl;
         data.xverts.push_back(vh->point().x());
         data.xverts.push_back(vh->point().y());
         data.xverts.push_back(vh->point().z());
@@ -736,21 +737,23 @@ int export3DT(const dirHolder dir, dataHolder data){
         c = fft->first; // cell
         vidx = fft->second;
 
-        data.xnfacets.push_back(c->info().finite_idx);
+        data.xnfacets.push_back(c->info().global_idx);
+//        cout << "nfacets " << c->info().global_idx << endl;
         mc = c->neighbor(vidx);
-        data.xnfacets.push_back(mc->info().finite_idx); // infinite cells will automatically have a finite_idx = -1
+        data.xnfacets.push_back(mc->info().global_idx); // infinite cells will automatically have a global_idx = -1
 
         for(int j = vidx + 1; j <= vidx + 3; j++){
                 // so c->vertex() gives me the global vertex handle from the Dt
-                data.xfacets.push_back(c->vertex(j%4)->info().finite_idx);
+                data.xfacets.push_back(c->vertex(j%4)->info().global_idx);
         }
     }
 
     for(Cell_handle ch : data.Dt.all_cell_handles()){
-        data.xtets.push_back(ch->vertex(0)->info().finite_idx);
-        data.xtets.push_back(ch->vertex(1)->info().finite_idx);
-        data.xtets.push_back(ch->vertex(2)->info().finite_idx);
-        data.xtets.push_back(ch->vertex(3)->info().finite_idx);
+//        cout << "tets " << ch->info().global_idx << endl;
+        data.xtets.push_back(ch->vertex(0)->info().global_idx);
+        data.xtets.push_back(ch->vertex(1)->info().global_idx);
+        data.xtets.push_back(ch->vertex(2)->info().global_idx);
+        data.xtets.push_back(ch->vertex(3)->info().global_idx);
     }
 
     cout << "\t-" << data.xverts.size()/3 << " vertices" << endl;
@@ -783,7 +786,7 @@ int export3DT(const dirHolder dir, dataHolder data){
 ///////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// OFF ///////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-void exportOFF(dirHolder& dir, Polyhedron& poly)
+void exportOFF(const dirHolder& dir, Polyhedron& poly)
 {
     cout << "\nExport mesh..." << endl;
     cout << "\t-to " << dir.write_file+dir.suffix+".off" << endl;
@@ -792,7 +795,7 @@ void exportOFF(dirHolder& dir, Polyhedron& poly)
     out << poly;
     out.close();
 }
-void exportOFF(dirHolder& dir, SurfaceMesh& out_mesh){
+void exportOFF(const dirHolder& dir, SurfaceMesh& out_mesh){
     cout << "\nExport mesh..." << endl;
     cout << "\t-to " << dir.write_file+dir.suffix+".off" << endl;
     ofstream out(dir.path+dir.write_file+dir.suffix+".off");
@@ -896,7 +899,7 @@ void printPLYHeader(fstream& fo, exportOptions& eo,
     fo << "end_header" << std::endl;
     fo << setprecision(precision);
 };
-int exportPLY(dirHolder& dir, Point_set& points){
+int exportPLY(const dirHolder& dir, Point_set& points){
 
     cout << "\nExport points..." << endl;
     cout << "\t-to " << dir.write_file+dir.suffix+".ply" << endl;
@@ -907,7 +910,7 @@ int exportPLY(dirHolder& dir, Point_set& points){
     return write_ply_point_set(out,points);
 
 }
-int exportPLY(dirHolder& dir, vector<Point>& points){
+int exportPLY(const dirHolder& dir, vector<Point>& points){
 
     // make Point_set_3 from vector of points
     Point_set ps;
@@ -924,7 +927,7 @@ int exportPLY(dirHolder& dir, vector<Point>& points){
     return write_ply_point_set(out,ps);
 
 }
-void exportPLY(dirHolder& dir, vector<Point>& points, vector<vertex_info>& infos, exportOptions& eo){
+void exportPLY(const dirHolder& dir, vector<Point>& points, vector<vertex_info>& infos, exportOptions& eo){
 
 
     cout << "\nExport points..." << endl;
@@ -970,7 +973,7 @@ void exportPLY(dirHolder& dir, vector<Point>& points, vector<vertex_info>& infos
 
     cout << "\t-" << nv << " points"  << endl;
 }
-int exportPLY(dirHolder& dir, SurfaceMesh& out_mesh){
+int exportPLY(const dirHolder& dir, SurfaceMesh& out_mesh){
 
     cout << "\nExport mesh..." << endl;
     cout << "\t-to " << dir.write_file+dir.suffix+".ply" << endl;
@@ -979,7 +982,7 @@ int exportPLY(dirHolder& dir, SurfaceMesh& out_mesh){
     return write_ply(out,out_mesh);
 
 }
-void exportPLY_bin(dirHolder& dir, SurfaceMesh& out_mesh){
+void exportPLY_bin(const dirHolder& dir, SurfaceMesh& out_mesh){
 
     // this code is from here: https://piero.dev/2017/04/how-to-write-a-cgal-polyhedron-to-ply-or-any-other-format/
 
@@ -999,7 +1002,7 @@ void exportPLY_bin(dirHolder& dir, SurfaceMesh& out_mesh){
 typedef typename Polyhedron::Vertex_const_iterator VCI;
 typedef typename Polyhedron::Facet_const_iterator FCI;
 typedef typename Polyhedron::Halfedge_around_facet_const_circulator HFCC;
-void exportPLY_manual(dirHolder& dir, SurfaceMesh& out_mesh){
+void exportPLY_manual(const dirHolder& dir, SurfaceMesh& out_mesh){
 
     // this code is from here: https://piero.dev/2017/04/how-to-write-a-cgal-polyhedron-to-ply-or-any-other-format/
 
@@ -1056,10 +1059,9 @@ void exportPLY_manual(dirHolder& dir, SurfaceMesh& out_mesh){
 
 
 
-void exportIsoValues(dirHolder& dir, Delaunay& Dt, vector<double>& values){
+void exportIsoValues(const dirHolder& dir, Delaunay& Dt, vector<double>& values){
 
-    dir.suffix = "_isovalue.ply";
-    std::ofstream fo(dir.path+dir.write_file+dir.suffix);
+    std::ofstream fo(dir.path+dir.write_file+"_isovalue.ply");
     fo << "ply" << std::endl;
     fo << "format ascii 1.0" << std::endl;
     fo << "element vertex " << values.size() << std::endl;
@@ -1083,7 +1085,7 @@ void exportIsoValues(dirHolder& dir, Delaunay& Dt, vector<double>& values){
 
 
 
-void exportCameraCenter(dirHolder& dir, dataHolder& data){
+void exportCameraCenter(const dirHolder& dir, dataHolder& data){
 
     cout << "\nExport cameras locations to cameras.ply" << endl;
     // get number of cameras
@@ -1112,13 +1114,12 @@ void exportCameraCenter(dirHolder& dir, dataHolder& data){
     auto stop = std::chrono::high_resolution_clock::now();
     cout << "\t-" << nc << " cameras exported"  << endl;
 }
-void exportCellCenter(dirHolder& dir, const Delaunay& Dt){
+void exportCellCenter(const dirHolder& dir, const Delaunay& Dt){
 
     Delaunay::size_type nc = Dt.number_of_finite_cells();
 
-    dir.suffix = "_cellCenter.ply";
     fstream fo;
-    fo.open(dir.path+dir.write_file+dir.suffix, fstream::out);
+    fo.open(dir.path+dir.write_file+"_cellCenter.ply", fstream::out);
     fo << "ply" << std::endl;
     fo << "format ascii 1.0" << std::endl;
     fo << "element vertex " << nc << std::endl;
@@ -1193,9 +1194,8 @@ void exportCellCenter(dirHolder& dir, const Delaunay& Dt){
     std::cout << "\nExported colored cell center to " << dir.write_file+dir.suffix << std::endl;
 
 }
-void exportCellScore(dirHolder& dir, const Delaunay& Dt){
-    dir.suffix = "_cellScore.ply";
-    ofstream fo(dir.path+dir.write_file+dir.suffix);
+void exportCellScore(const dirHolder& dir, const Delaunay& Dt){
+    ofstream fo(dir.path+dir.write_file+"_cellScore.ply");
     Point p1, p2, p3, p4, centroid;
     Vector v;
     stringstream pstr, tstr;
@@ -1253,11 +1253,11 @@ void exportCellScore(dirHolder& dir, const Delaunay& Dt){
     fo << "property uchar blue" << std::endl;
     fo << "end_header" << std::endl;
     fo << pstr.str() << tstr.str();
-    cout << "\nExported colored cell to " << dir.write_file+dir.suffix << endl;
+    cout << "\nExported colored cell to " << dir.write_file+"_cellScore.ply" << endl;
 
 }
 
-void exportConvexHull(dirHolder& dir, const Delaunay& Dt)
+void exportConvexHull(const dirHolder& dir, const Delaunay& Dt)
 {
 
 
@@ -1273,16 +1273,8 @@ void exportConvexHull(dirHolder& dir, const Delaunay& Dt)
     Delaunay::size_type nv = Dt.number_of_vertices();
     Delaunay::size_type nf = Dt.number_of_finite_facets();
 
-    // create PLY output file for outputting the triangulation, with point coordinates, color, normals and triangle facets
-//    if(optimized)
-//        dir.suffix="_colored_optimized.ply";
-//    else
-//        dir.suffix="_colored_initial.ply";
-    dir.suffix = "_convexHull.ply";
-
-
     fstream fo;
-    fo.open(dir.path+dir.write_file+dir.suffix, fstream::out);
+    fo.open(dir.path+dir.write_file+"_convexHull.ply", fstream::out);
     exportOptions eo;
     eo.normals = true; eo.color = true; eo.facetColor = true;
     printPLYHeader(fo, eo,
@@ -1352,19 +1344,19 @@ void exportConvexHull(dirHolder& dir, const Delaunay& Dt)
     std::cout << "\nExported convex hull with colored facets to " << dir.write_file+dir.suffix << " in " << duration.count() << "s" <<  std::endl;
 }
 
-void exportInterface(dirHolder& dir, dataHolder& data, runningOptions& options, exportOptions& eo){
+void exportInterface(const dirHolder& dir, dataHolder& data, runningOptions& options, exportOptions& eo){
 
     auto start = std::chrono::high_resolution_clock::now();
-
+    string suffix;
     if(options.optimization)
-        dir.suffix="_optimized";
+        suffix="_optimized";
     else
-        dir.suffix="_initial";
+        suffix="_initial";
     if(options.fix_nm_edges)
-        dir.suffix+="_fM";
+        suffix+="_fM";
 
     cout << "\nExport interface..." << endl;
-    cout << "\t-to " <<  dir.write_file+dir.suffix+".ply" << endl;
+    cout << "\t-to " <<  dir.write_file+suffix+".ply" << endl;
 
     data.remaining_points.clear();
     data.remaining_facets.clear();

@@ -137,7 +137,7 @@ void makeAdaptiveDelaunayWithInfo(dataHolder& data, double epsilon)
     cout << "\t-done in " << duration.count() << "s" << endl;
 }
 
-void indexDelaunay(dataHolder& data, runningOptions options){
+void indexDelaunay(dataHolder& data, runningOptions options){    
     // cells
     if(options.make_global_cell_idx){
         int gcidx = 0;

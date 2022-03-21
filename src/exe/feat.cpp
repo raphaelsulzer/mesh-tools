@@ -190,19 +190,19 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
     }
 
     // get tet index per eval point
-    importOccPoints(dir,data);
-    point2TetraIndex(data);
-
-
+    if(!dir.occ_file.empty()){
+        importOccPoints(dir,data);
+        point2TetraIndex(data);
+    }
 
 
 
     ////////////////////////////
     ////////// EXPORT //////////
     ////////////////////////////
-
     // export _eval.npz file, with eval points, occupancy and point2tetIndex
-    exportOccPoints(dir,data);
+    if(!dir.occ_file.empty())
+        exportOccPoints(dir,data);
 
     //// export features and labels
     // check if labels directory exists, if not create it
@@ -216,9 +216,10 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
 
 
     ///// export the 3DT as npz
-    options.make_global_cell_idx=0;
-    options.make_finite_cell_idx=1;
-    options.make_finite_vertex_idx=1;
+    options.make_global_cell_idx=1;
+    options.make_global_vertex_idx=1;
+    options.make_finite_cell_idx=0;
+    options.make_finite_vertex_idx=0;
     indexDelaunay(data, options);
     export3DT(dir,data);
 

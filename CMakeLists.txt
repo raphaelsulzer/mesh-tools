@@ -28,9 +28,9 @@ option(STATIC "Whether to compile for standalone use" OFF)
 ################################################################################
 # Programs to build
 ################################################################################
-option(SCAN "Whether to build scan exe" ON)
+option(SCAN "Whether to build scan exe" OFF)
 option(OMVS2NPZ "Whether to build omvs2npz exe" OFF)
-option(LABATUT "Whether to build labatut exe" ON)
+option(LABATUT "Whether to build labatut exe" OFF)
 option(FEAT "Whether to build feat exe" ON)
 #option(GT "Whether to build gt exe" ON)
 option(OCC2MESH "Whether to build occ2mesh exe" OFF)
@@ -47,10 +47,10 @@ if(STATIC)
 endif()
 
 if(CMAKE_BUILD_TYPE)
-    message(STATUS "Build type specified as ${CMAKE_BUILD_TYPE}")
+    message(STATUS "CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 else()
-    message(STATUS "Build type not specified, using Debug")
     set(CMAKE_BUILD_TYPE Debug)
+    message(STATUS "CMAKE_BUILD_TYPE (default): ${CMAKE_BUILD_TYPE}")
     set(IS_DEBUG ON)
 endif()
 

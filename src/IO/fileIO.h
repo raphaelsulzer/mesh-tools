@@ -167,22 +167,22 @@ void concatenateData(dataHolder& data1, dataHolder& data2,int copyInfo = 1);
 
 int toXTensor(dataHolder& data);
 
-int importImplicit(dirHolder dir, dataHolder& data);
+int importImplicit(const dirHolder dir, dataHolder& data);
 
-int importTransformationMatrix(dirHolder dir, dataHolder& data);
+int importTransformationMatrix(const dirHolder dir, dataHolder& data);
 
-int importPLYPoints(dirHolder dir, dataHolder& data);
-int importPLYMesh(dirHolder& dir, SurfaceMesh& import_mesh);
-int importPLYMeshWithSensorStructure(dirHolder dir, dataHolder& data);
+int importPLYPoints(const dirHolder dir, dataHolder& data);
+int importPLYMesh(const dirHolder& dir, SurfaceMesh& import_mesh);
+int importPLYMeshWithSensorStructure(const dirHolder dir, dataHolder& data);
 
-int importMesh(dirHolder& dir, dataHolder& data);
+int importMesh(const dirHolder& dir, dataHolder& data);
 
-int importOFFMesh(dirHolder& dir, Polyhedron& import_poly);
+int importOFFMesh(const dirHolder& dir, Polyhedron& import_poly);
 int importOFFMesh(const string path, Polyhedron& import_poly);
-int importOFFMesh(dirHolder& dir, SurfaceMesh& import_mesh);
-int importNPZ(dirHolder& dir, dataHolder& data);
+int importOFFMesh(const dirHolder& dir, SurfaceMesh& import_mesh);
+int importNPZ(const dirHolder& dir, dataHolder& data);
 
-int importOMVSScene(dirHolder dir, dataHolder& data);
+int importOMVSScene(const dirHolder dir, dataHolder& data);
 
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////// OUTPUT //////////////////////////////
@@ -192,40 +192,40 @@ void printPLYHeader(std::fstream& fo, exportOptions& eo,
                     int precision);
 
 
-void exportCameraCenter(dirHolder& dir, dataHolder& data);
+void exportCameraCenter(const dirHolder& dir, dataHolder& data);
 
-void exportOFF(dirHolder& dir, Polyhedron& poly);
-void exportOFF(dirHolder& dir, SurfaceMesh& out_mesh);
+void exportOFF(const dirHolder& dir, Polyhedron& poly);
+void exportOFF(const dirHolder& dir, SurfaceMesh& out_mesh);
 
-int exportNPZ(dirHolder& dir, dataHolder& data);
-int export3DT(const dirHolder dir, dataHolder data);
-void exportPLY_manual(dirHolder& dir, SurfaceMesh& out_mesh);
-void exportPLY_bin(dirHolder& dir, SurfaceMesh& out_mesh);
-int exportPLY(dirHolder& dir, Point_set& points);
-int exportPLY(dirHolder& dir, vector<Point>& points);
-int exportPLY(dirHolder& dir, SurfaceMesh& out_mesh);
-void exportPLY(dirHolder&, vector<Point>&, vector<vertex_info>&, exportOptions&);
+int exportNPZ(const dirHolder& dir, dataHolder& data);
+int export3DT(const dirHolder dir, dataHolder& data);
+void exportPLY_manual(const dirHolder& dir, SurfaceMesh& out_mesh);
+void exportPLY_bin(const dirHolder& dir, SurfaceMesh& out_mesh);
+int exportPLY(const dirHolder& dir, Point_set& points);
+int exportPLY(const dirHolder& dir, vector<Point>& points);
+int exportPLY(const dirHolder& dir, SurfaceMesh& out_mesh);
+void exportPLY(const dirHolder&, vector<Point>&, vector<vertex_info>&, exportOptions&);
 
 void fixSensorCenter();
 
 ///// custom /////
 
-void exportMITSurface(dirHolder& dir, Delaunay& Dt, bool mean, double iso_value);
-void exportIsoValues(dirHolder& dir, Delaunay& Dt, vector<double>& values);
-void exportCellCenter(dirHolder& dir, const Delaunay& Dt);
-void exportCellScore(dirHolder& dir, const Delaunay& Dt);
+void exportMITSurface(const dirHolder& dir, Delaunay& Dt, bool mean, double iso_value);
+void exportIsoValues(const dirHolder& dir, Delaunay& Dt, vector<double>& values);
+void exportCellCenter(const dirHolder& dir, const Delaunay& Dt);
+void exportCellScore(const dirHolder& dir, const Delaunay& Dt);
 
 
-void exportColoredFacets(dirHolder& dir, const Delaunay& Dt,
+void exportColoredFacets(const dirHolder& dir, const Delaunay& Dt,
                             bool optimized);
 
-void exportConvexHull(dirHolder& dir, const Delaunay& Dt);
+void exportConvexHull(const dirHolder& dir, const Delaunay& Dt);
 
-void exportInterface(dirHolder& dir, dataHolder& data, runningOptions& options, exportOptions& eo);
+void exportInterface(const dirHolder& dir, dataHolder& data, runningOptions& options, exportOptions& eo);
 
 
 #include <CGAL/structure_point_set.h>
-void exportStructured(dirHolder& dir, PSS& pss);
+void exportStructured(const dirHolder& dir, PSS& pss);
 
 
 #endif
