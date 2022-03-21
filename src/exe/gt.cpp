@@ -31,10 +31,22 @@
 using namespace boost::filesystem;
 
 
+
 /////////////////////////////////////////////////////////////////////
 ///////////////////////// CONTROL FUNCTIONS /////////////////////////
 /////////////////////////////////////////////////////////////////////
-int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, exportOptions& exportO){
+int extractGt(dirHolder& dir, dataHolder& data, runningOptions& options, exportOptions& exportO){
+
+
+
+    // load scan.npz
+    // make delaunay triangulation of scan = 3dt_computed
+    // load 3dt.npz and assert that 3dt_computed and 3dt.npz (loaded) is the same
+    // load points.npz -> 100k eval points with their occupancy
+    // save points.npz to a new file with an additional array called tetraID
+    // tetraID is the ID of the tetrahedron of 3dt_computed
+    // save to gt folder as occPoints.npz
+
 
 
     ///////////////////////////////
@@ -94,16 +106,7 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
         options.ground_truth = 1;
     }
 
-    ///////////////////////////////////
-    ///////// PREPROCESS DATA /////////
-    ///////////////////////////////////
-    if(!dir.transformation_file.empty()){
-        // import translation matrix
-//        if(importTransformationMatrix(dir,data))
-//            return 1;
-        if(applyTransformationMatrix(data))
-            return 1;
-    }
+
     // calc gt obb
     if(!options.gt_isclosed){
         cout << "\nMake bounding box of open GT for cropping input..." << endl;
@@ -114,30 +117,6 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
         cout << "\t-ground truth centroid for ray tracing: " << data.gt_centroid << "-1000" << endl;
         clipWithBoundingBox(data.points,data.infos,data.bb_surface_mesh);
 
-    }
-
-    if(options.scale > 0.0)
-        standardizePointSet(dir, data, options.scale);
-
-//    if(options.scoring == "_rt")
-//        orderSensors(data);
-//    else
-//        cout << "\nSensors not ordered for ray-tracing" << endl;
-
-    if(exportO.cameras){
-        dir.suffix = "_cameras";
-        exportCameraCenter(dir, data);
-    }
-    // export the scanned points
-    if(exportO.toply){
-        exportO.color = data.has_color;
-        exportO.normals = data.has_normal;
-        exportPLY(dir, data.points, data.infos, exportO);
-    }
-
-    if(exportO.tonpz){
-        toXTensor(data);
-        exportNPZ(dir,data);
     }
 
     //////////////////////////////////////
@@ -156,7 +135,12 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
     ///////////////////////////////////
     // make an index, necessary for graphExport e.g.
     options.make_global_cell_idx=1;
-    indexDelaunay(data, options);
+    indexDelaunay(data, options); // this should be deterministic for a loaded scan.npz file.
+
+
+    importOccPoints(dir,data);
+    point2TetraIndex(data);
+    exportOccPoints(dir,data);
 
     if(!options.ground_truth){
         // this constructs the features which are exported to the cell ray graph,
@@ -181,58 +165,37 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
                     return 1;
             }
         }
-        #ifdef RECONBENCH
-        if(dir.gt_poly_file.substr(dir.gt_poly_file.length() - 3 ) == "mpu"){
-            labelObjectWithImplicit(data, options.number_of_points_per_cell);
-        }
-        #endif
 
     }
-
-    // get tet index per eval point
-    importOccPoints(dir,data);
-    point2TetraIndex(data);
-
-
-
-
 
     ////////////////////////////
     ////////// EXPORT //////////
     ////////////////////////////
 
-    // export _eval.npz file, with eval points, occupancy and point2tetIndex
-    exportOccPoints(dir,data);
 
     //// export features and labels
     // check if labels directory exists, if not create it
     path lpath(dir.path);
+    // this shitty problem here is not present on the laptop
     lpath /= string("dgnn");
     if(!is_directory(lpath))
         create_directory(lpath);
     // export the features and labels
     auto ge = graphExporter(dir, data.Dt, options);
+
+    // make a new function in the graph exporter, which exports the npz file
     ge.run(true);
+//    ge.point2TetraIndex(dir,data);
 
 
     ///// export the 3DT as npz
-    options.make_global_cell_idx=0;
-    options.make_finite_cell_idx=1;
-    options.make_finite_vertex_idx=1;
+    options.make_global_cell_idx=1;
+    options.make_global_vertex_idx=1;
+    options.make_finite_cell_idx=0;
+    options.make_finite_vertex_idx=0;
     indexDelaunay(data, options);
     export3DT(dir,data);
 
-    if(exportO.interface){
-        for(auto cit = data.Dt.all_cells_begin(); cit != data.Dt.all_cells_end(); cit++){
-            if(data.Dt.is_infinite(cit)){
-                cit->info().gc_label = 1;
-                continue;
-            }
-            // this means untraversed cells and 50/50 cells will be labelled as inside
-            cit->info().gc_label = cit->info().outside_score > cit->info().inside_score ? 1 : 0;
-        }
-        exportInterface(dir, data, options, exportO);
-    }
 
     return 0;
 }
@@ -253,16 +216,16 @@ int main(int argc, char const *argv[]){
         return 1;
 
     auto start = std::chrono::high_resolution_clock::now();
-    cout << "\n-----FEATURE EXTRACTION-----" << endl;
+    cout << "\n-----GT EXTRACTION-----" << endl;
     cout << "\nWorking dir set to:\n\t-" << ip.dh.path << endl;
 
     dataHolder data;
-    if(extractFeatures(ip.dh, data, ip.ro, ip.eo))
+    if(extractGt(ip.dh, data, ip.ro, ip.eo))
         return 1;
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-    cout << "\n-----FEATURE EXTRACTION FINISHED in "<< duration.count() << "s -----\n" << endl;
+    cout << "\n-----GT EXTRACTION FINISHED in "<< duration.count() << "s -----\n" << endl;
 
     return 0;
 

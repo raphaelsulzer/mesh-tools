@@ -45,15 +45,16 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
     ///////// FILE NAMING /////////
     ///////////////////////////////
     options.scoring="_"+options.scoring;
-    dir.rw_string = double2string(options.area_reg_weight+options.angle_reg_weight+options.cc_reg_weight+options.sv_reg_weight);
+    string rw_string = double2string(options.area_reg_weight+options.angle_reg_weight+options.cc_reg_weight+options.sv_reg_weight);
+    string ol_string;
     if(options.percentage_of_outliers > 0.0)
-        dir.ol_string = double2string(options.percentage_of_outliers*100);
+        ol_string = double2string(options.percentage_of_outliers*100);
     if(dir.read_file.empty())
         dir.read_file = dir.write_file;
     if(dir.write_file.empty())
-        dir.write_file = dir.read_file+dir.ol_string+options.scoring+dir.rw_string;
+        dir.write_file = dir.read_file+ol_string+options.scoring+rw_string;
     else
-        dir.write_file+=options.scoring+dir.rw_string;
+        dir.write_file+=options.scoring+rw_string;
 
     ///////////////////////////////
     ///////// IMPORT DATA /////////

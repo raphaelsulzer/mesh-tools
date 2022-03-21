@@ -32,6 +32,7 @@ option(SCAN "Whether to build scan exe" ON)
 option(OMVS2NPZ "Whether to build omvs2npz exe" OFF)
 option(LABATUT "Whether to build labatut exe" ON)
 option(FEAT "Whether to build feat exe" ON)
+#option(GT "Whether to build gt exe" ON)
 option(OCC2MESH "Whether to build occ2mesh exe" OFF)
 option(NORMAL "Whether to build normal exe" OFF)
 option(SAMPLE "Whether to build sample exe" OFF)
@@ -543,6 +544,36 @@ if(FEAT)
                         xtensor-io
                         )
 endif()
+
+#if(GT)
+#    add_executable(gt
+#        src/exe/gt.cpp
+#        src/exe/inputParser.cpp
+#        ${OMVS_INCLUDE_DIRS}
+#        )
+#    target_link_libraries(gt
+#                        fileIO
+#                        learning
+#                        rPLY
+#                        util
+#                        processing
+#                        ${OCV_EXTERNAL_LIBRARIES}
+#                        ${OMVS_EXTERNAL_LIBRARIES} # this has to be written before OpenMP for some reason
+#                        ${RECONBENCH_EXTERNAL_LIBRARIES}
+#                        ${PCL_EXTERNAL_LIBRARIES}
+#                        ${Boost_LIBRARIES}
+#                        ${GLOG_LIBRARIES}
+#                        ${CERES_LIBRARIES}
+#                        ${GMP_LIBRARY}
+#                        ${MPFR_LIBRARY}
+#                        ${Open3D_LIBRARIES}
+#                        CGAL::CGAL
+#                        OpenMP::OpenMP_CXX
+#                        ZLIB::ZLIB
+#                        xtensor
+#                        xtensor-io
+#                        )
+#endif()
 
 if(OMVS2NPZ)
     add_executable(omvs2npz

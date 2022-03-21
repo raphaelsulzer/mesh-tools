@@ -251,6 +251,9 @@ public:
     }
 
     void run(bool compress);
+
+
+
     void cellLabel(Delaunay::All_cells_iterator& fci);
 
     void cellGeometricFeatures(Delaunay::All_cells_iterator& fci);
@@ -264,7 +267,10 @@ public:
 };
 
 // import functions
-int loadPrediction(dirHolder dir, dataHolder& data, runningOptions options);
+bool importPrediction(dirHolder dir, dataHolder& data, runningOptions options);
+bool importOccPoints(dirHolder dir, dataHolder& data);
+bool point2TetraIndex(dataHolder& data);
+bool exportOccPoints(dirHolder dir, dataHolder& data);
 
 
 #endif // LEARNINGIO_H

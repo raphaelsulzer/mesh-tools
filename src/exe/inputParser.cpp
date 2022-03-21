@@ -113,6 +113,7 @@ po::options_description cliParser::initInput(){
                                                             "\n\t-npz"
                                                             "\n\t-omvs (an OpenMVS project file)")
             ("groundtruth_file,g", po::value<string>(), "Groundtruth file")
+            ("occ", po::value<string>(), "Occupancy file")
             ("transformation_file,t", po::value<string>(), "Transformation file")
             ("crop_file,c", po::value<string>(), "Crop file")
             ("scale", po::value<double>()->default_value(0.0), "Scale mean edge length of Delaunay to this value.")
@@ -183,10 +184,8 @@ int cliParser::getInput(){
         dh.crop_file = vm["crop_file"].as<string>();
     if(vm.count("groundtruth_file"))
         dh.gt_poly_file =  vm["groundtruth_file"].as<string>();
-
-    // gt truth stuff
-    if(vm.count("gt_poly_file"))
-        dh.gt_poly_file = vm["gt_poly_file"].as<string>();
+    if(vm.count("occ"))
+        dh.occ_file =  vm["occ"].as<string>();
 
     // Delaunay
     if(vm.count("adt"))

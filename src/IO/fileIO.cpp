@@ -125,6 +125,13 @@ int toXTensor(dataHolder& data){
         }
     }
 
+//    for(int i = 0; i < data.gt_points.size(); i++){
+
+//        data.xgt_points.push_back(data.gt_points[i].x());
+//        data.xgt_points.push_back(data.gt_points[i].y());
+//        data.xgt_points.push_back(data.gt_points[i].z());
+//    }
+
     return 0;
 }
 
@@ -632,6 +639,76 @@ int exportNPZ(dirHolder& dir, dataHolder& data){
     return 0;
 }
 
+//int export3DT(const dirHolder dir, dataHolder data){
+
+//    boost::filesystem::path p(dir.write_file);
+//    string outfile = p.stem().string();
+
+//    cout << "\nExport 3DT..." << endl;
+//    cout << "\t-to " << "gt/"+outfile+"_3dt.npz" << endl;
+
+//    data.xverts.clear();
+//    data.xfacets.clear();
+//    data.xnfacets.clear();
+//    data.xtets.clear();
+
+//    for(Vertex_handle vh : data.Dt.finite_vertex_handles()){
+//        data.xverts.push_back(vh->point().x());
+//        data.xverts.push_back(vh->point().y());
+//        data.xverts.push_back(vh->point().z());
+//    }
+
+//    Delaunay::Finite_facets_iterator fft;
+//    int vidx;
+//    Cell_handle c, mc;
+//    for(fft = data.Dt.finite_facets_begin(); fft != data.Dt.finite_facets_end(); fft++){
+
+//        c = fft->first; // cell
+//        vidx = fft->second;
+
+//        data.xnfacets.push_back(c->info().finite_idx);
+//        mc = c->neighbor(vidx);
+//        data.xnfacets.push_back(mc->info().finite_idx); // infinite cells will automatically have a finite_idx = -1
+
+//        for(int j = vidx + 1; j <= vidx + 3; j++){
+//                // so c->vertex() gives me the global vertex handle from the Dt
+//                data.xfacets.push_back(c->vertex(j%4)->info().finite_idx);
+//        }
+//    }
+
+//    for(Cell_handle ch : data.Dt.finite_cell_handles()){
+//        data.xtets.push_back(ch->vertex(0)->info().finite_idx);
+//        data.xtets.push_back(ch->vertex(1)->info().finite_idx);
+//        data.xtets.push_back(ch->vertex(2)->info().finite_idx);
+//        data.xtets.push_back(ch->vertex(3)->info().finite_idx);
+//    }
+
+//    cout << "\t-" << data.xverts.size()/3 << " vertices" << endl;
+//    cout << "\t-" << data.xfacets.size()/3 << " facets" << endl;
+//    cout << "\t-" << data.xtets.size()/4 << " tetrahedra" << endl;
+
+
+
+//    std::vector<std::size_t> vshape = { data.Dt.number_of_vertices(), 3 };
+//    auto verts = xt::adapt(data.xverts, vshape);
+//    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","vertices",verts,true,false);
+
+//    std::vector<std::size_t> fshape = { data.Dt.number_of_finite_facets(), 3 };
+//    auto facets = xt::adapt(data.xfacets, fshape);
+//    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","facets",facets,true,true);
+
+//    std::vector<std::size_t> fnshape = { data.Dt.number_of_finite_facets(), 2 };
+//    auto nfacets = xt::adapt(data.xnfacets, fnshape);
+//    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","nfacets",nfacets,true,true);
+
+//    std::vector<std::size_t> tshape = { data.Dt.number_of_finite_cells(), 4 };
+//    auto tets = xt::adapt(data.xtets, tshape);
+//    xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","tetrahedra",tets,true,true);
+
+//    return 0;
+
+//}
+
 int export3DT(const dirHolder dir, dataHolder data){
 
     boost::filesystem::path p(dir.write_file);
@@ -645,16 +722,16 @@ int export3DT(const dirHolder dir, dataHolder data){
     data.xnfacets.clear();
     data.xtets.clear();
 
-    for(Vertex_handle vh : data.Dt.finite_vertex_handles()){
+    for(Vertex_handle vh : data.Dt.all_vertex_handles()){
         data.xverts.push_back(vh->point().x());
         data.xverts.push_back(vh->point().y());
         data.xverts.push_back(vh->point().z());
     }
 
-    Delaunay::Finite_facets_iterator fft;
+    Delaunay::All_facets_iterator fft;
     int vidx;
     Cell_handle c, mc;
-    for(fft = data.Dt.finite_facets_begin(); fft != data.Dt.finite_facets_end(); fft++){
+    for(fft = data.Dt.all_facets_begin(); fft != data.Dt.all_facets_end(); fft++){
 
         c = fft->first; // cell
         vidx = fft->second;
@@ -669,7 +746,7 @@ int export3DT(const dirHolder dir, dataHolder data){
         }
     }
 
-    for(Cell_handle ch : data.Dt.finite_cell_handles()){
+    for(Cell_handle ch : data.Dt.all_cell_handles()){
         data.xtets.push_back(ch->vertex(0)->info().finite_idx);
         data.xtets.push_back(ch->vertex(1)->info().finite_idx);
         data.xtets.push_back(ch->vertex(2)->info().finite_idx);
@@ -686,21 +763,22 @@ int export3DT(const dirHolder dir, dataHolder data){
     auto verts = xt::adapt(data.xverts, vshape);
     xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","vertices",verts,true,false);
 
-    std::vector<std::size_t> fshape = { data.Dt.number_of_finite_facets(), 3 };
+    std::vector<std::size_t> fshape = { data.Dt.number_of_facets(), 3 };
     auto facets = xt::adapt(data.xfacets, fshape);
     xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","facets",facets,true,true);
 
-    std::vector<std::size_t> fnshape = { data.Dt.number_of_finite_facets(), 2 };
+    std::vector<std::size_t> fnshape = { data.Dt.number_of_facets(), 2 };
     auto nfacets = xt::adapt(data.xnfacets, fnshape);
     xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","nfacets",nfacets,true,true);
 
-    std::vector<std::size_t> tshape = { data.Dt.number_of_finite_cells(), 4 };
+    std::vector<std::size_t> tshape = { data.Dt.number_of_cells(), 4 };
     auto tets = xt::adapt(data.xtets, tshape);
     xt::dump_npz(dir.path+"gt/"+outfile+"_3dt.npz","tetrahedra",tets,true,true);
 
     return 0;
 
 }
+
 
 ///////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////// OFF ///////////////////////////////////////

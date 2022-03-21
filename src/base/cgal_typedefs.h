@@ -87,8 +87,8 @@ struct vertex_info{
     typedef float vtype;
 
     // point/vertex information
-    int global_idx = -1;
-    int finite_idx = -1;
+    bool global_idx = 0;
+    bool finite_idx = 0;
     vtype sigma = 0.01; // noise of the point;
     int alpha = 1; // how many points this vertex represents, will be increased by adaptive Delaunay triangulation
     CGAL::Color color;
@@ -103,10 +103,11 @@ struct vertex_info{
 //    vector<int> sensor_tet; // see fileOP.cpp for explanation
     // learning
 //    vector<ray_intersection_info> ray; // the int here is the index of one of the cells that this ray has passed
-    int outlier;
+    bool outlier;
 
     // iso surface extraction
     vtype field_value;
+//    bool occupancy;
 
 };
 typedef CGAL::Triangulation_vertex_base_with_info_3<vertex_info, EPICK>    VB;

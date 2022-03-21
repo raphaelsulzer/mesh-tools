@@ -16,22 +16,24 @@ struct dirHolder{
     string mvs_file;
     string scene;
 
-    string gt_poly_file;
-    string gt_scan_file;
-    string prediction_file;
-
     string read_file;
     string write_file;
     string read_file_type;
 
+    string gt_poly_file;
+    string gt_scan_file;
+    string prediction_file;
+
+    string occ_file;
     string transformation_file;
     string crop_file;
 
     string suffix = "";
-    string rw_string;
-    string ol_string = "";
 
 };
+#include <xtensor/xbuilder.hpp>
+#include <xtensor/xmath.hpp>
+#include <xtensor-io/xnpz.hpp>
 struct dataHolder{
 
 //    MVS::Scene omvs_scene;
@@ -51,6 +53,9 @@ struct dataHolder{
     vector<int> xfacets;
     vector<int> xnfacets; // cell neighbors of facets
     vector<int> xtets;
+    // eval
+//    vector<int> xpoint2tet;
+//    vector<bool> xocc; // xpoints.size() != xocc.size(); because first is the scan, second the eval points
 
 
     // learning
@@ -59,6 +64,12 @@ struct dataHolder{
 
     vector<Point> gt_points;
     vector<vertex_info> gt_infos;
+
+//    vector<double> xgt_points;
+//    vector<bool> gt_occupancies;
+    xt::xarray<double> xgt_points;
+    xt::xarray<uint8_t> xgt_occupancies;
+    xt::xarray<int> xgt_point2tet;
 
     Point translation_vector;
     double scale_factor = 0.0;

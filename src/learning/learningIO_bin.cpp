@@ -235,7 +235,7 @@ void graphExporter::run(bool compress){
 
     auto start = std::chrono::high_resolution_clock::now();
     cout << "\nExport graph..." << endl;
-    cout << "\t-to " << "gt/"+outfile_+"_X.npz" << endl;
+    cout << "\t-to " << "dgnn/"+outfile_+"_X.npz" << endl;
 //    string rays = (options_.export_rays) ? "\t-with rays" : "\t-without rays";
 //    cout << rays << endl;
 
@@ -245,7 +245,7 @@ void graphExporter::run(bool compress){
     /////////////////////////////////////////////
     ////// info file
     ofstream info;
-    info.open(dir_.path+"gt/"+outfile_+"_info.txt");
+    info.open(dir_.path+"dgnn/"+outfile_+"_info.txt");
     info << "vertices " << nv_ << endl;
     info << "facets " << nf_ << endl;
     info << "cells " << nc_ << endl;
@@ -299,21 +299,21 @@ void graphExporter::run(bool compress){
         }
     }
 
-    string ilf = dir_.path+"gt/"+outfile_+"_labels.npz";
+    string ilf = dir_.path+"dgnn/"+outfile_+"_labels.npz";
     xt::dump_npz(ilf,"infinite",infinite_,compress,false);
     if(options_.ground_truth){
         xt::dump_npz(ilf,"inside_perc",inside_perc_,compress,true);
         xt::dump_npz(ilf,"outside_perc",outside_perc_,compress,true);
     }
 
-    string cgeom = dir_.path+"gt/"+outfile_+"_cgeom.npz";
+    string cgeom = dir_.path+"dgnn/"+outfile_+"_cgeom.npz";
     xt::dump_npz(cgeom,"radius",radius_,compress,false);
     xt::dump_npz(cgeom,"vol",vol_,compress,true);
     xt::dump_npz(cgeom,"longest_edge",longest_edge_,compress,true);
     xt::dump_npz(cgeom,"shortest_edge",shortest_edge_,compress,true);
 
     ////// cell based vertex features
-    string cvff = dir_.path+"gt/"+outfile_+"_cbvf.npz";
+    string cvff = dir_.path+"dgnn/"+outfile_+"_cbvf.npz";
     xt::dump_npz(cvff,"cb_vertex_inside_count",cb_vertex_inside_count_,compress,false);
     xt::dump_npz(cvff,"cb_vertex_inside_dist_min",cb_vertex_inside_dist_min_,compress,true);
     xt::dump_npz(cvff,"cb_vertex_inside_dist_max",cb_vertex_inside_dist_max_,compress,true);
@@ -330,7 +330,7 @@ void graphExporter::run(bool compress){
     xt::dump_npz(cvff,"cb_vertex_last_dist_sum",cb_vertex_last_dist_sum_,compress,true);
 
     ////// cell based facet features
-    string cbff = dir_.path+"gt/"+outfile_+"_cbff.npz";
+    string cbff = dir_.path+"dgnn/"+outfile_+"_cbff.npz";
     xt::dump_npz(cbff,"cb_facet_inside_first_count",cb_facet_inside_first_count_,compress,false);
     xt::dump_npz(cbff,"cb_facet_inside_first_dist_min",cb_facet_inside_first_dist_min_,compress,true);
     xt::dump_npz(cbff,"cb_facet_inside_first_dist_max",cb_facet_inside_first_dist_max_,compress,true);
@@ -365,12 +365,12 @@ void graphExporter::run(bool compress){
     /////////////////////////////////////////////
     //////////////////// EDGES //////////////////
     /////////////////////////////////////////////
-    string adjf = dir_.path+"gt/"+outfile_+"_adjacencies.npz";
+    string adjf = dir_.path+"dgnn/"+outfile_+"_adjacencies.npz";
     xt::dump_npz(adjf,"adjacencies",adjacencies_,compress,false);
 
 
     // geometric features
-    string fgeom = dir_.path+"gt/"+outfile_+"_fgeom.npz";
+    string fgeom = dir_.path+"dgnn/"+outfile_+"_fgeom.npz";
     xt::dump_npz(fgeom,"area",area_,compress,false);
     xt::dump_npz(fgeom,"angle",angle_,compress,true);
     xt::dump_npz(fgeom,"beta",beta_,compress,true);
@@ -378,7 +378,7 @@ void graphExporter::run(bool compress){
 
 
     // facet based vertex features
-    string fbvf = dir_.path+"gt/"+outfile_+"_fbvf.npz";
+    string fbvf = dir_.path+"dgnn/"+outfile_+"_fbvf.npz";
     xt::dump_npz(fbvf,"fb_vertex_inside_count",fb_vertex_inside_count_,compress,false);
     xt::dump_npz(fbvf,"fb_vertex_inside_dist_min",fb_vertex_inside_dist_min_,compress,true);
     xt::dump_npz(fbvf,"fb_vertex_inside_dist_max",fb_vertex_inside_dist_max_,compress,true);
@@ -396,7 +396,7 @@ void graphExporter::run(bool compress){
 
 
     // facet based facet features
-    string fbff = dir_.path+"gt/"+outfile_+"_fbff.npz";
+    string fbff = dir_.path+"dgnn/"+outfile_+"_fbff.npz";
     xt::dump_npz(fbff,"fb_facet_inside_count",fb_facet_inside_count_,compress,false);
     xt::dump_npz(fbff,"fb_facet_inside_dist_min",fb_facet_inside_dist_min_,compress,true);
     xt::dump_npz(fbff,"fb_facet_inside_dist_max",fb_facet_inside_dist_max_,compress,true);
@@ -420,11 +420,92 @@ void graphExporter::run(bool compress){
 }
 
 
+bool importOccPoints(dirHolder dir, dataHolder& data){
+
+    fs::path path = fs::path(dir.path) / fs::path(dir.occ_file).replace_extension(".npz");
+    path = path.lexically_normal();
+    std::ifstream file(path.string());
+
+    cout << "\nLoad occupancy points..." << endl;
+    cout << "\t-from " << path.string() << endl;
+
+    // load the occupancy points here and put them in a new vector
+    // called data.gt_points
+
+    if(!file){
+        cout << "\nFILE DOES NOT EXIST OR IS EMPTY!" << endl;
+        return 1;
+    }
+    auto a = xt::load_npz(path.string());
+    if(a.find("points") == a.end()){
+        cout << "\nERROR: No points found in NPZ file!" << endl;
+        return 1;
+    }
+    if(a.find("occupancies") == a.end()){
+        cout << "\nERROR: No occupancies found in NPZ file!" << endl;
+        return 1;
+    }
+
+    data.xgt_points = a["points"].cast<float>();
+    data.xgt_occupancies = a["occupancies"].cast<uint8_t>();
+
+//    data.gt_points.clear();
+//    data.gt_infos.clear();
+//    Point p;
+//    for(int i = 0; i < points.shape()[0]; i++){
+//        p = Point(points(i,0),points(i,1),points(i,2));
+//        data.gt_points.push_back(p);
+//    }
+
+
+}
+bool point2TetraIndex(dataHolder& data){
+
+    Point p;
+    Cell_handle c;
+//    assert(data.xgt_point2tet.size()==0);
+    for(int i = 0; data.gt_points.size(); i++){
+        p=data.gt_points[i];
+        c = data.Dt.locate(p);
+        data.xgt_point2tet[i] = c->info().global_idx;
+        // I need to make the file 3dt.npz for all points, and not only finite ones;
+        // so I can relate idx here to the index there
+        // done!
+
+        // also check in this loop the occupancy of gt_points[i]
+
+//        data.xgt_occupancies.push_back(0);
+    }
+
+};
+bool exportOccPoints(dirHolder dir, dataHolder& data){
+
+    // make my own
+    fs::path p(dir.write_file);
+    string outfile = p.stem().string()+"_eval";
+
+    fs::path path = fs::path(dir.path) / fs::path("dgnn") / fs::path(outfile).replace_extension(".npz");
+    path = path.lexically_normal();
+
+    cout << "\nExport GT points..." << endl;
+//    cout << "\t-to " << path.string() << endl;
+    cout << "\t-to " << "dgnn/"+outfile+".npz" << endl;
+
+    bool compress=true;
+
+    xt::dump_npz(path.string(),"points",data.xgt_points,compress,false);
+    xt::dump_npz(path.string(),"occupancies",data.xgt_occupancies,compress,true);
+    xt::dump_npz(path.string(),"tetIndex",data.xgt_point2tet,compress,true);
+
+    return 0;
+
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////// IMPORT ////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
-int loadPrediction(dirHolder dir, dataHolder& data, runningOptions options){
+bool importPrediction(dirHolder dir, dataHolder& data, runningOptions options){
 
 
     fs::path path = fs::path(dir.path) / fs::path(dir.prediction_file).replace_extension(".npz");
@@ -515,4 +596,6 @@ int loadPrediction(dirHolder dir, dataHolder& data, runningOptions options){
 
     return 0;
 }
+
+
 

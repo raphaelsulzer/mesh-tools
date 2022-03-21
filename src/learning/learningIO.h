@@ -25,7 +25,7 @@ void exportFacetRayGraph(dirHolder& dir, runningOptions& options, Delaunay& Dt);
 
 
 // import functions
-int loadPrediction(dirHolder dir, dataHolder& data, runningOptions options);
+int importPrediction(dirHolder dir, dataHolder& data, runningOptions options);
 
 
 #endif // LEARNINGIO_H
