@@ -769,7 +769,7 @@ int export3DT(const dirHolder dir, dataHolder& data){
     cout << "\t-" << data.xtets.size()/4 << " tetrahedra" << endl;
 
 
-    vector<size_t> vshape = { data.Dt.number_of_vertices(), 3 };
+    vector<size_t> vshape = { data.Dt.number_of_vertices()+1, 3 }; // number of vertices gives only finite number
     auto verts = xt::adapt(data.xverts, vshape);
     xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","vertices",verts,true,false);
     xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","inf_vertices",xt::adapt(data.xvertsi),true,true);
