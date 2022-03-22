@@ -50,9 +50,12 @@ struct dataHolder{
     vector<double> xgtnormals;
     vector<double> xsensor_positions;
     vector<double> xverts; // this is for saving the points in the order they appear in the 3DT
+    vector<int> xvertsi; // vert is infinite?
     vector<int> xfacets;
+    vector<int> xfacetsi; // facet is infinite?
     vector<int> xnfacets; // cell neighbors of facets
     vector<int> xtets;
+    vector<int> xtetsi; // tet is infinite?
     // eval
 //    vector<int> xpoint2tet;
 //    vector<bool> xocc; // xpoints.size() != xocc.size(); because first is the scan, second the eval points
@@ -69,7 +72,7 @@ struct dataHolder{
 //    vector<bool> gt_occupancies;
     xt::xarray<double> xgt_points;
     xt::xarray<uint8_t> xgt_occupancies;
-    xt::xarray<int> xgt_point2tet;
+    vector<int> xgt_point2tet;
 
     Point translation_vector;
     double scale_factor = 0.0;

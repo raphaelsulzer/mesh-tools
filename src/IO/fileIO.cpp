@@ -718,16 +718,22 @@ int export3DT(const dirHolder dir, dataHolder& data){
     cout << "\t-to " << "dgnn/"+outfile+"_3dt.npz" << endl;
 
     data.xverts.clear();
+    data.xvertsi.clear();
     data.xfacets.clear();
+    data.xfacetsi.clear();
     data.xnfacets.clear();
     data.xtets.clear();
+    data.xtetsi.clear();
 
     for(Vertex_handle vh : data.Dt.all_vertex_handles()){
 //        cout << "vertex " << vh->info().global_idx << endl;
         data.xverts.push_back(vh->point().x());
         data.xverts.push_back(vh->point().y());
         data.xverts.push_back(vh->point().z());
+        data.xvertsi.push_back(data.Dt.is_infinite(vh));
     }
+//    auto shape = data.xvertsi.shape();
+//    cout << "xvertsi shape " << xt::adapt(shape) << endl;
 
     Delaunay::All_facets_iterator fft;
     int vidx;
@@ -746,6 +752,7 @@ int export3DT(const dirHolder dir, dataHolder& data){
                 // so c->vertex() gives me the global vertex handle from the Dt
                 data.xfacets.push_back(c->vertex(j%4)->info().global_idx);
         }
+        data.xfacetsi.push_back(data.Dt.is_infinite(c));
     }
 
     for(Cell_handle ch : data.Dt.all_cell_handles()){
@@ -754,6 +761,7 @@ int export3DT(const dirHolder dir, dataHolder& data){
         data.xtets.push_back(ch->vertex(1)->info().global_idx);
         data.xtets.push_back(ch->vertex(2)->info().global_idx);
         data.xtets.push_back(ch->vertex(3)->info().global_idx);
+        data.xtetsi.push_back(data.Dt.is_infinite(ch));
     }
 
     cout << "\t-" << data.xverts.size()/3 << " vertices" << endl;
@@ -761,22 +769,25 @@ int export3DT(const dirHolder dir, dataHolder& data){
     cout << "\t-" << data.xtets.size()/4 << " tetrahedra" << endl;
 
 
-
-    std::vector<std::size_t> vshape = { data.Dt.number_of_vertices(), 3 };
+    vector<size_t> vshape = { data.Dt.number_of_vertices(), 3 };
     auto verts = xt::adapt(data.xverts, vshape);
     xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","vertices",verts,true,false);
+    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","inf_vertices",xt::adapt(data.xvertsi),true,true);
 
-    std::vector<std::size_t> fshape = { data.Dt.number_of_facets(), 3 };
+
+    vector<size_t> fshape = { data.Dt.number_of_facets(), 3 };
     auto facets = xt::adapt(data.xfacets, fshape);
     xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","facets",facets,true,true);
+    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","inf_facets",xt::adapt(data.xfacetsi),true,true);
 
-    std::vector<std::size_t> fnshape = { data.Dt.number_of_facets(), 2 };
+    vector<size_t> fnshape = { data.Dt.number_of_facets(), 2 };
     auto nfacets = xt::adapt(data.xnfacets, fnshape);
     xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","nfacets",nfacets,true,true);
 
-    std::vector<std::size_t> tshape = { data.Dt.number_of_cells(), 4 };
+    vector<size_t> tshape = { data.Dt.number_of_cells(), 4 };
     auto tets = xt::adapt(data.xtets, tshape);
     xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","tetrahedra",tets,true,true);
+    xt::dump_npz(dir.path+"dgnn/"+outfile+"_3dt.npz","inf_tetrahedra",xt::adapt(data.xtetsi),true,true);
 
     return 0;
 

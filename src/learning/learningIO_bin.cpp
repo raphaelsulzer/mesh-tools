@@ -463,18 +463,12 @@ bool point2TetraIndex(dataHolder& data){
 
     Point p;
     Cell_handle c;
+    data.xgt_point2tet.clear();
 //    assert(data.xgt_point2tet.size()==0);
-    for(int i = 0; data.gt_points.size(); i++){
-        p=data.gt_points[i];
+    for(int i = 0; i < data.xgt_points.shape()[0]; i++){
+        p = Point(data.xgt_points(i,0),data.xgt_points(i,1),data.xgt_points(i,2));
         c = data.Dt.locate(p);
-        data.xgt_point2tet[i] = c->info().global_idx;
-        // I need to make the file 3dt.npz for all points, and not only finite ones;
-        // so I can relate idx here to the index there
-        // done!
-
-        // also check in this loop the occupancy of gt_points[i]
-
-//        data.xgt_occupancies.push_back(0);
+        data.xgt_point2tet.push_back(c->info().global_idx);
     }
 
 };
@@ -495,7 +489,7 @@ bool exportOccPoints(dirHolder dir, dataHolder& data){
 
     xt::dump_npz(path.string(),"points",data.xgt_points,compress,false);
     xt::dump_npz(path.string(),"occupancies",data.xgt_occupancies,compress,true);
-    xt::dump_npz(path.string(),"tetIndex",data.xgt_point2tet,compress,true);
+    xt::dump_npz(path.string(),"tetIndex",xt::adapt(data.xgt_point2tet),compress,true);
 
     return 0;
 
