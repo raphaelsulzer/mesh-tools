@@ -191,7 +191,8 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
 
     // get tet index per eval point
     if(!dir.occ_file.empty()){
-        importOccPoints(dir,data);
+        if(importOccPoints(dir,data))
+            return 1;
         point2TetraIndex(data);
     }
 

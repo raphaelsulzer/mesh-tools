@@ -457,6 +457,8 @@ bool importOccPoints(dirHolder dir, dataHolder& data){
 //        data.gt_points.push_back(p);
 //    }
 
+    return 0;
+
 
 }
 bool point2TetraIndex(dataHolder& data){
