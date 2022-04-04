@@ -23,7 +23,7 @@ the help command.
 
 ### scan
 
-<img style="width:150px;" src="src/scan.png">
+<img style="width:150px;" src="images/scan.png">
 
 Sample points on a surface mesh using a virtual scanning procedure, e.g. for [Deep Surface Reconstruction from Point Clouds with Visibility Information](https://github.com/raphaelsulzer/dsrv-data).
 You can vary the number of scanned points and cameras, and add noise and outliers to the point cloud.
@@ -35,6 +35,8 @@ Extract points, normals and sensor positions from an [OpenMVS](https://github.co
 
 ### labatut
 
+<img style="width:250px;" src="images/labatut.gif">
+
 Reconstruct a 2-manifold surface mesh from a point cloud with visibility information using the algorithm presented in [Labatut et al. 2009](https://diglib.eg.org/handle/10.2312/CGF.v28i8pp2275-2290).
 
 ### feat
@@ -44,6 +46,7 @@ If a ground truth file is specified, ground truth occupancies for each cell of t
 
 
 ### occ2mesh
+<img style="width:250px;" src="images/occ2mesh.gif">
 
 Transform a 3D Delaunay triangulation with cell occupancies as computed by `feat` or [DGNN](https://github.com/raphaelsulzer/dgnn) to a surface mesh.
 
