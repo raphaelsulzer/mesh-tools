@@ -1,15 +1,12 @@
+#include <random>
+
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>
-#include <util/helper.h>
-#include <util/geometricOperations.h>
+//#include <util/helper.h>
+//#include <util/geometricOperations.h>
 
-#include <processing/tetIntersection.h>
-#include <processing/rayTracingTet.h>
 #include <processing/meshProcessing.h>
-#include <processing/graphCut.h>
-#include <processing/edgeManifoldness.h>
 #include <processing/pointSetProcessing.h>
-#include <processing/meshProcessing.h>
 
 #include <learning/learning.h>
 #include <learning/learningMath.h>
@@ -26,16 +23,9 @@
 #include <CGAL/optimal_bounding_box.h>
 #include <CGAL/Side_of_triangle_mesh.h>
 
-#include <util/helper.h>
-
-#include <random>
-
-
 using namespace std;
 
-
-
-int labelObjectWithOpenGroundTruth(dirHolder dir, dataHolder& data, int sampling_points){
+int labelReal(dirHolder dir, dataHolder& data, int sampling_points){
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -46,7 +36,15 @@ int labelObjectWithOpenGroundTruth(dirHolder dir, dataHolder& data, int sampling
 
     assert(sampling_points > 0);
 
-    cout << "\nLabelling cells with open ground truth and ray tracing..." << endl;
+    cout << "\nMake bounding box of open GT for cropping input..." << endl;
+    // get centroid of ground truth
+    getOrientedBoundingBox(data.gt_poly,data.bb_array,data.bb_surface_mesh);
+    data.gt_centroid = getBoundingBoxCentroid(data.bb_array,1000.0);
+    cout << "\t-ground truth centroid for ray tracing: " << data.gt_centroid << "-1000" << endl;
+    clipWithBoundingBox(data.points,data.infos,data.bb_surface_mesh);
+
+
+    cout << "\nLabelling real with open ground truth and ray tracing..." << endl;
     cout << "\t-sample " << sampling_points << endl;
 
     // Initialize the point-in-polyhedron tester
@@ -84,10 +82,10 @@ int labelObjectWithOpenGroundTruth(dirHolder dir, dataHolder& data, int sampling
     double iperc;
     double operc;
     int newCellIndex = 0;
-    vector<Point> all_sampled_points;
-    vector<vertex_info> all_sampled_infos;
-    int progress = 0;
-    int total = data.Dt.number_of_cells();
+//    vector<Point> all_sampled_points;
+//    vector<vertex_info> all_sampled_infos;
+//    int progress = 0;
+//    int total = data.Dt.number_of_cells();
     for(aci = data.Dt.all_cells_begin(); aci != data.Dt.all_cells_end(); aci++){
 //        cout << progress++ << endl;
 //        if((progress*100/total) % 10 == 0 && (++progress*100/total) % 10 != 0)
@@ -182,14 +180,118 @@ int labelObjectWithOpenGroundTruth(dirHolder dir, dataHolder& data, int sampling
 
 
 
-int labelObjectWithClosedGroundTruth(dirHolder dir, dataHolder& data, int sampling_points){
+int labelSRD(dirHolder dir, dataHolder& data, int sampling_points){
+
+    auto start = std::chrono::high_resolution_clock::now();
+    cout << "\nLabelling SRD by sampling points inside cells..." << endl;
+    cout << "\t-sample " << sampling_points << endl;
+
+    if(!data.gt_poly.is_closed()){
+        cout << "\nERROR: ground truth is not closed" << endl;
+        return 1;
+    }
+    assert(sampling_points > 0);
+
+    getOrientedBoundingBox(data.gt_poly,data.bb_array,data.bb_surface_mesh);
+
+    // Initialize the point-in-polyhedron tester
+    // Construct AABB tree with a KdTree
+    SurfaceMesh smesh;
+    CGAL::copy_face_graph(data.gt_poly, smesh);
+    Tree tree(faces(smesh).first, faces(smesh).second, smesh);
+    tree.accelerate_distance_queries();
+    // Initialize the point-in-polyhedron tester
+    const Point_inside inside_mesh(tree);
+    const Point_inside inside_bbox(data.bb_surface_mesh);
+
+
+    int icount = 0;
+    int ncount = 0;
+    Delaunay::All_cells_iterator aci;
+    // random sampler
+    CGAL::Random random(42);
+    vector<Point> sampled_points;
+    double iperc;
+    double operc;
+    int newCellIndex = 0;
+    vector<Point> all_sampled_points;
+    vector<vertex_info> all_sampled_infos;
+    for(aci = data.Dt.all_cells_begin(); aci != data.Dt.all_cells_end(); aci++){
+
+        aci->info().global_idx=newCellIndex++;
+
+        if(data.Dt.is_infinite(aci)){
+            aci->info().gc_label = 1; // more likely that it is outside
+            aci->info().inside_score = 0.0;
+            aci->info().outside_score = 1.0;
+            continue;
+        }
+
+        // sample points inside the tet and check if they are inside or outside
+        double cinside=0;
+        double coutside=0;
+        Tetrahedron current_tet = data.Dt.tetrahedron(aci);
+        CGAL::Random_points_in_tetrahedron_3<Point> tet_point_sampler(current_tet, random);
+        sampled_points.clear();
+        CGAL::cpp11::copy_n(tet_point_sampler, sampling_points, std::back_inserter(sampled_points));
+        for(auto const& sampled_point : sampled_points){
+            all_sampled_points.push_back(sampled_point);
+            vertex_info vi;
+
+            if(sampled_point.y() > data.bb_array[0].y()){
+                coutside+=1.0;
+//                vi.color = CGAL::blue();
+            }
+            else if(inside_bbox(sampled_point) == CGAL::ON_UNBOUNDED_SIDE){
+                cinside+=1.0;
+//                vi.color = CGAL::red();
+            }
+            else if(inside_mesh(sampled_point) == CGAL::ON_BOUNDED_SIDE){
+                cinside+=1.0;
+//                vi.color = CGAL::red();
+            }
+            else{
+                coutside+=1.0;
+//                vi.color = CGAL::blue();
+            }
+//            all_sampled_infos.push_back(vi);
+
+        }
+        iperc = cinside/(cinside+coutside);
+        operc = coutside/(cinside+coutside);
+        aci->info().outside_score = operc;
+        aci->info().inside_score = iperc;
+
+        if(operc>iperc){
+            ncount++;
+//            aci->info().gc_label = 1;
+        }
+        else{
+            icount++;
+//            aci->info().gc_label = 0;
+        }
+    }
+//    dir.suffix = "_sampled";
+//    exportOptions eo;
+//    eo.color = true;
+//    exportPLY(dir,all_sampled_points,all_sampled_infos,eo);
+
+    auto stop = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<std::chrono::seconds>(stop - start);
+    cout << "\t-Labelled object with " << icount << "/" << ncount << "(inside/outside) = " << icount+ncount << " cells" << endl;
+    cout << "\t-in "<<duration.count() << "s" << endl;
+    if(icount == 0 || ncount == 0){
+        cout << "\nERROR: cells could not be labelled" << endl;
+        return 1;
+    }
+    return 0;
+}
+
+
+int labelObject(dirHolder dir, dataHolder& data, int sampling_points){
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    if(data.gt_poly.size_of_vertices() == 0){
-        cout << "\nERROR: you need to load a ground truth polygon (with -g) for scanning it" << endl;
-        return 1;
-    }
     if(!data.gt_poly.is_closed()){
         cout << "\nERROR: ground truth is not closed" << endl;
         return 1;
@@ -197,7 +299,7 @@ int labelObjectWithClosedGroundTruth(dirHolder dir, dataHolder& data, int sampli
 
     assert(sampling_points > 0);
 
-    cout << "\nLabelling cells by sampling points inside cells..." << endl;
+    cout << "\nLabelling object by sampling points inside cells..." << endl;
     cout << "\t-sample " << sampling_points << endl;
 
     // Initialize the point-in-polyhedron tester

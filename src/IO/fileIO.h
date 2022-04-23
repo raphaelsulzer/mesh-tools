@@ -183,7 +183,7 @@ int importMesh(const dirHolder& dir, dataHolder& data);
 int importOFFMesh(const dirHolder& dir, Polyhedron& import_poly);
 int importOFFMesh(const string path, Polyhedron& import_poly);
 int importOFFMesh(const dirHolder& dir, SurfaceMesh& import_mesh);
-int importNPZ(const dirHolder& dir, dataHolder& data);
+int importNPZPoints(const dirHolder& dir, dataHolder& data);
 
 int importOMVSScene(const dirHolder dir, dataHolder& data);
 

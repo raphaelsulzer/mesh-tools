@@ -509,7 +509,7 @@ po::options_description cliParser::initFeat(){
     ////////////////// FEATURE EXTRACTION OPTIONS /////////////////
     po::options_description options("\nFEATURE EXTRACTION OPTIONS",description_width);
     options.add_options()
-            ("gclosed", po::value<int>()->default_value(1), "Is ground truth closed?")
+            ("gtype", po::value<string>()->default_value("closed"), "Ground truth type: [closed, real, srd]")
             ("rays", po::value<int>()->default_value(1), "Number of rays to trace.")
             ("pcp", po::value<int>()->default_value(100), "Number of points to sample per cell.")
             ("export", po::value<string>()->default_value(""), "Export the point cloud to [ply,npz,all].")
@@ -521,8 +521,8 @@ int cliParser::getFeat(){
     // Delaunay
     ro.number_of_rays = vm["rays"].as<int>();
     ro.number_of_points_per_cell = vm["pcp"].as<int>();
-    if(vm.count("gclosed"))
-        ro.gt_isclosed = vm["gclosed"].as<int>();
+    if(vm.count("gtype"))
+        ro.gt_type = vm["gtype"].as<string>();
 
     if(vm.count("export")){
         string etype = vm["export"].as<string>();
@@ -730,11 +730,11 @@ int cliParser::getSample(){
 po::options_description cliParser::initScan(){
     po::options_description options("\nSCAN OPTIONS",description_width);
     options.add_options()
-            ("gclosed", po::value<int>()->default_value(1), "Is ground truth closed?")
             ("points,p", po::value<int>()->default_value(500), "Number of scanning points.")
             ("noise,n", po::value<double>()->default_value(0.0), "Std of Gaussian noise to add.")
             ("outliers", po::value<double>()->default_value(0), "Percentage of outliers to add to scanning points.")
             ("cameras,c", po::value<int>()->default_value(3), "Number of cameras.")
+            ("gtype", po::value<string>()->default_value("closed"), "Is ground truth closed?")
             ("normal_method", po::value<string>(), "Method for normal estimation: [none (default), pca, jet, vsm]")
             ("normal_neighborhood", po::value<int>()->default_value(0), "Neighborhood size to consider. 0 = automatic (default)")
             ("normal_orient", po::value<int>()->default_value(2), "Orientation. 0 = no, 1 = sensor, 2 = mst (default).")
@@ -743,8 +743,8 @@ po::options_description cliParser::initScan(){
     return options;
 }
 int cliParser::getScan(){
-    if(vm.count("gclosed"))
-        ro.gt_isclosed = vm["gclosed"].as<int>();
+    if(vm.count("gtype"))
+        ro.gt_type = vm["gtype"].as<string>();
     if(vm.count("cameras"))
         ro.number_of_cameras = vm["cameras"].as<int>();
     if(vm.count("points"))

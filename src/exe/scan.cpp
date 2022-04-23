@@ -43,7 +43,7 @@ int main(int argc, char const *argv[]){
     if(importOFFMesh(ip.dh.path+ip.dh.read_file+".off", data.gt_poly))
         return 1;
 
-    if(ip.ro.gt_isclosed){
+    if(ip.ro.gt_type == "closed"){
         // 2. scan the mesh
         if(scanObjectClosed(data, ip.ro))
             return 1;

@@ -1,27 +1,13 @@
 #pragma once
 
-
-
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>
-#include <exe/labatut.h>
-#include <processing/rayTracingTet.h>
-#include <learning/learningRayTracing.h>
-#include <util/geometricOperations.h>
 
-#include <CGAL/boost/graph/convert_nef_polyhedron_to_polygon_mesh.h>
-#include <CGAL/boost/graph/graph_traits_Polyhedron_3.h>
-#include <CGAL/point_generators_3.h>
-#include <CGAL/polygon_mesh_processing.h>
+//#include <CGAL/boost/graph/convert_nef_polyhedron_to_polygon_mesh.h>
+//#include <CGAL/boost/graph/graph_traits_Polyhedron_3.h>
+//#include <CGAL/point_generators_3.h>
+//#include <CGAL/polygon_mesh_processing.h>
 #include <CGAL/Side_of_triangle_mesh.h>
-
-#include <boost/foreach.hpp>
-#include <random>
-
-
-//typedef CGAL::AABB_face_graph_triangle_primitive<Mesh> Primitive;
-//typedef CGAL::AABB_traits<K, Primitive> Traits;
-//typedef CGAL::AABB_tree<Traits> Tree;
 
 typedef CGAL::Side_of_triangle_mesh<SurfaceMesh, EPICK> Point_inside;
 typedef CGAL::AABB_face_graph_triangle_primitive<SurfaceMesh> Primitive;
@@ -43,10 +29,9 @@ struct tetFeatures{
 
 
 
-int labelObjectWithClosedGroundTruth(dirHolder dir,dataHolder& data, int sampling_points);
-int labelObjectWithOpenGroundTruth(dirHolder dir,dataHolder& data, int sampling_points);
-int labelObjectWithImplicit(dataHolder& data, int sampling_points);
+int labelObject(dirHolder dir, dataHolder& data, int sampling_points);
+int labelReal(dirHolder dir, dataHolder& data, int sampling_points);
+int labelSRD(dirHolder dir, dataHolder& data, int sampling_points);
 
-//int checkLabelWithLidarScan(dataHolder& data);
 
 

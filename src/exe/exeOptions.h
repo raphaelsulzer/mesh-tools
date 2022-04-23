@@ -17,7 +17,7 @@ struct runningOptions{
     int orderSensors = 0;
     double subsample_n_points = 0.0;
     double subsample_grid_spacing = 0.0;
-    int gt_isclosed = 1;
+    string gt_type = "closed";
 
     // rayTracingTet
     int number_of_rays = 1;

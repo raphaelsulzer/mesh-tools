@@ -32,7 +32,6 @@ option(SCAN "Whether to build scan exe" OFF)
 option(OMVS2NPZ "Whether to build omvs2npz exe" OFF)
 option(LABATUT "Whether to build labatut exe" OFF)
 option(FEAT "Whether to build feat exe" ON)
-#option(GT "Whether to build gt exe" ON)
 option(OCC2MESH "Whether to build occ2mesh exe" OFF)
 option(NORMAL "Whether to build normal exe" OFF)
 option(SAMPLE "Whether to build sample exe" OFF)
@@ -769,17 +768,19 @@ if(NORMAL)
         src/exe/inputParser.cpp
         )
     target_link_libraries(normal
-                            fileIO
-                            rPLY
-                            processing
-                            util
-                            ${PCL_EXTERNAL_LIBRARIES}
-                            ${Boost_LIBRARIES}
-                            ${GMP_LIBRARY}
-                            ${MPFR_LIBRARY}
-                            CGAL::CGAL
-                            OpenMP::OpenMP_CXX
-                        )
+        fileIO
+        rPLY
+        util
+        processing
+        learning
+        ${Boost_LIBRARIES}
+        ${GMP_LIBRARY}
+        ${MPFR_LIBRARY}
+        CGAL::CGAL
+        ${OMVS_EXTERNAL_LIBS}
+        OpenMP::OpenMP_CXX
+        ${CMAKE_DL_LIBS}
+        )
 endif()
 
 if(ETH3D)

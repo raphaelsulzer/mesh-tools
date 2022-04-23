@@ -404,38 +404,10 @@ int importOFFMesh(const string path, Polyhedron& import_poly){
 #include <xtensor/xfixed.hpp>
 #include <xtensor/xio.hpp>
 #include <xtensor/xtensor.hpp>
-int importNPZ(const dirHolder& dir, dataHolder& data){
+int importNPZPoints(const dirHolder& dir, dataHolder& data){
 
     cout << "\nRead NPZ points..." << endl;
     cout << "\t-from " << dir.read_file << endl;
-
-    ///// with cnpy
-//    //load the entire npz file
-//    cnpy::npz_t my_npz = cnpy::npz_load(dir.path+dir.read_file+".npz");
-
-//    //check that the loaded myVar1 matches myVar1
-//    cnpy::NpyArray pa = my_npz["points"];
-//    cnpy::NpyArray na = my_npz["normals"];
-//    cnpy::NpyArray sa = my_npz["sensor_position"];
-//    double* points = pa.data<double>();
-//    double* normals = na.data<double>();
-//    double* sensor_pos = sa.data<double>();
-
-
-
-//    data.points.clear();
-//    data.infos.clear();
-//    Point p,s;
-//    for(int i = 0; i < pa.shape[0]; i++){
-//        p = Point(points[i*3],points[i*3+1],points[i*3+2]);
-//        data.points.push_back(p);
-//        s = Point(sensor_pos[i*3],sensor_pos[i*3+1],sensor_pos[i*3+2]);
-//        vertex_info vinf;
-//        vinf.normal = Vector(normals[i*3],normals[i*3+1],normals[i*3+2]);
-//        vinf.sensor_positions.push_back(s);
-//        vinf.sensor_vec = s-p;
-//        data.infos.push_back(vinf);
-//    }
 
     /////// with xtensor
     auto a = xt::load_npz(dir.path+dir.read_file+".npz");
@@ -744,9 +716,8 @@ int export3DT(const dirHolder dir, dataHolder& data){
         vidx = fft->second;
 
         data.xnfacets.push_back(c->info().global_idx);
-//        cout << "nfacets " << c->info().global_idx << endl;
         mc = c->neighbor(vidx);
-        data.xnfacets.push_back(mc->info().global_idx); // infinite cells will automatically have a global_idx = -1
+        data.xnfacets.push_back(mc->info().global_idx);
 
         for(int j = vidx + 1; j <= vidx + 3; j++){
                 // so c->vertex() gives me the global vertex handle from the Dt

@@ -36,31 +36,16 @@ using namespace boost::filesystem;
 /////////////////////////////////////////////////////////////////////
 int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, exportOptions& exportO){
 
-
-    ///////////////////////////////
-    ///////// FILE NAMING /////////
-    ///////////////////////////////
-    options.scoring="_"+options.scoring;
-    if(dir.read_file.empty())
-        dir.read_file = dir.write_file;
-    if(dir.write_file.empty())
-        dir.write_file = dir.read_file;
-
-    ///////////////////////////////
-    ///////// IMPORT SCAN /////////
-    ///////////////////////////////
-    // sampling input
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////// LOAD DATA /////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // SAMPLING INPUT
     if(options.data_source == "ply"){
         importPLYPoints(dir, data);
     }
     else if(options.data_source == "npz"){
-        importNPZ(dir, data);
+        importNPZPoints(dir, data);
     }
-//    #ifdef COLMAP
-//    else if(options.data_source == "colmap"){
-//        readColmapFiles(dir, data);
-//    }
-//    #endif
     #ifdef OpenMVS
     else if(options.data_source == "omvs"){
         if(importOMVSScene(dir, data))
@@ -72,20 +57,12 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
         return 1;
     }
 
-
-    // ground truth
+    // GROUND TRUTH INPUT
     if(!dir.gt_poly_file.empty()){
         if(dir.gt_poly_file.substr(dir.gt_poly_file.length() - 3 ) == "off"){
             if(importOFFMesh(dir.path+dir.gt_poly_file, data.gt_poly))
                 return 1;
-//            CGAL::Polygon_mesh_processing::keep_largest_connected_components(data.gt_poly, 1);
         }
-        #ifdef RECONBENCH
-        else if(dir.gt_poly_file.substr(dir.gt_poly_file.length() - 3 ) == "mpu"){
-            if(importImplicit(dir, data))
-                return 1;
-        }
-        #endif
         else{
             cerr << "\nnot a valid ending for a ground truth file. choose either .mpu or .off" << endl;
             return 1;
@@ -94,136 +71,79 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
         options.ground_truth = 1;
     }
 
-    ///////////////////////////////////
-    ///////// PREPROCESS DATA /////////
-    ///////////////////////////////////
-    if(!dir.transformation_file.empty()){
-        // import translation matrix
-//        if(importTransformationMatrix(dir,data))
-//            return 1;
-        if(applyTransformationMatrix(data))
+    // EVAL POINTS INPUT (list of uniformly distributed points in bbox; ConvONet style)
+    if(!dir.occ_file.empty()){
+        if(importOccPoints(dir,data))
             return 1;
     }
-    // calc gt obb
-    if(!options.gt_isclosed){
-        cout << "\nMake bounding box of open GT for cropping input..." << endl;
-        assert(options.ground_truth);
-        // get centroid of ground truth
-        getOrientedBoundingBox(data.gt_poly,data.bb_array,data.bb_surface_mesh);
-        data.gt_centroid = getBoundingBoxCentroid(data.bb_array,1000.0);
-        cout << "\t-ground truth centroid for ray tracing: " << data.gt_centroid << "-1000" << endl;
-        clipWithBoundingBox(data.points,data.infos,data.bb_surface_mesh);
 
-    }
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////// PROCESS DATA ////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    if(options.scale > 0.0)
-        standardizePointSet(dir, data, options.scale);
-
-//    if(options.scoring == "_rt")
-//        orderSensors(data);
-//    else
-//        cout << "\nSensors not ordered for ray-tracing" << endl;
-
-    if(exportO.cameras){
-        dir.suffix = "_cameras";
-        exportCameraCenter(dir, data);
-    }
-    // export the scanned points
-    if(exportO.toply){
-        exportO.color = data.has_color;
-        exportO.normals = data.has_normal;
-        exportPLY(dir, data.points, data.infos, exportO);
-    }
-
-    if(exportO.tonpz){
-        toXTensor(data);
-        exportNPZ(dir,data);
-    }
-
-    //////////////////////////////////////
-    /////// DELAUNAY TRIANGULATION ///////
-    //////////////////////////////////////
+    // DELAUNAY TRIANGULATION
     if(options.Dt_epsilon > 0.0)
         makeAdaptiveDelaunayWithInfo(data, options.Dt_epsilon);
     else
         makeDelaunayWithInfo(data);
 
-//    cout << "Mean edge length after scaling: " << calcMeanEdgeLength(data) << endl;
-
-
-    ///////////////////////////////////
-    /////// TETRAHEDRON SCORING ///////
-    ///////////////////////////////////
-    // make an index, necessary for graphExport e.g.
-    options.make_global_cell_idx=1;
-    indexDelaunay(data, options);
-
-    if(!options.ground_truth){
-        // this constructs the features which are exported to the cell ray graph,
-        // important to note the difference between score, and features, where score is not used in any way in the learning.
-        if(options.scale == 0.0)
-            cout << "\nConsider turning on scaling with --sn, if your learning data is not yet scaled to a unit cube!" << endl;
-        assert(data.has_sensor);
-        learning::rayTracing(data.Dt, options);
-        // this is only for making a reconstruction of a lrt, but has no influence on the features or the learning
-//        learning::aggregateScoreAndLabel(data.Dt);
-    }
-    else{
-        assert(data.has_sensor);
-        learning::rayTracing(data.Dt, options);
-        if(dir.gt_poly_file.substr(dir.gt_poly_file.length() - 3 ) == "off"){
-            if(options.gt_isclosed){
-                if(labelObjectWithClosedGroundTruth(dir,data, options.number_of_points_per_cell))
-                    return 1;
-            }
-            else{
-                if(labelObjectWithOpenGroundTruth(dir,data, options.number_of_points_per_cell))
-                    return 1;
-            }
-        }
-        #ifdef RECONBENCH
-        if(dir.gt_poly_file.substr(dir.gt_poly_file.length() - 3 ) == "mpu"){
-            labelObjectWithImplicit(data, options.number_of_points_per_cell);
-        }
-        #endif
-
-    }
-
-    // get tet index per eval point
-    if(!dir.occ_file.empty()){
-        if(importOccPoints(dir,data))
-            return 1;
-        point2TetraIndex(data);
-    }
-
-
-
-    ////////////////////////////
-    ////////// EXPORT //////////
-    ////////////////////////////
-    // export _eval.npz file, with eval points, occupancy and point2tetIndex
-    if(!dir.occ_file.empty())
-        exportOccPoints(dir,data);
-
-    //// export features and labels
-    // check if labels directory exists, if not create it
-    path lpath(dir.path);
-    lpath /= string("dgnn");
-    if(!is_directory(lpath))
-        create_directory(lpath);
-    // export the features and labels
-    auto ge = graphExporter(dir, data.Dt, options);
-    ge.run(true);
-
-
-    ///// export the 3DT as npz
+    // INDEX DELAUNAY, necessary for graphExport e.g.
     options.make_global_cell_idx=1;
     options.make_global_vertex_idx=1;
     options.make_finite_cell_idx=0;
     options.make_finite_vertex_idx=0;
     indexDelaunay(data, options);
+
+    // RAY TRACING
+    assert(data.has_sensor);
+    learning::rayTracing(data.Dt, options);
+
+    // TETRAHEDRON SCORING
+    if(options.ground_truth){
+        if(options.gt_type == "closed"){
+            if(labelObject(dir,data, options.number_of_points_per_cell))
+                return 1;
+        }
+        else if(options.gt_type == "real"){
+            if(labelReal(dir,data, options.number_of_points_per_cell))
+                return 1;
+        }
+        else if(options.gt_type == "srd"){
+            // label the synthetic room dataset
+            if(labelSRD(dir,data, options.number_of_points_per_cell))
+                return 1;
+        }
+        else{
+            cout << "\nERROR: not a valid type for ground truth mesh." << endl;
+            return 1;
+        }
+    }
+
+    // GET TET INDEX PER EVAL POINT
+    if(!dir.occ_file.empty())
+        point2TetraIndex(data);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////// EXPORT //////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // CHECK IF DGNN DIRECTORY EXISTS, if not create it
+    path lpath(dir.path);
+    lpath /= string("dgnn");
+    if(!is_directory(lpath))
+        create_directory(lpath);
+
+    // EXPORT _eval.npz file, with eval points, occupancy and point2tetIndex
+    if(!dir.occ_file.empty())
+        exportOccPoints(dir,data);
+
+    // EXPORT features (and labels)
+    auto ge = graphExporter(dir, data.Dt, options);
+    ge.run(true);
+
+    // EXPORT the 3DT as npz
     export3DT(dir,data);
 
+    // EXPORT interface from ground truth labels, cameras and/or points
     if(exportO.interface){
         for(auto cit = data.Dt.all_cells_begin(); cit != data.Dt.all_cells_end(); cit++){
             if(data.Dt.is_infinite(cit)){
@@ -234,6 +154,20 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
             cit->info().gc_label = cit->info().outside_score > cit->info().inside_score ? 1 : 0;
         }
         exportInterface(dir, data, options, exportO);
+    }
+    if(exportO.cameras){
+        dir.suffix = "_cameras";
+        exportCameraCenter(dir, data);
+    }
+    // export the scanned points
+    if(exportO.toply){
+        exportO.color = data.has_color;
+        exportO.normals = data.has_normal;
+        exportPLY(dir, data.points, data.infos, exportO);
+    }
+    if(exportO.tonpz){
+        toXTensor(data);
+        exportNPZ(dir,data);
     }
 
     return 0;

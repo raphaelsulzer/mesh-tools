@@ -139,7 +139,7 @@ int main(int argc, char const *argv[]){
 
     dataHolder data;
 
-    importLidarPoints(ip.dh,data);
+    importPLYPoints(ip.dh,data);
 
     if(ip.ro.normal_overwrite){
         data.has_normal = false;
