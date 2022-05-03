@@ -97,7 +97,7 @@ po::options_description cliParser::initInput(){
     po::options_description input_options("\nINPUT OPTIONS",description_width);
     input_options.add_options()
             ("help,h", "Help message")
-            ("working_dir,w", po::value<string>()->required(), "Working directory.\nAll paths will be treated relative to this directory.")
+            ("working_dir,w", po::value<string>(), "Working directory.\nAll paths will be treated relative to this directory.")
             ("input_file,i", po::value<string>()->required(), "Input file")
             ("output_file,o", po::value<string>(), "Output file")
 //            ("source,s", po::value<string>()->default_value("ply"), "Data source and options:"
