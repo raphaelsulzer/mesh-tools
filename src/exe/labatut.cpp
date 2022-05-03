@@ -64,7 +64,7 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
         importPLYPoints(dir, data);
     }
     else if(options.data_source == "npz"){
-        importNPZ(dir, data);
+        importNPZPoints(dir, data);
     }
     #ifdef COLMAP
     else if(options.data_source == "colmap"){
