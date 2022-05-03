@@ -1,12 +1,12 @@
-#include <exe/labatut.h>
-#include <exe/inputParser.h>
+#include <labatut/main.h>
+#include <IO/inputParser.h>
 
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>
 #include <IO/ttIO.h>
 #include <IO/ethIO.h>
 #ifdef COLMAP
-#include <IO/colmapIO.h>
+#include <IO/colmapfileIO.h>
 #endif
 #include <util/helper.h>
 #include <util/geometricOperations.h>
@@ -16,7 +16,7 @@
 #include <processing/pointSetProcessing.h>
 #include <processing/normalAndSensorProcessing.h>
 #include <processing/evaluation.h>
-#include <processing/rayTracingFacet.h>
+#include <labatut/rayTracingFacet.h>
 
 
 #ifdef Open3D
@@ -117,8 +117,10 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
     else
         makeDelaunayWithInfo(data);
 
-    if(options.labatut_sigma == -1.0 && (options.scoring == "_rt" || options.scoring == "_clrt"))
-        options.labatut_sigma = pcaKNN(data.Dt);
+    if(options.labatut_sigma < 0.0){
+        double temp = pcaKNN(data.Dt);
+        options.labatut_sigma=-options.labatut_sigma*temp;
+    }
 
     cout << "\nLabatut's \u03C3 set to " << options.labatut_sigma << endl;
 

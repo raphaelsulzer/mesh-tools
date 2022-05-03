@@ -400,13 +400,13 @@ target_link_libraries(util
     CGAL::CGAL
     )
 
-add_library(fileIO
+add_library(IO
     src/IO/fileIO.cpp
-#    src/IO/simplificationIO.cpp
+    src/IO/inputParser.cpp
     ${OpenMVS_INCLUDE_DIRS}
     )
 
-target_link_libraries(fileIO
+target_link_libraries(IO
 #    ${CNPY_LIBRARY}
 #    ${CMAKE_DL_LIBS}
     ${OCV_EXTERNAL_LIBRARIES}
@@ -419,8 +419,8 @@ add_library(learning
 #    src/learning/learningIO.cpp
     src/learning/learningIO_bin.cpp
     src/learning/learningMath.cpp
-    src/learning/learningRayTracing.cpp
-#    src/learning/learningRayTracingGroundTruth.cpp
+    src/learning/rayTracing.cpp
+#    src/learning/rayTracingGroundTruth.cpp
     )
 target_link_libraries(learning
     util
@@ -429,7 +429,6 @@ target_link_libraries(learning
 
 add_library(processing
     src/processing/evaluation.cpp
-    src/processing/rayTracingFacet.cpp
     src/processing/meshProcessing.cpp
     src/processing/graphCut.cpp
     src/processing/pointSetProcessing.cpp
@@ -454,11 +453,11 @@ add_library(gco
 
 if(LABATUT)
     add_executable(labatut
-        src/exe/labatut.cpp
-        src/exe/inputParser.cpp
+        src/labatut/main.cpp
+        src/labatut/rayTracingFacet.cpp
         )
     target_link_libraries(labatut
-                        fileIO
+                        IO
                         rPLY
                         util
                         processing
@@ -486,10 +485,9 @@ endif()
 if(OCC2MESH)
     add_executable(occ2mesh
         src/exe/occ2mesh.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(occ2mesh
-                        fileIO
+                        IO
                         rPLY
                         learning
                         util
@@ -517,11 +515,10 @@ endif()
 if(FEAT)
     add_executable(feat
         src/exe/feat.cpp
-        src/exe/inputParser.cpp
         ${OMVS_INCLUDE_DIRS}
         )
     target_link_libraries(feat
-                        fileIO
+                        IO
                         learning
                         rPLY
                         util
@@ -547,11 +544,11 @@ endif()
 #if(GT)
 #    add_executable(gt
 #        src/exe/gt.cpp
-#        src/exe/inputParser.cpp
+#        src/IO/inputParser.cpp
 #        ${OMVS_INCLUDE_DIRS}
 #        )
 #    target_link_libraries(gt
-#                        fileIO
+#                        IO
 #                        learning
 #                        rPLY
 #                        util
@@ -577,11 +574,10 @@ endif()
 if(OMVS2NPZ)
     add_executable(omvs2npz
         src/exe/omvs2npz.cpp
-        src/exe/inputParser.cpp
         ${OMVS_INCLUDE_DIRS}
         )
     target_link_libraries(omvs2npz
-                        fileIO
+                        IO
                         learning
                         rPLY
                         util
@@ -607,10 +603,9 @@ endif()
 if(SCAN)
     add_executable(scan
         src/exe/scan.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(scan
-                        fileIO
+                        IO
                         rPLY
                         util
                         processing
@@ -629,10 +624,9 @@ endif()
 if(VSA)
     add_executable(vsa
         src/exe/vsa.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(vsa
-                        fileIO
+                        IO
                         rPLY
                         util
                         processing
@@ -649,10 +643,9 @@ endif()
 if(COLLAPSE)
     add_executable(collapse
         src/exe/collapse.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(collapse
-                        fileIO
+                        IO
                         rPLY
                         util
                         processing
@@ -669,10 +662,9 @@ endif()
 if(EVAL)
     add_executable(eval
         src/exe/eval.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(eval
-                        fileIO
+                        IO
                         rPLY
                         util
                         processing
@@ -689,10 +681,9 @@ endif()
 if(ISO)
     add_executable(iso
         src/exe/iso.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(iso
-                        fileIO
+                        IO
                         rPLY
                         util
                         processing
@@ -709,10 +700,9 @@ endif()
 if(SAMPLE)
     add_executable(sample
         src/exe/sample.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(sample
-                        fileIO
+                        IO
                         rPLY
                         util
                         processing
@@ -728,10 +718,9 @@ endif()
 if(BOUNDINGBOX)
     add_executable(boundingBox
         src/exe/boundingBox.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(boundingBox
-                        fileIO
+                        IO
                         rPLY
                         util
                         ${Boost_LIBRARIES}
@@ -745,10 +734,9 @@ endif()
 if(SIMPLIFY)
     add_executable(simplify
         src/exe/simplification.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(simplify
-                        fileIO
+                        IO
                         rPLY
                         util
                         processing
@@ -765,10 +753,9 @@ endif()
 if(NORMAL)
     add_executable(normal
         src/exe/normalEstimation.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(normal
-        fileIO
+        IO
         rPLY
         util
         processing
@@ -786,13 +773,12 @@ endif()
 if(ETH3D)
     add_executable(eth3d
         src/exe/eth3d.cpp
-        src/exe/inputParser.cpp
         src/IO/ethIO.cpp
         src/IO/tinyxml2.cpp
         src/IO/meshlab_project.cc
         )
     target_link_libraries(eth3d
-                            fileIO
+                            IO
                             rPLY
                             util
                             processing
@@ -810,10 +796,9 @@ endif()
 if(STATS)
     add_executable(stats
         src/exe/stats.cpp
-        src/exe/inputParser.cpp
         )
     target_link_libraries(stats
-                            fileIO
+                            IO
                             rPLY
                             processing
                             util
@@ -830,7 +815,7 @@ if(POISSON)
         src/poisson/poisson.cpp
         )
     target_link_libraries(poisson
-                        fileIO
+                        IO
                         rPLY
                         util
                         processing

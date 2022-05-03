@@ -1,9 +1,15 @@
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>
-#include <processing/rayTracingFacet.h>
+#include <labatut/rayTracingFacet.h>
 #include <util/geometricOperations.h>
 
 using namespace std;
+
+
+///////// Ray tracing implemented according to "Robust and efficient surface reconstruction from range data" by Labatut et al. 2009:
+/// Line-of-sight (outside) and ray (inside) information is accumulated on the oriented facets of a 3D Delaunay triangulation.
+/// Only parameter is sigma, which controls the weight per ray and the maximal inside traversal at the same time.
+
 
 namespace processing{
 
@@ -100,7 +106,7 @@ void RayCaster::outside(Vertex_handle vit, int sensor_idx){
         else{
             // TODO: what I am doing here is not correct, the if statement should be activated, but it crashes if it is
 //            if(data_.Dt.tetrahedron(current_cell).has_on_positive_side(vit->info().sensor_positions[sensor_idx])){
-//                current_cell->info().outside_score+=alpha_vis;
+                current_cell->info().outside_score+=alpha_vis;
 //            }
         }
     }
@@ -129,22 +135,9 @@ void RayCaster::inside(Vertex_handle vit, int sensor_idx, int set_sink_weight){
             bool intersect = rayTriangleIntersection(source, rayV, tri, intersectionPoint);
             if(intersect){
                 double dist2 = CGAL::squared_distance(intersectionPoint, source);
-                // the if stops the traversal once I hit the cell with the sensor center
-//                if(dist2<(3*sigma)){
-
-                    // 2. get the neighbouring cell of the current triangle and check for ray triangle intersections in that cell
-                    Facet mirror_fac = data_.Dt.mirror_facet(std::make_pair(current_cell, cellBasedVertexIndex));
-                    Cell_handle next_cell = mirror_fac.first;
-                    int newIdx = mirror_fac.second;
-//                    cout << "new index " << newIdx << " previous index " << cellBasedVertexIndex << endl;
-                    // set the facet weight
-//                    current_cell->info().facet_weights[cellBasedVertexIndex] +=(alpha * ComputeDistanceProb(dist2));
-                    current_cell->info().facet_weights[cellBasedVertexIndex] += ComputeDistanceProb(dist2);
-//                    traverseInside(vit, next_cell, newIdx, sensor_idx);
-//                }
-//                else
-                    if(set_sink_weight)
-                        current_cell->info().inside_score+=alpha_vis;
+                current_cell->info().facet_weights[cellBasedVertexIndex] += ComputeDistanceProb(dist2);
+                if(set_sink_weight)
+                    current_cell->info().inside_score+=alpha_vis;
                 break;
             }
         }// end of finite cell check
@@ -185,6 +178,7 @@ void RayCaster::run(int set_sink_weight){
             // construct ray from input point to sensor
             // collect outside votes
             outside(vit, sensor_idx);
+            // collect inside votes
             inside(vit, sensor_idx, set_sink_weight);
         }
     }

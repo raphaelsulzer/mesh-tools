@@ -1,6 +1,6 @@
 #pragma once
 
-#include <exe/inputParser.h>
+#include <IO/inputParser.h>
 
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>

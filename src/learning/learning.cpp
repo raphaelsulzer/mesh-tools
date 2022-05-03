@@ -10,7 +10,7 @@
 
 #include <learning/learning.h>
 #include <learning/learningMath.h>
-#include <learning/learningRayTracing.h>
+#include <learning/rayTracing.h>
 #include <learning/learningIO.h>
 
 #include <CGAL/point_generators_3.h>

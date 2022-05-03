@@ -1,7 +1,7 @@
 using namespace std;
 #include <util/args.hxx>
 #include <util/helper.h>
-#include <exe/inputParser.h>
+#include <IO/inputParser.h>
 #include <boost/program_options.hpp>
 namespace po = boost::program_options;
 #include <boost/filesystem.hpp>

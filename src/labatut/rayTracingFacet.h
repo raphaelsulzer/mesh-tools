@@ -7,6 +7,10 @@
 
 using namespace std;
 
+
+//// partially taken from COLMAP c++ code
+
+
 namespace processing{
 
 class RayCaster{

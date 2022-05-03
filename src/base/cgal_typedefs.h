@@ -119,7 +119,7 @@ struct cell_info{
     int global_idx = -1; // this is an ordered, contiguous zero-based index for the All_cells_iterator;
     int finite_idx = -1; // this is an ordered, contiguous zero-based index for the Finite_cells_iterator;
     // graph cut, label
-    int gc_label = 2;   // 0 meaning inside; 1 meaning outside !!, see exportColoredFacetsPLY function in fileIO
+    int gc_label = 2;   // 0 meaning inside; 1 meaning outside !!, see exportColoredFacetsPLY function in IO
 //    double gt_inside = 0.0;
 //    double gt_outside = 0.0;
 

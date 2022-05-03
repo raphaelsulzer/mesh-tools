@@ -1,11 +1,11 @@
-#include <exe/inputParser.h>
+#include <IO/inputParser.h>
 
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>
 #include <IO/ttIO.h>
 #include <IO/ethIO.h>
 #ifdef COLMAP
-#include <IO/colmapIO.h>
+#include <IO/colmapfileIO.h>
 #endif
 #include <util/helper.h>
 #include <util/geometricOperations.h>
@@ -17,12 +17,10 @@
 #include <processing/pointSetProcessing.h>
 #include <processing/normalAndSensorProcessing.h>
 #include <processing/evaluation.h>
-#include <processing/rayTracingFacet.h>
 
 #include <learning/learning.h>
 #include <learning/learningMath.h>
-#include <learning/learningRayTracing.h>
-#include <learning/learningRayTracingGroundTruth.h>
+#include <learning/rayTracing.h>
 #include <learning/learningIO_bin.h>
 
 

@@ -22,7 +22,6 @@ struct ForSmoothFn{
 
 gtype smoothCost(int s1, int s2, int l1, int l2, void *data){
 
-    gtype *a = (gtype*)data;
     ForSmoothFn *myData = (ForSmoothFn *) data;
 
     // difference of outside observation of s1 and s2

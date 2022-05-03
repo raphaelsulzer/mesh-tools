@@ -1,9 +1,13 @@
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>
-#include <learning/learningRayTracing.h>
+#include <learning/rayTracing.h>
 #include <util/geometricOperations.h>
 
 using namespace std;
+
+///////// Ray tracing implemented according to "Scalable Surface Reconstruction with Delaunay Graph Neural Networks" by Sulzer et al. 2021:
+/// Line-of-sight (outside) and ray (inside) information is accumulated on the tetrahedra of a 3D Delaunay triangulation.
+/// Only parameter is number of lines-of-sight / rays which are used per point (only relevant for MVS reconstructions, else #rays = 1).
 
 namespace learning{
 

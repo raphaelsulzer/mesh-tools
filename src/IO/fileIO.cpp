@@ -97,7 +97,7 @@ void concatenateData(dataHolder& data1, dataHolder& data2, int copyInfo)
     }
 }
 
-// removed this from helper.cpp, because it was the only function there which needed the fileIO library
+// removed this from helper.cpp, because it was the only function there which needed the IO library
 int toXTensor(dataHolder& data){
 
     data.xpoints.clear();

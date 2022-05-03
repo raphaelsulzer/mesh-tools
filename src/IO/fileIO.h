@@ -1,5 +1,5 @@
-#ifndef FILEIO_H
-#define FILEIO_H
+#ifndef IO_H
+#define IO_H
 
 #include <base/cgal_typedefs.h>
 #include <exe/exeOptions.h>
