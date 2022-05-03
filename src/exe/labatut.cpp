@@ -119,9 +119,8 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
 
     if(options.labatut_sigma == -1.0 && (options.scoring == "_rt" || options.scoring == "_clrt"))
         options.labatut_sigma = pcaKNN(data.Dt);
-    else{
-        cout << "\nd parameter of Labatu set to " << options.labatut_sigma << endl;
-    }
+
+    cout << "\nLabatut's \u03C3 set to " << options.labatut_sigma << endl;
 
     //////////////////////////////////////
     ///////////// RAY TRACING ////////////
