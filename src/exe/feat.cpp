@@ -190,7 +190,8 @@ int main(int argc, char const *argv[]){
 
     auto start = std::chrono::high_resolution_clock::now();
     cout << "\n-----FEATURE EXTRACTION-----" << endl;
-    cout << "\nWorking dir set to:\n\t-" << ip.dh.path << endl;
+    if(!ip.dh.path.empty())
+        cout << "\nWorking dir set to:\n\t-" << ip.dh.path << endl;
 
     dataHolder data;
     if(extractFeatures(ip.dh, data, ip.ro, ip.eo))

@@ -12,19 +12,21 @@
 
 struct dirHolder{
 
+    // TODO: change all of these strings to boost::filesystem::path
+    // should not be thaat much work, simply need to replace all the path concatenation from
+    // string addition to boost path concatenation
+
     string path;
-    string mvs_file;
-    string scene;
 
     string read_file;
-    string write_file;
     string read_file_type;
+    string write_file;
 
     string gt_poly_file;
     string gt_scan_file;
     string prediction_file;
-
     string occ_file;
+
     string transformation_file;
     string crop_file;
 
@@ -40,7 +42,7 @@ struct dataHolder{
 
     vector<Point> points;
     vector<vertex_info> infos;
-    bool has_color, has_normal, has_gt_normal, has_sensor;
+    bool has_color = false, has_normal = false, has_gt_normal = false, has_sensor = false;
     vector<array<size_t,3>> facets;
     map<int, Point> sensor_map;
 

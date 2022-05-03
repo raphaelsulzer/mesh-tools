@@ -1,16 +1,15 @@
+using namespace std;
 #include <util/args.hxx>
 #include <util/helper.h>
 #include <exe/inputParser.h>
 #include <boost/program_options.hpp>
-using namespace std;
 namespace po = boost::program_options;
 #include <boost/filesystem.hpp>
+namespace fs = boost::filesystem;
 
 int cliParser::parse(int argc, char const* argv[]){
 
-
     try{
-
         po::options_description all("");
 
         auto ioptions = initInput();
@@ -128,11 +127,13 @@ int cliParser::getInput(){
     /////////////// PATH & FILE INPUT ARGS + OUTPUT ARGS ///////////////
 
     /// required
-    dh.path =  vm["working_dir"].as<string>();
-    if(dh.path[dh.path.length()-1] != '/')
-        dh.path+="/";
+    if(vm.count("working_dir")){
+        dh.path =  vm["working_dir"].as<string>();
+        if(dh.path[dh.path.length()-1] != '/')
+            dh.path+="/";
+    }
     dh.read_file = vm["input_file"].as<string>();
-    boost::filesystem::path rf(dh.read_file);
+    fs::path rf(dh.read_file);
     if(rf.has_extension()){
         dh.read_file_type = rf.extension().string();
         dh.read_file = dh.read_file.substr(0,dh.read_file.length() - 4);
@@ -312,7 +313,7 @@ int cliParser::getOcc2Mesh(){
 
     // reconstruction and optimization
     dh.prediction_file = vm["prediction_file"].as<string>();
-    boost::filesystem::path rf(dh.prediction_file);
+    fs::path rf(dh.prediction_file);
     if(rf.has_extension()){
         dh.read_file_type = rf.extension().string();
         dh.prediction_file = dh.prediction_file.substr(0,dh.prediction_file.length() - 4);
