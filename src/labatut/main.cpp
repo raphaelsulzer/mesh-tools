@@ -122,13 +122,12 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
         options.labatut_sigma=-options.labatut_sigma*temp;
     }
 
-    cout << "\nLabatut's \u03C3 set to " << options.labatut_sigma << endl;
 
     //////////////////////////////////////
     ///////////// RAY TRACING ////////////
     //////////////////////////////////////
     auto rc = processing::RayCaster(data, options);
-    rc.run(1);
+    rc.run();
 
 
 
@@ -137,10 +136,7 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
     ////////////////////////////
     if(options.optimization == 1){
         options.gco_iterations = -1;
-        if(options.score_type == "mine" || options.scoring == "_cl" || options.scoring == "_cs" || options.scoring == "_clcs" || options.scoring == "_lrtcs")
-            graphCutTet(data, options);
-        else
-            graphCutFacet(data,options);
+        graphCutFacet(data,options);
     }
     else{
         cout << "\nLabel cells without optimization by taking max score" << endl;

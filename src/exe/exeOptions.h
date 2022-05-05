@@ -3,8 +3,6 @@
 
 struct runningOptions{
 
-
-
     string data_source;
     string gt_scan_source;
     string scoring;
@@ -22,9 +20,11 @@ struct runningOptions{
     // rayTracingTet
     int number_of_rays = 1;
     string score_type = "";
-    int tetTracing = 0;
-    double labatut_sigma = -1;
+    // Labatut
     double labatut_alpha = 32;
+    double labatut_sigma = -1;
+    double labatut_tau = 0;
+    int closed_prior = 1;
 
     // Delaunay tiangulation
     double Dt_epsilon; // for adaptive Delaunay triangulation
@@ -35,6 +35,8 @@ struct runningOptions{
 
     int make_global_vertex_idx = 0;
     int make_finite_vertex_idx = 0;
+
+
 
     // optimization
     int optimization = 0;

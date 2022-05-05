@@ -20,6 +20,8 @@ class RayCaster{
         dataHolder& data_;
         runningOptions options_;
 
+        int set_sink_weight_;
+
         // edge weight computer
         double visibility_threshold_;
         double visibility_normalization_;
@@ -47,6 +49,7 @@ class RayCaster{
             sigma(options.labatut_sigma),
             alpha_vis(options.labatut_alpha),
             visibility_threshold_(5 * visibility_sigma),
+            set_sink_weight_(1),
             visibility_normalization_(-0.5 / (visibility_sigma * visibility_sigma)){
                 std::vector<float> edge_lengths;
                 edge_lengths.reserve(data_.Dt.number_of_finite_edges());
@@ -68,16 +71,15 @@ class RayCaster{
 
             }
 
-        void run(int set_sink_weight);
+        void run();
 
         void traverseOutside(Vertex_handle vit, Cell_handle& current_cell,  int oppositeVertex, int sensor_idx);
         void traverseInside(Vertex_handle vit, Cell_handle& current_cell,  int oppositeVertex, int sensor_idx);
 
         void outside(Vertex_handle vit, int sensor_idx);
-        void inside(Vertex_handle vit, int sensor_idx, int set_sink_weight);
+        void inside(Vertex_handle vit, int sensor_idx);
 
         double DistanceSigma() const { return distance_sigma_; }
-
 
         double ComputeVisibilityProb(const double distance_squared) const {
 

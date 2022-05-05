@@ -83,9 +83,9 @@ double pointPlaneDistance(EPICK::Plane_3 plane, Point point){
 // and R. Keriven. "Robust and efficient surface reconstruction from range
 // data." Computer graphics forum, 2009.
 double computeCosFacetCellAngle(const Delaunay& Dt,
-                                const Delaunay::Facet& facet) {
-  if (Dt.is_infinite(facet.first)) {
-    return 1.0;
+                                const Facet& facet) {
+  if(Dt.is_infinite(facet.first)){
+    return 0.0;
   }
 
   const Triangle triangle = Dt.triangle(facet);
@@ -109,9 +109,9 @@ double computeCosFacetCellAngle(const Delaunay& Dt,
 
 
 double computeFacetArea(const Delaunay& Dt,
-                        const Delaunay::Facet& facet){
-    if(Dt.is_infinite(facet))
-        return 0.0;
+                        const Facet& facet){
+    if(Dt.is_infinite(facet.first))
+        return 1.0;
     else
         return sqrt(Dt.triangle(facet).squared_area());
 };

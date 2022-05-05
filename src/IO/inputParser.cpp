@@ -99,14 +99,6 @@ po::options_description cliParser::initInput(){
             ("working_dir,w", po::value<string>(), "Working directory.\nAll paths will be treated relative to this directory.")
             ("input_file,i", po::value<string>()->required(), "Input file")
             ("output_file,o", po::value<string>(), "Output file")
-//            ("source,s", po::value<string>()->default_value("ply"), "Data source and options:"
-//                                                            "\n\t-ply"
-//                                                            "\n\t-npz"
-//                                                            "\n\t-colmap"
-//                                                            "\n\t-omvs"
-//                                                            "\n\t-scan,#points,#cameras,std_noise,%outliers"
-//                                                            "\n\t-tt,#scans"
-//                                                            "\n\t-eth")
             ("source,s", po::value<string>()->default_value("ply"), "Data source:"
                                                             "\n\t-ply"
                                                             "\n\t-npz"
@@ -185,8 +177,8 @@ int cliParser::getInput(){
         dh.crop_file = vm["crop_file"].as<string>();
     if(vm.count("groundtruth_file"))
         dh.gt_poly_file =  vm["groundtruth_file"].as<string>();
-    if(vm.count("occ"))
-        dh.occ_file =  vm["occ"].as<string>();
+    if(vm.count("occupancy_file"))
+        dh.occ_file =  vm["occupancy_file"].as<string>();
 
     // Delaunay
     if(vm.count("adt"))
@@ -357,26 +349,16 @@ int cliParser::getOcc2Mesh(){
 
 po::options_description cliParser::initLabatut(){
 
-
-
     po::options_description options("\nLABATUT OPTIONS",description_width);
     options.add_options()
-            ("cameras,c", po::value<int>()->default_value(1), "cameras=[1,inf). Number of cameras for ray tracing.")
-            ("sigma", po::value<double>()->default_value(-1), "sigma=[-1,inf). -1 => mean noise with PCA.")
-            ("alpha", po::value<double>()->default_value(32), "alpha=(0,inf).")
-            ("gco", po::value<string>(), "Graph-cut optimization:"
+            ("cameras", po::value<int>()->default_value(1), "cameras=[1,inf). Number of cameras for ray tracing.")
+            ("alpha", po::value<double>()->default_value(32), "Labatut's \u03B1_vis=(0,inf).")
+            ("sigma", po::value<double>()->default_value(-1), "Labatut's \u03C3=(-inf,inf). \u03C3 < 0 => \u03C3 = -\u03C3*\u03BB with \u03BB 3rd EV of PCA.")
+            ("tau", po::value<double>()->default_value(0), "\u03C4=(0,inf). Max. inside traversal.")
+            ("closed", po::value<int>()->default_value(0), "Reconstruct closed object or open scene.")
+            ("gco", po::value<string>()->default_value("angle-5.0"), "Graph-cut optimization:"
              "\nBinary Type-Weight[;Type2-Weight2;Type3-Weight3]"
              "\nwith Type=[area,angle,cc] and Weight=(0,inf)")
-
-            //// OLD:
-//            ("smooth", po::value<int>()->default_value(0), "Smoothend the piecewise constant function.")
-//            ("iso", po::value<string>()->default_value("30.0,0.1,0.1"), "Number of connected components of output to keep. Default = all.")
-//            ("ocomp", po::value<int>()->default_value(0), "Number of connected components of output to keep. Default = all.")
-//            ("omanifold", po::value<int>()->default_value(0), "Try to make output mesh manifold.")
-//            ("oclose", po::value<int>()->default_value(0), "Try to close output open meshes with hole filling.")
-//            ("clean", po::value<int>()->default_value(0), "Apply OpenMVS mesh cleaning.")
-//            ("simplify", po::value<int>()->default_value(0), "Simplify mesh")
-//            ("eval", po::value<int>()->default_value(0), "Evaluate mesh.")
         ;
 
     return options;
@@ -384,67 +366,14 @@ po::options_description cliParser::initLabatut(){
 
 int cliParser::getLabatut(){
 
-
-
     // reconstruction and optimization
     ro.scoring = "rt";
     ro.occupancy_type = "labatut";
     ro.number_of_rays =  vm["cameras"].as<int>();
-    ro.labatut_sigma = vm["sigma"].as<double>();
     ro.labatut_alpha = vm["alpha"].as<double>();
-
-
-//    }
-//    else if(ro.scoring == "cl"){
-//        if(scoring.size() < 2){
-//            cout << "ERROR: missing option in scoring" << endl;
-//            cout << "put e.g. cl,sm" << endl;
-//            return 1;
-
-//        }
-//    }
-//    else if(ro.scoring == "clcs"){
-//        if(scoring.size() < 3){
-//            cout << "ERROR: missing option in scoring" << endl;
-//            cout << "put e.g. clcs,500,sm" << endl;
-//            return 1;
-
-//        }
-//        ro.number_of_points_per_cell = stoi(scoring[2]);
-//    }
-//    else if(ro.scoring == "cs")
-//        ro.number_of_points_per_cell = stoi(scoring[1]);
-//    else if(ro.scoring == "csrt"){
-//        ro.number_of_points_per_cell = stoi(scoring[1]);
-//        if(scoring.size() < 6){
-//            cout << "ERROR: scoring method rt requires number_of_rays, type and labatut_sigma" << endl;
-//            return 1;
-//        }
-//        ro.number_of_points_per_cell = stoi(scoring[1]);
-//        ro.score_type = scoring[2];
-//        ro.number_of_rays = stoi(scoring[3]);
-//        ro.labatut_sigma = stod(scoring[4]);
-//        ro.labatut_alpha = stod(scoring[5]);
-//    }
-//    else if(ro.scoring == "lrtcs")
-//        ro.number_of_points_per_cell = stoi(scoring[1]);
-//    else if(ro.scoring == "lrt")
-//        ro.number_of_rays = stoi(scoring[1]);
-//    else if(ro.scoring == "rt"){
-//        if(scoring.size() < 5){
-//            cout << "ERROR: scoring method rt requires type (=labatut), number_of_rays, labatut_sigma, labatut_alpha" << endl;
-//            return 1;
-//        }
-//        ro.score_type = scoring[1];
-//        ro.number_of_rays = stoi(scoring[2]);
-//        ro.labatut_sigma = stod(scoring[3]);
-//        ro.labatut_alpha = stod(scoring[4]);
-//    }
-//    else{
-//        cerr << "\nNOT A VALID SCORING TYPE.\n" << endl;
-//        cerr << "\nto see available scoring types type sure --help\n" << endl;
-//        return 1;
-//    }
+    ro.labatut_sigma = vm["sigma"].as<double>();
+    ro.labatut_tau = vm["tau"].as<double>();
+    ro.closed_prior = vm["closed"].as<int>();
 
     vector<string> optimization;
     if(vm.count("gco")){
@@ -476,35 +405,8 @@ int cliParser::getLabatut(){
 
         }
     }
-//    vector<string> iso_options;
-//    splitString(vm["iso"].as<string>(), iso_options, ',');
-//    if(iso_options.size() < 3){
-//        cout << "ERROR: need all three iso options (angle,radius,distance) in comma seperated form." << endl;
-//        return 1;
-//    }
-//    ro.options[0] = stod(iso_options[0]);
-//    ro.options[1] = stod(iso_options[1]);
-//    ro.options[2] = stod(iso_options[2]);
-
-//    if(vm.count("smooth"))
-//        ro.smooth_field = vm["smooth"].as<int>();
-//    if(vm.count("clean"))
-//        ro.clean_mesh = vm["clean"].as<int>();
-//    if(vm.count("ocomp"))
-//        ro.number_of_components_to_keep = vm["ocomp"].as<int>();
-//    if(vm.count("oclose"))
-//        ro.try_to_close = vm["oclose"].as<int>();
-//    if(vm.count("omanifold"))
-//        ro.try_to_make_manifold = vm["omanifold"].as<int>();
-//    if(vm.count("simplify"))
-//        ro.simplify = vm["simplify"].as<int>();
-//    if(vm.count("eval"))
-//        ro.evaluate_mesh = vm["eval"].as<int>();
-//    if(vm.count("gclosed"))
-//        ro.gt_isclosed = vm["gclosed"].as<int>();
     return 0;
 }
-
 
 po::options_description cliParser::initFeat(){
     ////////////////// FEATURE EXTRACTION OPTIONS /////////////////

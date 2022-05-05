@@ -308,46 +308,41 @@ void graphCutFacet(dataHolder& data, runningOptions options)
     gc->setSmoothCost(smooth_term);
 
     // set neighborhood:
-    int current_index;
-    int neighbour_index;
+    int current_index, neighbour_index;
+    Cell_handle current_cell, neighbour_cell;
+    gtype area_weight,angle_weight;
     // iterate over all cells
     for(cft = data.Dt.all_cells_begin(); cft!=data.Dt.all_cells_end(); cft++)
     {
-        Cell_handle current_cell = cft;
+        current_cell = cft;
         current_index = current_cell->info().global_idx;
         // iterate over all facets of the cellF
         for(int i = 0; i < 4; i++){
 
-            Cell_handle neighbour_cell = current_cell->neighbor(i);
+            neighbour_cell = current_cell->neighbor(i);
             neighbour_index = neighbour_cell->info().global_idx;
 
-            // labatut version is not working properly if this is activated
+            // Labatut is not working properly if this is activated
             // prevent to call setNeighbour(s2,s1) if setNeighbour(s1,s2)was already called
 //            if(neighbour_index < current_index)
 //                continue;
 
             // calc smoothness term
-            gtype area_weight,angle_weight;
             Facet current_facet(current_cell, i);
-            if(data.Dt.is_infinite(current_facet))
-                area_weight = 1;
-            else
-                area_weight = sqrt(data.Dt.triangle(current_facet).squared_area());
+
+            area_weight = computeFacetArea(data.Dt, current_facet);
             area_weight*=options.area_reg_weight;
 
             // this also returns 1 if the first cell is infinite
             angle_weight = 1-std::min(computeCosFacetCellAngle(data.Dt, current_facet),
                                        computeCosFacetCellAngle(data.Dt, data.Dt.mirror_facet(current_facet)));
-            // if both cells are infinite, still put an edge weight of 1 on there, to prevent making an interface between infinite cells
+            // if both cells are infinite, still put an edge weight of alpha on there, to prevent making an interface between infinite cells
             if(data.Dt.is_infinite(current_cell) && data.Dt.is_infinite(neighbour_cell))
-                angle_weight = 1;
+                angle_weight = options.labatut_alpha;
             angle_weight*=options.angle_reg_weight;
 
             // call the neighbourhood function
             gc->setNeighbors(current_index, neighbour_index, (area_weight+angle_weight+current_cell->info().facet_weights[i])/div);
-
-
-//            cout << "binary: " << shape_weight+current_cell->info().facet_weights[i] << endl;
 
         }
     }
