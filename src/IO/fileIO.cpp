@@ -1329,16 +1329,9 @@ void exportConvexHull(const dirHolder& dir, const Delaunay& Dt)
 void exportInterface(const dirHolder& dir, dataHolder& data, runningOptions& options, exportOptions& eo){
 
     auto start = std::chrono::high_resolution_clock::now();
-    string suffix;
-    if(options.optimization)
-        suffix="_optimized";
-    else
-        suffix="_initial";
-    if(options.fix_nm_edges)
-        suffix+="_fM";
 
     cout << "\nExport interface..." << endl;
-    cout << "\t-to " <<  dir.write_file+suffix+".ply" << endl;
+    cout << "\t-to " <<  dir.write_file+".ply" << endl;
 
     data.remaining_points.clear();
     data.remaining_facets.clear();
