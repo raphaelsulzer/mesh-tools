@@ -112,7 +112,7 @@ void makeAdaptiveDelaunayWithInfo(dataHolder& data, double epsilon)
             closest_vertex->info().sensor_positions.insert(closest_vertex->info().sensor_positions.end(),
                         data.infos[i].sensor_positions.begin(), data.infos[i].sensor_positions.end());
 
-            closest_vertex->info().alpha+=1; // increase the number of points this vertex represents
+//            closest_vertex->info().alpha+=1; // increase the number of points this vertex represents
 //            closest_vertex->info().number_of_rays+=1;
         }
     }
@@ -294,18 +294,28 @@ bool scanObjectClosed(dataHolder& data, runningOptions& options){
         }
     }
 
-    vector<Point> outliers;
-    if(data.points.size() < options.number_of_points_to_scan){
-        CGAL::Random_points_in_sphere_3<Point> points_in_sphere(radius*3, random);
-        CGAL::cpp11::copy_n(points_in_sphere, options.number_of_points_to_scan, std::back_inserter(outliers));
-    }
+//    vector<Point> outliers;
+//    if(data.points.size() < options.number_of_points_to_scan){
+//        CGAL::Random_points_in_sphere_3<Point> points_in_sphere(radius*3, random);
+//        CGAL::cpp11::copy_n(points_in_sphere, options.number_of_points_to_scan, std::back_inserter(outliers));
+//    }
+
+
+    double xo,yo,zo;
+
     // add outliers
     while(data.points.size() < options.number_of_points_to_scan){
 
         // randomly choose a camera and an outlier point from the generated cameras and outlier points
         int sensor_idx = rcamera(rand_gen);
         Point c = cameras[sensor_idx];
-        Point o = outliers[rpoint(rand_gen)];
+
+        xo = ((double) rand() / (RAND_MAX))-0.5;
+        yo = ((double) rand() / (RAND_MAX))-0.5;
+        zo = ((double) rand() / (RAND_MAX))-0.5;
+
+        Point o = Point(xo,yo,zo);
+//        Point o = outliers[rpoint(rand_gen)];
         Point out = Point(bb_center.x()+o.x(), bb_center.y()+o.y(), bb_center.z()+o.z());
         Ray ray(Point(bb_center.x()+c.x(), bb_center.y()+c.y(), bb_center.z()+c.z()),
                 out);

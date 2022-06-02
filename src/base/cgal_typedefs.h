@@ -90,7 +90,7 @@ struct vertex_info{
     int global_idx = -1;
     int finite_idx = -1;
     vtype sigma = 0.01; // noise of the point;
-    int alpha = 1; // how many points this vertex represents, will be increased by adaptive Delaunay triangulation
+//    int alpha = 1; // how many points this vertex represents, will be increased by adaptive Delaunay triangulation
     CGAL::Color color;
     Vector normal;
     Vector gt_normal;

@@ -65,9 +65,9 @@ int main(int argc, char const *argv[]){
         ip.dh.write_file = ip.dh.read_file;
 
     exportOptions eo;
-    eo.sensor_vec = true;
+    eo.sensor_vec = false;
     eo.sensor_position = false;
-    eo.normals = false;
+    eo.normals = true;
     if(ip.eo.toply){
 //        eo.sensor_vec = true;
 //        eo.normals = false;
