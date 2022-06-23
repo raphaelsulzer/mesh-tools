@@ -1,7 +1,7 @@
-#include <exe/sure.h>
-#include <exe/inputParser.h>
+//#include <exe/sure.h>
 
 #include <base/cgal_typedefs.h>
+#include <IO/inputParser.h>
 #include <IO/fileIO.h>
 #ifdef OpenMVS
 #include <IO/mvIO.h>
@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]){
 //    if(extractFeatures(ip.dh, data, ip.ro, ip.eo))
 //        return 1;
 
-    loadOMVSScene(ip.dh,data);
+    importOMVSScene(ip.dh,data);
 
     if(ip.eo.cameras){
         ip.dh.suffix = "_cameras";

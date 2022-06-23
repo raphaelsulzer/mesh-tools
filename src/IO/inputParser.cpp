@@ -633,10 +633,10 @@ int cliParser::getSample(){
 po::options_description cliParser::initScan(){
     po::options_description options("\nSCAN OPTIONS",description_width);
     options.add_options()
-            ("points,p", po::value<int>()->default_value(500), "Number of scanning points.")
-            ("noise,n", po::value<double>()->default_value(0.0), "Std of Gaussian noise to add.")
-            ("outliers", po::value<double>()->default_value(0), "Percentage of outliers to add to scanning points.")
             ("cameras,c", po::value<int>()->default_value(3), "Number of cameras.")
+            ("points,p", po::value<int>()->default_value(500), "Number of scanned points.")
+            ("noise,n", po::value<double>()->default_value(0.0), "Std of Gaussian noise.")
+            ("outliers", po::value<double>()->default_value(0), "Percentage of outliers.")
             ("gtype", po::value<string>()->default_value("closed"), "Is ground truth closed?")
             ("normal_method", po::value<string>(), "Method for normal estimation: [none (default), pca, jet, vsm]")
             ("normal_neighborhood", po::value<int>()->default_value(0), "Neighborhood size to consider. 0 = automatic (default)")

@@ -140,7 +140,23 @@ int main(int argc, char const *argv[]){
 
     dataHolder data;
 
-    importPLYPoints(ip.dh,data);
+    // SAMPLING INPUT
+    if(ip.ro.data_source == "ply"){
+        importPLYPoints(ip.dh, data);
+    }
+    else if(ip.ro.data_source == "npz"){
+        importNPZPoints(ip.dh, data);
+    }
+    #ifdef OpenMVS
+    else if(ip.ro.data_source == "omvs"){
+        if(importOMVSScene(ip.dh, data))
+            return 1;
+    }
+    #endif
+    else{
+        cout << "ERROR: not a valid reconstruction input" << endl;
+        return 1;
+    }
 
     if(ip.ro.normal_overwrite){
         data.has_normal = false;

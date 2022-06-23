@@ -400,13 +400,13 @@ target_link_libraries(util
     CGAL::CGAL
     )
 
-add_library(IO
+add_library(mtIO
     src/IO/fileIO.cpp
     src/IO/inputParser.cpp
     ${OpenMVS_INCLUDE_DIRS}
     )
 
-target_link_libraries(IO
+target_link_libraries(mtIO
 #    ${CNPY_LIBRARY}
 #    ${CMAKE_DL_LIBS}
     ${OCV_EXTERNAL_LIBRARIES}
@@ -457,7 +457,7 @@ if(LABATUT)
         src/labatut/rayTracingFacet.cpp
         )
     target_link_libraries(labatut
-                        IO
+                        mtIO
                         rPLY
                         util
                         processing
@@ -487,7 +487,7 @@ if(OCC2MESH)
         src/exe/occ2mesh.cpp
         )
     target_link_libraries(occ2mesh
-                        IO
+                        mtIO
                         rPLY
                         learning
                         util
@@ -518,7 +518,7 @@ if(FEAT)
         ${OMVS_INCLUDE_DIRS}
         )
     target_link_libraries(feat
-                        IO
+                        mtIO
                         learning
                         rPLY
                         util
@@ -577,7 +577,7 @@ if(OMVS2NPZ)
         ${OMVS_INCLUDE_DIRS}
         )
     target_link_libraries(omvs2npz
-                        IO
+                        mtIO
                         learning
                         rPLY
                         util
@@ -605,7 +605,7 @@ if(SCAN)
         src/exe/scan.cpp
         )
     target_link_libraries(scan
-                        IO
+                        mtIO
                         rPLY
                         util
                         processing
@@ -626,7 +626,7 @@ if(VSA)
         src/exe/vsa.cpp
         )
     target_link_libraries(vsa
-                        IO
+                        mtIO
                         rPLY
                         util
                         processing
@@ -645,7 +645,7 @@ if(COLLAPSE)
         src/exe/collapse.cpp
         )
     target_link_libraries(collapse
-                        IO
+                        mtIO
                         rPLY
                         util
                         processing
@@ -664,7 +664,7 @@ if(EVAL)
         src/exe/eval.cpp
         )
     target_link_libraries(eval
-                        IO
+                        mtIO
                         rPLY
                         util
                         processing
@@ -683,7 +683,7 @@ if(ISO)
         src/exe/iso.cpp
         )
     target_link_libraries(iso
-                        IO
+                        mtIO
                         rPLY
                         util
                         processing
@@ -702,7 +702,7 @@ if(SAMPLE)
         src/exe/sample.cpp
         )
     target_link_libraries(sample
-                        IO
+                        mtIO
                         rPLY
                         util
                         processing
@@ -720,7 +720,7 @@ if(BOUNDINGBOX)
         src/exe/boundingBox.cpp
         )
     target_link_libraries(boundingBox
-                        IO
+                        mtIO
                         rPLY
                         util
                         ${Boost_LIBRARIES}
@@ -736,7 +736,7 @@ if(SIMPLIFY)
         src/exe/simplification.cpp
         )
     target_link_libraries(simplify
-                        IO
+                        mtIO
                         rPLY
                         util
                         processing
@@ -755,7 +755,7 @@ if(NORMAL)
         src/exe/normalEstimation.cpp
         )
     target_link_libraries(normal
-        IO
+        mtIO
         rPLY
         util
         processing
@@ -778,7 +778,7 @@ if(ETH3D)
         src/IO/meshlab_project.cc
         )
     target_link_libraries(eth3d
-                            IO
+                            mtIO
                             rPLY
                             util
                             processing
@@ -798,7 +798,7 @@ if(STATS)
         src/exe/stats.cpp
         )
     target_link_libraries(stats
-                            IO
+                            mtIO
                             rPLY
                             processing
                             util
@@ -815,7 +815,7 @@ if(POISSON)
         src/poisson/poisson.cpp
         )
     target_link_libraries(poisson
-                        IO
+                        mtIO
                         rPLY
                         util
                         processing
