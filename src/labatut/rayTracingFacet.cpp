@@ -19,7 +19,7 @@ using namespace std;
 namespace processing{
 
 
-void RayCaster::traverseOutside(Vertex_handle vit, Cell_handle& current_cell,  int oppositeVertex, int sensor_idx){
+void RayCaster::traverseOutside(Vertex_handle vit, Cell_handle& current_cell,  int oppositeVertex, int sensor_idx, double tdist2 =0){
 
     if(!data_.Dt.is_infinite(current_cell)){
         // iterate over the faces of the current cell
@@ -30,17 +30,26 @@ void RayCaster::traverseOutside(Vertex_handle vit, Cell_handle& current_cell,  i
             Point intersectionPoint;
             Point source = vit->point();
             Vector rayV = Vector(vit->info().sensor_positions[sensor_idx] - source);
+//            Tetrahedron tet;
             bool intersection = rayTriangleIntersection(source, rayV, tri, intersectionPoint);
             if(intersection){
                 // the if stops the traversal once I hit the cell with the sensor center
-                if(!data_.Dt.tetrahedron(current_cell).has_on_positive_side(vit->info().sensor_positions[sensor_idx])){
-                    double dist2 = CGAL::squared_distance(intersectionPoint, source);
+//                const Tetrahedron tet = data_.Dt.tetrahedron(current_cell);
+//                cout<<CGAL::volume(tet.vertex(0),tet.vertex(1),tet.vertex(2),tet.vertex(3))<<endl;
+//                if(tet.is_degenerate())
+//                    continue;
+//                cout << current_cell->info().global_idx << endl;
+                double dist2 = CGAL::squared_distance(intersectionPoint, source);
+                if(dist2 <= tdist2)
+                    break;
+                tdist2=dist2;
+                if(!data_.Dt.tetrahedron(current_cell).has_on_bounded_side(vit->info().sensor_positions[sensor_idx])){
                     // 2. get the neighbouring cell of the current triangle and check for ray triangle intersections in that cell
                     Facet mirror_fac = data_.Dt.mirror_facet(std::make_pair(current_cell, cellBasedVertexIndex));
                     Cell_handle next_cell = mirror_fac.first;
                     int newIdx = mirror_fac.second;
                     current_cell->info().facet_weights[cellBasedVertexIndex] += ComputeDistanceProb(dist2);
-                    traverseOutside(vit, next_cell, newIdx, sensor_idx);
+                    traverseOutside(vit, next_cell, newIdx, sensor_idx, tdist2);
                 }
                 else
                     //Labatut et al:
@@ -81,7 +90,7 @@ void RayCaster::traverseInside(Vertex_handle vit, Cell_handle& current_cell,  in
             bool intersection = rayTriangleIntersection(source, rayV, tri, intersectionPoint);
             if(intersection){
                 // the if stops the traversal once I hit the cell with the sensor center
-                if(!data_.Dt.tetrahedron(current_cell).has_on_positive_side(vit->info().sensor_positions[sensor_idx])){
+                if(!data_.Dt.tetrahedron(current_cell).has_on_bounded_side(vit->info().sensor_positions[sensor_idx])){
                     double dist2 = CGAL::squared_distance(intersectionPoint, source);
                     // 2. get the neighbouring cell of the current triangle and check for ray triangle intersections in that cell
                     Facet mirror_fac = data_.Dt.mirror_facet(std::make_pair(current_cell, cellBasedVertexIndex));
@@ -98,6 +107,7 @@ void RayCaster::traverseInside(Vertex_handle vit, Cell_handle& current_cell,  in
                     // "Note that the only tetrahedra to get a non zero-weighted link to
                     // the source are those (possibly infinite ones) containing the laser
                     // sources or sensors optical centers."
+                    cout << "cell with sensor in traverse" << endl;
                     current_cell->info().outside_score+=alpha_vis;
                 break;
             }
@@ -117,7 +127,7 @@ void RayCaster::outside(Vertex_handle vit, int sensor_idx){
 
     std::vector<Cell_handle> inc_cells;
     data_.Dt.incident_cells(vit, std::back_inserter(inc_cells));
-
+    double tdist2=0;
     for(std::size_t i=0; i < inc_cells.size(); i++){
         Cell_handle current_cell = inc_cells[i];
 
@@ -133,7 +143,11 @@ void RayCaster::outside(Vertex_handle vit, int sensor_idx){
             // check if there is an intersection between the current ray and current triangle
             bool intersect = rayTriangleIntersection(source, rayV, tri, intersectionPoint);
             if(intersect){
-                if(!data_.Dt.tetrahedron(current_cell).has_on_positive_side(vit->info().sensor_positions[sensor_idx])){
+                double dist2 = CGAL::squared_distance(intersectionPoint, source);
+                if(dist2 <= tdist2)
+                    break;
+                tdist2=dist2;
+                if(!data_.Dt.tetrahedron(current_cell).has_on_bounded_side(vit->info().sensor_positions[sensor_idx])){
                     double dist2 = CGAL::squared_distance(intersectionPoint, source);
                     Facet fac = std::make_pair(current_cell, cellBasedVertexIndex);
                     Facet mirror_fac = data_.Dt.mirror_facet(fac);
@@ -148,6 +162,7 @@ void RayCaster::outside(Vertex_handle vit, int sensor_idx){
                     // "Note that the only tetrahedra to get a non zero-weighted link to
                     // the source are those (possibly infinite ones) containing the laser
                     // sources or sensors optical centers."
+                    cout << "cell with sensor in outside" << endl;
                     current_cell->info().outside_score+=alpha_vis;
                 break;
             }// end of intersection result
@@ -198,6 +213,15 @@ void RayCaster::inside(Vertex_handle vit, int sensor_idx){
 
 void RayCaster::run(){
 
+//    int i = 0;
+//    int q;
+//    for(auto vit = data_.Dt.finite_vertices_begin() ; vit != data_.Dt.finite_vertices_end() ; vit++){
+//        cout << "Point " << i++ << " : " << vit->point() << endl;
+//        cout << "Sensor " << i << " : " << vit->info().sensor_positions[0] << endl;
+//        cout << "Vector " << i << " : " << vit->info().sensor_vec << endl;
+//        q=5;
+//    }
+
     cout << "\nRay tracing..." << endl;
     cout << "\t-Trace " << options_.number_of_rays << " ray(s) to every point" << endl;
     cout << "\t-Labatut's \u03B1_vis set to " << options_.labatut_alpha << endl;
@@ -210,6 +234,8 @@ void RayCaster::run(){
     Delaunay::Finite_vertices_iterator vit;
     for(vit = data_.Dt.finite_vertices_begin() ; vit != data_.Dt.finite_vertices_end() ; vit++){
         int current_number_of_images = vit->info().sensor_positions.size();
+        if(current_number_of_images == 0)
+            cout << "\nWARNING: Point with no sensor!" << endl;
         int number_of_images;
         if(options_.number_of_rays < 0 || options_.number_of_rays > current_number_of_images)
             number_of_images = current_number_of_images;

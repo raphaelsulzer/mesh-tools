@@ -73,7 +73,7 @@ class RayCaster{
 
         void run();
 
-        void traverseOutside(Vertex_handle vit, Cell_handle& current_cell,  int oppositeVertex, int sensor_idx);
+        void traverseOutside(Vertex_handle vit, Cell_handle& current_cell,  int oppositeVertex, int sensor_idx, double tdist2);
         void traverseInside(Vertex_handle vit, Cell_handle& current_cell,  int oppositeVertex, int sensor_idx);
 
         void outside(Vertex_handle vit, int sensor_idx);

@@ -37,6 +37,7 @@ option(NORMAL "Whether to build normal exe" OFF)
 option(SAMPLE "Whether to build sample exe" OFF)
 option(COLLAPSE "Whether to build collapse exe" OFF)
 option(SIMPLIFY "Whether to build simplify exe" OFF)
+option(WATERTIGHTIFY "Whether to build watertightify exe" OFF)
 option(EVAL "Whether to build eval exe" OFF)
 
 
@@ -736,6 +737,25 @@ if(SIMPLIFY)
         src/exe/simplification.cpp
         )
     target_link_libraries(simplify
+                        mtIO
+                        rPLY
+                        util
+                        processing
+                        ${Boost_LIBRARIES}
+                        ${GMP_LIBRARY}
+                        ${MPFR_LIBRARY}
+                        ${Open3D_LIBRARIES}
+                        CGAL::CGAL
+                        ${OMVS_EXTERNAL_LIBS}
+                        OpenMP::OpenMP_CXX
+                        )
+endif()
+
+if(WATERTIGHTIFY)
+    add_executable(watertightify
+        src/exe/watertightify.cpp
+        )
+    target_link_libraries(watertightify
                         mtIO
                         rPLY
                         util

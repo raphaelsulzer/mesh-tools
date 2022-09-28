@@ -46,13 +46,13 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
     ///////////////////////////////
     options.scoring="_"+options.scoring;
     string rw_string = double2string(options.area_reg_weight+options.angle_reg_weight+options.cc_reg_weight+options.sv_reg_weight);
-    string ol_string;
-    if(options.percentage_of_outliers > 0.0)
-        ol_string = double2string(options.percentage_of_outliers*100);
+//    string ol_string;
+//    if(options.percentage_of_outliers > 0.0)
+//        ol_string = double2string(options.percentage_of_outliers*100);
     if(dir.read_file.empty())
         dir.read_file = dir.write_file;
     if(dir.write_file.empty())
-        dir.write_file = dir.read_file+ol_string+options.scoring+rw_string;
+        dir.write_file = dir.read_file+options.scoring+rw_string;
     else
         dir.write_file+=options.scoring+rw_string;
 
@@ -117,11 +117,26 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
     else
         makeDelaunayWithInfo(data);
 
+//    Tetrahedron tet;
+//    for(auto ci = data.Dt.finite_cells_begin(); ci != data.Dt.finite_cells_end(); ci++){
+//        tet = data.Dt.tetrahedron(ci);
+
+//        for(auto vi = data.Dt.finite_vertices_begin(); vi != data.Dt.finite_vertices_end(); vi++){
+//            bool op = tet.has_on_positive_side(vi->info().sensor_positions[0]);
+//            if(op)
+//                cout << ci->info().global_idx << " has " << vi->info().global_idx <<  " on positive side" << endl;
+//            bool ob = tet.has_on_bounded_side(vi->info().sensor_positions[0]);
+//            if(ob)
+//                cout << ci->info().global_idx << " has " << vi->info().global_idx <<  " on bounded side" << endl;
+//        }
+//    }
+
+
+
     if(options.labatut_sigma < 0.0){
         double temp = pcaKNN(data.Dt);
         options.labatut_sigma=-options.labatut_sigma*temp;
     }
-
 
     //////////////////////////////////////
     ///////////// RAY TRACING ////////////

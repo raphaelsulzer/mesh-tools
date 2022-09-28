@@ -421,7 +421,6 @@ int importNPZPoints(const dirHolder& dir, dataHolder& data){
     if(a.find("normals") != a.end()){
         normals = a["normals"].cast<double>();
         data.has_normal = true;
-
     }
     xt::xarray<double> sensor_pos;
     if(a.find("sensor_position") != a.end()){
@@ -429,6 +428,11 @@ int importNPZPoints(const dirHolder& dir, dataHolder& data){
         data.has_sensor = true;
     }
     auto points = a["points"].cast<double>();
+    if(data.has_sensor)
+        assert(points.size()==sensor_pos.size());
+    if(data.has_normal)
+        assert(points.size()==normals.size());
+
     data.points.clear();
     data.infos.clear();
     Point p,s;
@@ -1081,19 +1085,16 @@ void exportCameraCenter(const dirHolder& dir, dataHolder& data){
     eo.color = true;
     printPLYHeader(fo, eo, nc);
 
+    assert(data.sensor_map.size() > 0);
     for(int i = 0; i < nc; i++){
         // print data to file
-        assert(data.sensor_map.size() > 0);
         auto current = data.sensor_map.find(i);
         fo << current->second << " ";
         fo << "0 255 0 ";
         fo << current->first << " ";
         fo << endl;
     }
-
     fo.close();
-
-    auto stop = std::chrono::high_resolution_clock::now();
     cout << "\t-" << nc << " cameras exported"  << endl;
 }
 void exportCellCenter(const dirHolder& dir, const Delaunay& Dt){

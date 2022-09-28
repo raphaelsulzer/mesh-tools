@@ -222,7 +222,7 @@ po::options_description cliParser::initOutput(){
                                                                            "\n-gs,X = grid sampling + grid size"
                                                                            "\n-ps,X = point sampling + #points"
                                                                            "\n-as,X = point sampling + #points per area")
-
+            ("clean", po::value<int>()->default_value(0), "Apply OpenMVS mesh cleaning")
         ;
 
 
@@ -237,6 +237,7 @@ int cliParser::getOutput(){
         eo.sampling_method = sampling[0];
         eo.sampling_method_option = stod(sampling[1]);
     }
+    ro.clean_mesh = vm["clean"].as<int>();
     if(vm["output_options"].as<string>() == "all"){
         eo.normals = false;
         eo.color = true;
@@ -355,7 +356,7 @@ po::options_description cliParser::initLabatut(){
             ("alpha", po::value<double>()->default_value(32), "Labatut's \u03B1_vis=(0,inf).")
             ("sigma", po::value<double>()->default_value(-1), "Labatut's \u03C3=(-inf,inf). \u03C3 < 0 => \u03C3 = -\u03C3*\u03BB with \u03BB 3rd EV of PCA.")
             ("tau", po::value<double>()->default_value(0), "\u03C4=(0,inf). Max. inside traversal.")
-            ("closed", po::value<int>()->default_value(0), "Reconstruct closed object or open scene.")
+            ("closed", po::value<int>()->default_value(1), "Reconstruct closed object (default) or open scene.")
             ("gco", po::value<string>()->default_value("angle-5.0"), "Graph-cut optimization:"
              "\nBinary Type-Weight[;Type2-Weight2;Type3-Weight3]"
              "\nwith Type=[area,angle,cc] and Weight=(0,inf)")
@@ -375,6 +376,7 @@ int cliParser::getLabatut(){
     ro.labatut_tau = vm["tau"].as<double>();
     ro.closed_prior = vm["closed"].as<int>();
 
+
     vector<string> optimization;
     if(vm.count("gco")){
         splitString(vm["gco"].as<string>(), optimization, ',');
@@ -383,7 +385,7 @@ int cliParser::getLabatut(){
             vector<string> current_reg;
             splitString(optimization[i],current_reg,'-');
             if(current_reg.size()!=2){
-                cout<<"\nERROR: not a valid regularization. Enter e.g. --gco area-0.1 ."<<endl;
+                cout<<"\nERROR: not a valid regularization. Enter e.g. --gco area-0.1 or null-0 for no graph-cut."<<endl;
                 return 1;
             }
             if(current_reg[0] == "area")
@@ -398,6 +400,8 @@ int cliParser::getLabatut(){
                     ro.sv_reg_weight = stod(current_reg[1]);
             else if(current_reg[0] == "ob")
                     ro.ob_reg_weight = stod(current_reg[1]);
+            else if(current_reg[0] == "null")
+                    ro.optimization = 0;
             else{
                 cout << "ERROR: " << current_reg[0] << " is not a valid regularization term!" << endl;
                 return 1;
@@ -505,17 +509,13 @@ po::options_description cliParser::initCollapse(){
     po::options_description collapse_options("\nEDGE COLLAPSe OPTIONS",description_width);
     collapse_options.add_options()
             ("edges", po::value<double>()->required(), "Percentage of edges to keep")
-            ("clean", po::value<int>(), "Apply OpenMVS mesh cleaning")
             ("eval", po::value<int>(), "Evaluate mesh")
-
         ;
     return collapse_options;
 }
 int cliParser::getCollapse(){
 
     ro.keep_edges = vm["edges"].as<double>();
-    if(vm.count("clean"))
-        ro.clean_mesh = vm["clean"].as<int>();
     if(vm.count("eval"))
         ro.evaluate_mesh = vm["eval"].as<int>();
 
@@ -529,7 +529,6 @@ po::options_description cliParser::initVsa(){
             ("proxies", po::value<int>()->required(), "Max number of proxies")
             ("comp", po::value<int>(), "Number of connected components to keep.")
             ("close", po::value<int>(), "Try to close open meshes with hole filling.")
-            ("clean", po::value<int>(), "Apply OpenMVS mesh cleaning")
             ("eval", po::value<int>(), "Evaluate mesh")
 
         ;
@@ -541,8 +540,6 @@ int cliParser::getVsa(){
         ro.try_to_close = vm["close"].as<int>();
     if(vm.count("comp"))
         ro.number_of_components_to_keep = vm["comp"].as<int>();
-    if(vm.count("clean"))
-        ro.clean_mesh = vm["clean"].as<int>();
     if(vm.count("eval"))
         ro.evaluate_mesh = vm["eval"].as<int>();
 

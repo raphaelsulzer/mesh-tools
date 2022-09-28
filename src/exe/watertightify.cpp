@@ -33,7 +33,7 @@ int main(int argc, char const *argv[]){
         return 1;
 
     auto start = std::chrono::high_resolution_clock::now();
-    cout << "\n-----SCAN MESH-----" << endl;
+    cout << "\n-----WATERTIGHTIFY MESH-----" << endl;
     cout << "\nWorking dir set to:\n\t-" << ip.dh.path << endl;
 
     dataHolder data;
@@ -64,33 +64,27 @@ int main(int argc, char const *argv[]){
     if(ip.dh.write_file.empty())
         ip.dh.write_file = ip.dh.read_file;
 
-//    exportOptions eo;
-//    eo.sensor_vec = false;
-//    eo.sensor_position = false;
-//    eo.normals = true;
+    exportOptions eo;
+    eo.sensor_vec = false;
+    eo.sensor_position = false;
+    eo.normals = true;
     if(ip.eo.toply){
 //        eo.sensor_vec = true;
 //        eo.normals = false;
-        exportPLY(ip.dh, data.points, data.infos, ip.eo);
+        exportPLY(ip.dh, data.points, data.infos, eo);
     }
 
-
+    eo.normals = true;
     if(ip.eo.tonpz){
-        ip.eo.sensor_vec = false;
-        ip.eo.sensor_position = true;
-        ip.eo.normals = true;
         toXTensor(data);
         exportNPZ(ip.dh,data);
     }
 
-    if(ip.eo.cameras){
-        ip.dh.suffix = "_cameras";
-        exportCameraCenter(ip.dh, data);
-    }
+
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::seconds>(stop - start);
-    cout << "\n-----SCAN MESH FINISHED in "<< duration.count() << "s -----\n" << endl;
+    cout << "\n-----WATERTIGHTIFY MESH FINISHED in "<< duration.count() << "s -----\n" << endl;
 
     return 0;
 
