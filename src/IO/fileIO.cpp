@@ -101,6 +101,7 @@ void concatenateData(dataHolder& data1, dataHolder& data2, int copyInfo)
 int toXTensor(dataHolder& data){
 
     data.xpoints.clear();
+    data.xcolors.clear();
     data.xnormals.clear();
     data.xgtnormals.clear();
     data.xsensor_positions.clear();
@@ -122,6 +123,11 @@ int toXTensor(dataHolder& data){
             data.xsensor_positions.push_back(data.infos[i].sensor_positions[0].x());
             data.xsensor_positions.push_back(data.infos[i].sensor_positions[0].y());
             data.xsensor_positions.push_back(data.infos[i].sensor_positions[0].z());
+        }
+        if(data.has_color){
+            data.xcolors.push_back(data.infos[i].color.r());
+            data.xcolors.push_back(data.infos[i].color.g());
+            data.xcolors.push_back(data.infos[i].color.b());
         }
     }
 
@@ -610,6 +616,11 @@ int exportNPZ(const dirHolder& dir, dataHolder& data){
     if(data.has_sensor){
         auto sensor_position = xt::adapt(data.xsensor_positions, shape);
         xt::dump_npz(dir.path+dir.write_file+dir.suffix+".npz","sensor_position",sensor_position,true,true);
+    }
+    if(data.has_color){
+        cout << "_______export color_______" << endl;
+        auto color = xt::adapt(data.xcolors, shape);
+        xt::dump_npz(dir.path+dir.write_file+dir.suffix+".npz","colors",color,true,true);
     }
 
     return 0;

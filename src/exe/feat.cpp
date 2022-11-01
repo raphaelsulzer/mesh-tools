@@ -141,6 +141,8 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
     // EXPORT the 3DT as npz
     export3DT(dir,data);
 
+
+
     // EXPORT interface from ground truth labels, cameras and/or points
     if(exportO.interface){
         for(auto cit = data.Dt.all_cells_begin(); cit != data.Dt.all_cells_end(); cit++){
@@ -153,6 +155,15 @@ int extractFeatures(dirHolder& dir, dataHolder& data, runningOptions& options, e
         }
         exportInterface(dir, data, options, exportO);
     }
+    // export cell scores
+    if(exportO.cellScore){
+        exportCellCenter(dir, data.Dt);
+        exportCellScore(dir, data.Dt);
+    }
+    if(exportO.convexHull){
+        exportConvexHull(dir, data.Dt);
+    }
+    // cameras
     if(exportO.cameras){
         dir.suffix = "_cameras";
         exportCameraCenter(dir, data);

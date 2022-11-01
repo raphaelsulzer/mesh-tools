@@ -49,6 +49,7 @@ struct dataHolder{
     // xtensor
     vector<double> xpoints;
     vector<double> xnormals;
+    vector<double> xcolors;
     vector<double> xgtnormals;
     vector<double> xsensor_positions;
     vector<double> xverts; // this is for saving the points in the order they appear in the 3DT
