@@ -21,7 +21,6 @@ using namespace std;
 
 
 
-
 //////////////////////////////////////////////////////////
 ///////////////////// FILE I/O ///////////////////////////
 //////////////////////////////////////////////////////////
@@ -337,7 +336,7 @@ int importPLYMesh(const dirHolder& dir, SurfaceMesh& import_mesh){
     cout << "\nRead file " << dir.read_file+".ply" << endl;
 //    cout << "\nRead file " << dir.path+dir.read_file+".off" << endl;
     ifstream in(dir.path+dir.read_file+".ply");
-    read_ply(in,import_mesh);
+    CGAL::IO::read_PLY(in,import_mesh);
     if(!(import_mesh.number_of_vertices() > 0)){
         cerr << "File is empty!\n" << endl;
         return 1;
@@ -976,7 +975,7 @@ int exportPLY(const dirHolder& dir, SurfaceMesh& out_mesh){
     cout << "\t-to " << dir.write_file+dir.suffix+".ply" << endl;
     ofstream out(dir.path+dir.write_file+dir.suffix+".ply");
 
-    return write_ply(out,out_mesh);
+    return CGAL::IO::write_PLY(out,out_mesh);
 
 }
 void exportPLY_bin(const dirHolder& dir, SurfaceMesh& out_mesh){

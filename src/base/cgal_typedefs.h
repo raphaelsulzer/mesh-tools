@@ -226,7 +226,7 @@ namespace SMS = CGAL::Surface_mesh_simplification;
 ///////////////////////////// Ransac ///////////////////////////
 ////////////////////////////////////////////////////////////////
 #include <CGAL/Shape_detection/Efficient_RANSAC.h>
-#include <CGAL/Regularization/regularize_planes.h>
+//#include <CGAL/Regularization/regularize_planes.h>
 
 // Efficient RANSAC types
 typedef CGAL::Shape_detection::Efficient_RANSAC_traits

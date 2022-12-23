@@ -1,4 +1,4 @@
-#include <exe/inputParser.h>
+#include <IO/inputParser.h>
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>
 #include <learning/learningIO_bin.h>
@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]){
         importPLYPoints(ip.dh, data);
     }
     else if(ip.ro.data_source == "npz"){
-        importNPZ(ip.dh, data);
+        importNPZPoints(ip.dh, data);
     }
 //    #ifdef COLMAP
 //    else if(options.data_source == "colmap"){
@@ -63,8 +63,10 @@ int main(int argc, char const *argv[]){
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////// PREDICTION ///////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    if(loadPrediction(ip.dh,data,ip.ro))
+    if(importPrediction(ip.dh,data,ip.ro))
         return 1;
+
+
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +75,7 @@ int main(int argc, char const *argv[]){
     if(ip.ro.optimization == 1){
         ip.ro.gco_iterations = -1;
         graphCutTet(data, ip.ro);
+        cout << "\t-Infinite cells forced outside? " << ip.ro.closed_prior << endl;
     }
     else{
         cout << "\nLabel cells without optimization by taking max score..." << endl;

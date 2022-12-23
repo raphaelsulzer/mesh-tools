@@ -548,8 +548,14 @@ bool importPrediction(dirHolder dir, dataHolder& data, runningOptions options){
     for(fci = data.Dt.all_cells_begin(); fci != data.Dt.all_cells_end(); fci++){
 
         if(data.Dt.is_infinite(fci)){
-            fci->info().outside_score = 1.0;
-            fci->info().inside_score = 0.0;
+            if(options.closed_prior){
+                fci->info().outside_score = 10.0;
+                fci->info().inside_score = 0.0;
+            }
+            else{
+                fci->info().outside_score = 0.5;
+                fci->info().inside_score = 0.5;
+            }
         }
         else{
 

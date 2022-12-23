@@ -306,7 +306,8 @@ set(CGAL_PMP_REMOVE_SELF_INTERSECTION_OUTPUT 1)
 
 # to use local CGAL one has to set Xpackage_DIR variable to the path where the XpackageConfig.cmake file is located
 #set(CGAL_DIR /home/adminlocal/PhD/cpp/CGAL/lib/cmake/CGAL)
-find_package(CGAL 5.1.1 REQUIRED CONFIG)
+#find_package(CGAL 5.1.1 REQUIRED CONFIG)
+find_package(CGAL REQUIRED CONFIG)
 if(CGAL_FOUND)
     set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE TRUE)
     message(STATUS "Found CGAL ${CGAL_VERSION}")

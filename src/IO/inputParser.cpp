@@ -291,18 +291,21 @@ po::options_description cliParser::initOcc2Mesh(){
 
     po::options_description options("\nOCC2MESH OPTIONS",description_width);
     options.add_options()
-            ("prediction_file,p", po::value<string>(), "Prediction file")
+            ("prediction_file,p", po::value<string>()->required(), "Prediction file")
             ("occupancy_type", po::value<string>()->default_value("lo"), "Prediction type := [so(ftmax), si(gmoid), lo(git)].")
+            ("closed", po::value<int>()->default_value(1), "Reconstruct closed object (default) or open scene.")
             ("gco", po::value<string>(), "Graph-cut optimization:"
              "\nBinary Type-Weight[;Type2-Weight2;Type3-Weight3]"
              "\nwith Type=[area,angle,cc] and Weight=(0,inf)")
-
         ;
 
     return options;
 }
 
 int cliParser::getOcc2Mesh(){
+
+    ro.closed_prior = vm["closed"].as<int>();
+
 
     // reconstruction and optimization
     dh.prediction_file = vm["prediction_file"].as<string>();
@@ -454,7 +457,7 @@ po::options_description cliParser::initNormals(){
     normal_options.add_options()
             ("method", po::value<string>()->default_value("jet"), "[pca, jet, vsm]")
             ("neighborhood", po::value<int>()->default_value(0), "Neighborhood size to consider. 0 = automatic")
-            ("orient", po::value<int>()->default_value(2), "Orientation. 0 = no, 1 = sensor, 2 = mst.")
+            ("orientation", po::value<int>()->default_value(2), "Orientation. 0 = no, 1 = sensor, 2 = mst.")
             ("overwrite", po::value<int>()->default_value(0), "Overwrite existing normals.")
 
         ;
@@ -463,7 +466,7 @@ po::options_description cliParser::initNormals(){
 int cliParser::getNormals(){
 
     ro.normal_neighborhood = vm["neighborhood"].as<int>();
-    ro.normal_orientation = vm["orient"].as<int>();
+    ro.normal_orientation = vm["orientation"].as<int>();
     ro.normal_method = vm["method"].as<string>();
     ro.normal_overwrite = vm["overwrite"].as<int>();
 
@@ -637,7 +640,7 @@ po::options_description cliParser::initScan(){
             ("gtype", po::value<string>()->default_value("closed"), "Is ground truth closed?")
             ("normal_method", po::value<string>(), "Method for normal estimation: [none (default), pca, jet, vsm]")
             ("normal_neighborhood", po::value<int>()->default_value(0), "Neighborhood size to consider. 0 = automatic (default)")
-            ("normal_orient", po::value<int>()->default_value(2), "Orientation. 0 = no, 1 = sensor, 2 = mst (default).")
+            ("normal_orientation", po::value<int>()->default_value(2), "Orientation. 0 = no, 1 = sensor, 2 = mst (default).")
             ("export", po::value<string>()->default_value("ply"), "Export to [ply,npz,all].")
         ;
     return options;
@@ -659,7 +662,7 @@ int cliParser::getScan(){
     if(vm.count("normal_method")){
         ro.normal_method = vm["normal_method"].as<string>();
         ro.normal_neighborhood = vm["normal_neighborhood"].as<int>();
-        ro.normal_orientation = vm["normal_orient"].as<int>();
+        ro.normal_orientation = vm["normal_orientation"].as<int>();
     }
 
     if(vm.count("export")){
@@ -686,13 +689,13 @@ po::options_description cliParser::initETH(){
     options.add_options()
             ("method", po::value<string>()->default_value("jet"), "[pca, jet (default), vsm]")
             ("neighborhood", po::value<int>()->default_value(0), "Neighborhood size to consider. 0 = automatic (default)")
-            ("orient", po::value<int>()->default_value(2), "Orientation. 0 = no, 1 = sensor, 2 = mst (default).")
+            ("orientation", po::value<int>()->default_value(2), "Orientation. 0 = no, 1 = sensor, 2 = mst (default).")
         ;
     return options;
 }
 int cliParser::getETH(){
     ro.normal_neighborhood = vm["neighborhood"].as<int>();
-    ro.normal_orientation = vm["orient"].as<int>();
+    ro.normal_orientation = vm["orientation"].as<int>();
     ro.normal_method = vm["method"].as<string>();
     return 0;
 }
