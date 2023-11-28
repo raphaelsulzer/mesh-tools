@@ -33,15 +33,6 @@ void makeDelaunayWithInfo(dataHolder& data)
     // make the triangulation
     data.Dt.insert( boost::make_zip_iterator(boost::make_tuple(data.points.begin(), data.infos.begin() )),
              boost::make_zip_iterator(boost::make_tuple(data.points.end(), data.infos.end() ) )  );
-//    Delaunay Dt( boost::make_zip_iterator(boost::make_tuple(data.points.begin(), data.infos.begin() )),
-//    boost::make_zip_iterator(boost::make_tuple(data.points.end(), data.infos.end() ) )  );
-//    data.Dt = Dt;
-
-
-//    if(options.insert_sensor){
-//        for(int i = 0; i < data.points.size(); i++)
-//            data.Dt.insert(data.infos[i].sensor_positions[0]);
-//    }
 
     auto stop = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::seconds>(stop - start);
@@ -177,7 +168,8 @@ typedef CGAL::AABB_face_graph_triangle_primitive<SurfaceMesh> Primitive;
 typedef CGAL::AABB_traits<EPICK, Primitive> AABB_Traits;
 typedef CGAL::AABB_tree<AABB_Traits> Tree;
 typedef Tree::Point_and_primitive_id Point_and_primitive_id;
-typedef boost::optional<Tree::Intersection_and_primitive_id<Ray>::Type> Ray_intersection;
+//typedef boost::optional<Tree::Intersection_and_primitive_id<Ray>::Type> Ray_intersection;
+typedef std::optional< Tree::Intersection_and_primitive_id<Ray>::Type > Ray_intersection;
 bool scanObjectClosed(dataHolder& data, runningOptions& options){
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -268,8 +260,8 @@ bool scanObjectClosed(dataHolder& data, runningOptions& options){
 
         Ray_intersection intersection = tree.first_intersection(ray);
         if(intersection){
-          if(boost::get<Point>(&(intersection->first))){
-            const Point* p = boost::get<Point>(&(intersection->first) );
+          if(std::get_if<Point>(&(intersection->first))){
+            const Point* p = std::get_if<Point>(&(intersection->first) );
             auto fd = intersection->second;
             Vector gt_normal = PMP::compute_face_normal(fd,smesh);
 
@@ -436,8 +428,9 @@ bool scanObjectOpen(dataHolder& data, runningOptions& options){
 
         Ray_intersection intersection = tree.first_intersection(ray);
         if(intersection){
-          if(boost::get<Point>(&(intersection->first))){
-            const Point* p = boost::get<Point>(&(intersection->first) );
+          if(std::get_if<Point>(&(intersection->first))){
+//            const Point* p = boost::get<Point>(&(intersection->first) );
+            const Point* p = std::get_if<Point>(&(intersection->first) );
             auto fd = intersection->second;
             Vector gt_normal = PMP::compute_face_normal(fd,smesh);
 

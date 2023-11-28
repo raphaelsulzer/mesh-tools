@@ -28,15 +28,15 @@ option(STATIC "Whether to compile for standalone use" OFF)
 ################################################################################
 # Programs to build
 ################################################################################
-option(SCAN "Whether to build scan exe" OFF)
+option(SCAN "Whether to build scan exe" ON)
 option(OMVS2NPZ "Whether to build omvs2npz exe" OFF)
-option(LABATUT "Whether to build labatut exe" OFF)
+option(LABATUT "Whether to build labatut exe" ON)
 option(FEAT "Whether to build feat exe" ON)
 option(OCC2MESH "Whether to build occ2mesh exe" OFF)
 option(NORMAL "Whether to build normal exe" ON)
 option(SAMPLE "Whether to build sample exe" OFF)
-option(COLLAPSE "Whether to build collapse exe" ON)
-option(SIMPLIFY "Whether to build simplify exe" ON)
+option(COLLAPSE "Whether to build collapse exe" OFF)
+option(SIMPLIFY "Whether to build simplify exe" OFF)
 option(WATERTIGHTIFY "Whether to build watertightify exe" OFF)
 option(EVAL "Whether to build eval exe" OFF)
 

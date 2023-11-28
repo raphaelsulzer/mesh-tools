@@ -15,6 +15,7 @@
 #include <CGAL/Polygon_mesh_processing/compute_normal.h>
 #include <CGAL/Optimal_bounding_box/oriented_bounding_box.h>
 #include <CGAL/estimate_scale.h>
+#include <CGAL/Shape_regularization/regularize_planes.h>
 
 bool sort_by_area(pair<Polygon_2, double>& a,
                     pair<Polygon_2, double>& b)
@@ -102,8 +103,8 @@ void ransac(dirHolder& dir, dataHolder& data,  meshProcessingOptions& options){
     // get optimal bounding box
     parameters.epsilon = options.ransac_epsilon;
     if(!parameters.epsilon > 0.0){
-        CGAL::oriented_bounding_box(data.points, data.bounding_box);
-        parameters.epsilon = 0.01*sqrt(max(CGAL::squared_distance(data.bounding_box[0],data.bounding_box[2]),CGAL::squared_distance(data.bounding_box[0],data.bounding_box[4])));
+        CGAL::oriented_bounding_box(data.points, data.bb_array);
+        parameters.epsilon = 0.01*sqrt(max(CGAL::squared_distance(data.bb_array[0],data.bb_array[2]),CGAL::squared_distance(data.bb_array[0],data.bb_array[4])));
         options.ransac_epsilon = parameters.epsilon;
     }
     parameters.normal_threshold = options.ransac_normal;
@@ -123,7 +124,7 @@ void ransac(dirHolder& dir, dataHolder& data,  meshProcessingOptions& options){
 
     if(options.ransac_regularization){
         cout << "\t-regularize planes" << endl;
-        CGAL::regularize_planes(data.point_set,
+        CGAL::Shape_regularization::Planes::regularize_planes(data.point_set,
 //                                Point_map(),
                                 data.point_set.point_map(),
                                 planes,
@@ -585,8 +586,9 @@ PSS structure(dataHolder& data,
 
     double structure_epsilon = options.structure_epsilon;
     if(!structure_epsilon > 0.0){
-        CGAL::oriented_bounding_box(data.points, data.bounding_box);
-        structure_epsilon = 0.01*sqrt(max(CGAL::squared_distance(data.bounding_box[0],data.bounding_box[2]),CGAL::squared_distance(data.bounding_box[0],data.bounding_box[4])));
+        CGAL::oriented_bounding_box(data.points, data.bb_array);
+        structure_epsilon = 0.01*sqrt(max(CGAL::squared_distance(data.bb_array[0],data.bb_array[2]),
+                CGAL::squared_distance(data.bb_array[0],data.bb_array[4])));
     }
     cout << "\t-structure epsilon: " << structure_epsilon << endl;
 
