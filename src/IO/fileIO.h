@@ -150,7 +150,7 @@ struct exportOptions{
     bool cameras = false;
 
     // reconstruction
-    bool convexHull = false;
+    bool delaunay = false;
     bool sampling = false;
     bool cellScore = false;
     bool coloredFacets = false;
@@ -225,7 +225,7 @@ void exportCellScore(const dirHolder& dir, const Delaunay& Dt);
 void exportColoredFacets(const dirHolder& dir, const Delaunay& Dt,
                             bool optimized);
 
-void exportConvexHull(const dirHolder& dir, const Delaunay& Dt);
+void export3DT(const dirHolder& dir, const Delaunay& Dt);
 
 void exportInterface(const dirHolder& dir, dataHolder& data, runningOptions& options, exportOptions& eo);
 

@@ -109,8 +109,8 @@ int main(int argc, char const *argv[]){
         exportCellCenter(ip.dh, data.Dt);
         exportCellScore(ip.dh, data.Dt);
     }
-    if(ip.eo.convexHull){
-        exportConvexHull(ip.dh, data.Dt);
+    if(ip.eo.delaunay){
+        export3DT(ip.dh, data.Dt);
     }
     ////////// create surface mesh ////////////
     // set export options

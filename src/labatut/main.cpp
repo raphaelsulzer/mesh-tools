@@ -185,8 +185,8 @@ int runLabatut(dirHolder& dir, dataHolder& data, runningOptions& options, export
         exportCellCenter(dir, data.Dt);
         exportCellScore(dir, data.Dt);
     }
-    if(exportO.convexHull){
-        exportConvexHull(dir, data.Dt);
+    if(exportO.delaunay){
+        export3DT(dir, data.Dt);
     }
     ////////// create surface mesh ////////////
     // set export options

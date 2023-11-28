@@ -1,15 +1,13 @@
-#include <base/cgal_typedefs.h>
+#include <sys/stat.h>
+#include <rPLY/ply.h>
 
+#include <base/cgal_typedefs.h>
 #include <CGAL/IO/read_ply_points.h> // CGAL file that is not present in CGAL version < 4.11, so copied it to my IO folder
+#include <CGAL/Point_set_3/IO.h>
+#include <boost/filesystem.hpp>
+#include <CGAL/IO/polygon_soup_io.h>
 
 #include <IO/fileIO.h>
-//#include <util/geometricOperations.h>
-//#include <util/helper.h>
-#include <CGAL/Point_set_3/IO.h>
-
-#include <boost/filesystem.hpp>
-
-#include <rPLY/ply.h>
 
 #ifdef RECONBENCH
 #include "modeling/shape_loader.h"
@@ -258,95 +256,30 @@ int importPLYPoints(const dirHolder dir, dataHolder& data)
 }
 
 
-//int importPLYMeshWithSensorStructure(dirHolder dir, dataHolder& data){
-
-//    // TODO: use tinyply for importing ply meshes, and get rid of the custom version of rPLY which is currently used
-
-//    string ifn=dir.path+dir.read_file+".ply";
-
-//    std::cout << "\nRead mesh PLY file with (sensor) topology " << dir.read_file << std::endl;
-
-//    auto start = chrono::high_resolution_clock::now();
-
-//    // read Binary PLY with sensor
-//    Mesh_ply aMesh;
-//    Import_PLY(ifn.c_str(), &aMesh);
-
-//    assert(aMesh.mVertices.size() > 0);
-
-//    data.has_sensor = !(aMesh.mvCapture.size() == 0);
-//    data.has_normal = !(aMesh.mNormals.size() == 0);
-//    data.has_color = !(aMesh.mvColors.size() == 0);
-
-//    if(!data.has_sensor && !data.has_normal){
-//        cout << "\nWARNING: NEITHER NORMALS NOR SENSOR INFORMATION FOUND IN THE INPUT FILE!\n" << endl;
-//    }
-//    for(int i = 0; i < aMesh.mVertices.size(); i++){
-//        // save points
-//        Point pt(aMesh.mVertices[i].x, aMesh.mVertices[i].y, aMesh.mVertices[i].z);
-//        data.points.push_back(pt);
-//        // save infos
-//        vertex_info vec_inf;
-//        // sensor
-//        if(aMesh.mvCapture.size()>0){
-//            Vector vec(aMesh.mvCapture[i].x - pt.x(), aMesh.mvCapture[i].y - pt.y(), aMesh.mvCapture[i].z - pt.z());
-//            vec_inf.sensor_vec = vec;
-//            vec_inf.sensor_positions.push_back(Point(aMesh.mvCapture[i].x, aMesh.mvCapture[i].y, aMesh.mvCapture[i].z));
-//        }
-//        // color
-//        unsigned char r,g,b;
-//        if(aMesh.mvColors.size() > 0){
-//            r = aMesh.mvColors[i].x * 255;
-//            g = aMesh.mvColors[i].y * 255;
-//            b = aMesh.mvColors[i].z * 255;
-//            CGAL::Color col(r,g,b);
-//            vec_inf.color = col;
-//        }
-//        // save vertex info
-//        data.infos.push_back(vec_inf);
-//    }
-
-//    // save incident sensor triangles in each 3DT vertex
-//    for(int i = 0; i < aMesh.mIndices.size()/3; i++){
-//        array<size_t,3> poly;
-//        size_t id0 = aMesh.mIndices[(i*3)+0];
-//        size_t id1 = aMesh.mIndices[(i*3)+1];
-//        size_t id2 = aMesh.mIndices[(i*3)+2];
-//        poly[0]=id0;
-//        poly[1]=id1;
-//        poly[2]=id2;
-//        data.facets.push_back(poly);
-
-//        // save incident sensor triangles in each 3DT vertex
-//        data.infos[id0].sensor_tet.push_back(i);
-//        data.infos[id1].sensor_tet.push_back(i);
-//        data.infos[id2].sensor_tet.push_back(i);
-//        // basically just integrating the loop below in here.
-
-//    }
-
-//    auto stop = chrono::high_resolution_clock::now();
-//    auto duration = chrono::duration_cast<chrono::seconds>(stop - start);
-//    cout << "\t-points: " << data.points.size() << endl;
-//    cout << "\t-facets: " << data.facets.size() << endl;
-//    cout << "\t-in " << duration.count() << "s" << endl;
-//}
-
 int importPLYMesh(const dirHolder& dir, SurfaceMesh& import_mesh){
     cout << "\nRead file " << dir.read_file+".ply" << endl;
-//    cout << "\nRead file " << dir.path+dir.read_file+".off" << endl;
-    ifstream in(dir.path+dir.read_file+".ply");
 
-#if CGAL_MINOR_VERSION >= 3
-    CGAL::IO::read_PLY(in,import_mesh);
-#else
-    CGAL::read_ply(in,import_mesh);
-#endif
+    string filename = dir.path+dir.read_file+".ply";
 
-    if(!(import_mesh.number_of_vertices() > 0)){
-        cerr << "File is empty!\n" << endl;
+    struct stat buffer;
+    if(!stat(filename.c_str(), &buffer) == 0){
+        cout << "ERROR: " << filename << " does not exist" << endl;
+//        _logger->error("ERROR: {} does not exist",filename);
         return 1;
     }
+
+    import_mesh.clear();
+    vector<Point> pts;
+    vector<vector<int>> polys;
+
+    CGAL::IO::read_polygon_soup(filename, pts,polys);
+    CGAL::Polygon_mesh_processing::polygon_soup_to_polygon_mesh(pts,polys,import_mesh);
+
+    if(import_mesh.number_of_faces() == 0){
+        cout << "ERROR: " << filename << " has no faces. Cannot do anything." << endl;
+        return 1;
+    }
+
     return 0;
 }
 
@@ -982,11 +915,8 @@ int exportPLY(const dirHolder& dir, SurfaceMesh& out_mesh){
     ofstream out(dir.path+dir.write_file+dir.suffix+".ply");
 
 
-#if CGAL_MINOR_VERSION >= 3
-        return CGAL::IO::write_PLY(out,out_mesh);
-#else
-        return CGAL::write_ply(out,out_mesh);
-#endif
+    return CGAL::IO::write_PLY(out,out_mesh);
+
 
 }
 void exportPLY_bin(const dirHolder& dir, SurfaceMesh& out_mesh){
@@ -1261,15 +1191,16 @@ void exportCellScore(const dirHolder& dir, const Delaunay& Dt){
 
 }
 
-void exportConvexHull(const dirHolder& dir, const Delaunay& Dt)
+void export3DT(const dirHolder& dir, const Delaunay& Dt)
 {
 
 
     // TODO: add cellScore output as points to the convexHull so one can visualize both in parallel, should work
 
 
-    // this used to be exportColoredFacets, but exportConvexHull was a bit obsolete, because this also exports
+    // update: this used to be exportColoredFacets, but exportConvexHull was a bit obsolete, because this also exports
     // the convex hull, just with colored facets.
+    // update2: renamed again, because it is actually the 3DT that is exported, not just the convex hull
 
     auto start = std::chrono::high_resolution_clock::now();
 

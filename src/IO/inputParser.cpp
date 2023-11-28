@@ -213,9 +213,9 @@ po::options_description cliParser::initOutput(){
                                                                           "\n-i = interface"
                                                                           "\n-z = isosurface"
                                                                           "\n-x = scan"
-                                                                          "\n-m = mesh"
+                                                                          "\n-m = surface mesh"
                                                                           "\n-s = sampling"
-                                                                          "\n-h = convex Hull"
+                                                                          "\n-h = 3DT"
                                                                           "\n-f = colored Facets"
                                                                           "\n-c = cell Score")
             ("output_sampling", po::value<string>(), "Sample points on output mesh"
@@ -243,7 +243,7 @@ int cliParser::getOutput(){
         eo.color = true;
         eo.sensor_vec = true;
         eo.sensor_position = false;
-        eo.convexHull = true;
+        eo.delaunay = true;
         eo.sampling = true;
         eo.scan = true;
         eo.cameras = true;
@@ -276,7 +276,7 @@ int cliParser::getOutput(){
         if (vm["output_options"].as<string>().find('s') != std::string::npos)
             eo.sampling = true;
         if (vm["output_options"].as<string>().find('h') != std::string::npos)
-            eo.convexHull = true;
+            eo.delaunay = true;
         if (vm["output_options"].as<string>().find('f') != std::string::npos)
             eo.coloredFacets = true;
         if (vm["output_options"].as<string>().find('c') != std::string::npos)
