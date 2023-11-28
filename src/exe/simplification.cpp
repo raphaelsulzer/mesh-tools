@@ -1,9 +1,9 @@
-#include <exe/inputParser.h>
+#include <IO/inputParser.h>
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>
 #include <IO/simplificationIO.h>
 #include <util/helper.h>
-#include <util/vectorArithmetic.h>
+#include <util/geometricOperations.h>
 #include <processing/meshProcessing.h>
 #include <processing/evaluation.h>
 #include <processing/pointSetProcessing.h>
@@ -776,7 +776,7 @@ void calcUnaries(dataHolder& data, PSS& pss){
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "GCoptimization.h"
+#include <gco-v3.0/GCoptimization.h>
 typedef double gtype;
 void optimizeSnapping(dataHolder& data, PSS& pss, meshProcessingOptions& mo, runningOptions& ro){
 

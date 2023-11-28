@@ -1,4 +1,4 @@
-#include <exe/inputParser.h>
+#include <IO/inputParser.h>
 
 #include <base/cgal_typedefs.h>
 #include <IO/fileIO.h>
@@ -44,11 +44,9 @@ int main(int argc, char const *argv[]){
 
     // read file depending on file type
     if(ip.dh.read_file_type == "off")
-        importOff(ip.dh, data.smesh);
+        importOFFMesh(ip.dh, data.smesh);
     else if(ip.dh.read_file_type == "ply"){
-        importLidarMesh(ip.dh, data);
-        createSurfaceMesh(data, options);
-        data.points.clear();
+        importPLYMesh(ip.dh, data.smesh);
     }
     else{
         cout << "File type not support. Supported are .off and .ply files\n" << endl;
@@ -57,7 +55,7 @@ int main(int argc, char const *argv[]){
 
     if(!ip.dh.gt_poly_file.empty()){
         if(ip.dh.gt_poly_file.substr(ip.dh.gt_poly_file.length() - 3 ) == "off"){
-            if(importOff(ip.dh.path+ip.dh.gt_poly_file, data.gt_poly))
+            if(importOFFMesh(ip.dh.path+ip.dh.gt_poly_file, data.gt_poly))
                 return 1;
         }
         else{

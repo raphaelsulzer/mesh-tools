@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "gco-v3.0/GCoptimization.h"
+#include <gco-v3.0/GCoptimization.h>
 #include <processing/meshProcessing.h>
 #include <util/geometricOperations.h>
 

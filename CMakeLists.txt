@@ -214,7 +214,7 @@ if(COLMAP_ENABLED)
     add_definitions(-DCOLMAP)
     if(COLMAP_FOUND)
         message(STATUS "Found COLMAP")
-        message(STATUS "Be aware that colmap works best with eigen version 3.3.3!!!")
+        message(STATUS "Be aware that colmap works best with eigen version 3.3.3!")
         list(APPEND COLMAP_INCLUDE_DIRS ${COLMAP_INCLUDE_DIRS})
         list(APPEND COLMAP_EXTERNAL_LIBRARIES ${COLMAP_LIBRARIES})
         list(APPEND CPP_FILES src/IO/colmapIO.cpp)
@@ -412,6 +412,7 @@ add_library(mtIO
 target_link_libraries(mtIO
 #    ${CNPY_LIBRARY}
 #    ${CMAKE_DL_LIBS}
+    ZLIB::ZLIB
     ${OCV_EXTERNAL_LIBRARIES}
     ${OMVS_EXTERNAL_LIBRARIES}
     ${Open3D_LIBRARIES}

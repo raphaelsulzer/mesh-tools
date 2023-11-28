@@ -15,7 +15,7 @@
 
 
 #include <CGAL/Shape_detection/Efficient_RANSAC.h>
-#include <CGAL/Regularization/regularize_planes.h>
+//#include <CGAL/Regularization/regularize_planes.h>
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graphviz.hpp>
