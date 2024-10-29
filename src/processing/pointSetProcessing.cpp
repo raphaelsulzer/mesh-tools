@@ -8,22 +8,11 @@
 #include <processing/meshProcessing.h>
 #include <CGAL/optimal_bounding_box.h>
 
-//#ifdef Open3D
-//#include "open3d/Open3D.h"
-////#include <open3D/Utility/IJsonConvertible.h>
-//#endif
 #include <IO/fileIO.h>
-//#include <learning/learning.h>
-
 
 using namespace std;
 
 typedef CGAL::Side_of_triangle_mesh<SurfaceMesh, EPICK> PointInsideSurfaceMesh;
-//typedef CGAL::AABB_face_graph_triangle_primitive<Polyhedron> PolyhedronPrimitive;
-//typedef CGAL::AABB_traits<EPICK, PolyhedronPrimitive> PolyhedronTraits;
-//typedef CGAL::AABB_tree<PolyhedronTraits> PolyhedronTree;
-//typedef boost::optional<PolyhedronTree::Point_and_primitive_id<Ray>::Type> PolyhedronRayIntersection;
-
 
 ////////////////////////////////////////////////////////////
 //////////////////////////// INFOS /////////////////////////
@@ -226,12 +215,10 @@ double pcaKNN(Point_set& point_set){
     typedef CGAL::Orthogonal_k_neighbor_search<SearchTraits> Neighbor_search;
     typedef Neighbor_search::Tree Tree;
 
-    Point_set::Property_map<double> noise = point_set.property_map<double>("noise").first;
-
+    Point_set::Property_map<double> noise = point_set.add_property_map<double>("noise").first;
 
     auto start = std::chrono::high_resolution_clock::now();
     cout << "\nPCA to calculate noise per point... " << endl;
-
 
     std::size_t NN =  CGAL::estimate_global_k_neighbor_scale(point_set);
 
@@ -487,7 +474,7 @@ bool pointInsideBbox(Point& p, SurfaceMesh& sm_obb){
 
 typedef CGAL::Side_of_triangle_mesh<Polyhedron, EPICK> PointInsidePolyhedron;
 typedef CGAL::AABB_face_graph_triangle_primitive<Polyhedron> PolyhedronPrimitive;
-typedef CGAL::AABB_traits<EPICK, PolyhedronPrimitive> PolyhedronTraits;
+typedef CGAL::AABB_traits_3<EPICK, PolyhedronPrimitive> PolyhedronTraits;
 typedef CGAL::AABB_tree<PolyhedronTraits> PolyhedronTree;
 typedef boost::optional<PolyhedronTree::Intersection_and_primitive_id<Ray>::Type> PolyhedronRayIntersection;
 int applyCropping(dataHolder& data){

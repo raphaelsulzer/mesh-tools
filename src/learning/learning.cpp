@@ -307,7 +307,6 @@ int labelObject(dirHolder dir, dataHolder& data, int sampling_points){
     SurfaceMesh smesh;
     CGAL::copy_face_graph(data.gt_poly, smesh);
     Tree tree(faces(smesh).first, faces(smesh).second, smesh);
-//    Tree tree(faces(data.gt_poly).first, faces(data.gt_poly).second, data.gt_poly);
     tree.accelerate_distance_queries();
     // Initialize the point-in-polyhedron tester
     const Point_inside inside_tester(tree);

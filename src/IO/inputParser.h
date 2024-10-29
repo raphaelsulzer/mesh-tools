@@ -1,5 +1,4 @@
-#ifndef INPUTPARSER_H
-#define INPUTPARSER_H
+#pragma once
 
 #include "base/cgal_typedefs.h"
 #include <IO/fileIO.h>
@@ -72,5 +71,3 @@ public:
     int getFeat(); // populate ro (runningOptions)
 
 };
-
-#endif

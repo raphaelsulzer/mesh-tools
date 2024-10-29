@@ -112,7 +112,7 @@ void checkMeshQuality(vector<Point>& ori_points, Polyhedron& surface_mesh){
 #include <CGAL/Side_of_triangle_mesh.h>
 typedef CGAL::Side_of_triangle_mesh<Polyhedron, EPICK> Point_inside;
 typedef CGAL::AABB_face_graph_triangle_primitive<Polyhedron> Primitive;
-typedef CGAL::AABB_traits<EPICK, Primitive> Traits;
+typedef CGAL::AABB_traits_3<EPICK, Primitive> Traits;
 typedef CGAL::AABB_tree<Traits> Tree;
 typedef Tree::Point_and_primitive_id Point_and_primitive_id;
 typedef boost::optional<Tree::Intersection_and_primitive_id<Ray>::Type> Ray_intersection;
@@ -209,7 +209,7 @@ double calcIOU(Polyhedron& gt, SurfaceMesh& reconm, int test_points, double& iou
 #include <CGAL/Side_of_triangle_mesh.h>
 typedef CGAL::Side_of_triangle_mesh<Polyhedron, EPICK> Point_inside;
 typedef CGAL::AABB_face_graph_triangle_primitive<Polyhedron> Primitive;
-typedef CGAL::AABB_traits<EPICK, Primitive> Traits;
+typedef CGAL::AABB_traits_3<EPICK, Primitive> Traits;
 typedef CGAL::AABB_tree<Traits> PolyhedronTree;
 typedef Tree::Point_and_primitive_id Point_and_primitive_id;
 typedef boost::optional<Tree::Intersection_and_primitive_id<Ray>::Type> Ray_intersection;

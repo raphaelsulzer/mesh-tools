@@ -22,6 +22,8 @@ using namespace boost::filesystem;
 
 int main(int argc, char const *argv[]){
 
+    int a = 5;
+
     cliParser ip("scan");
     if(ip.parse(argc, argv))
         return 1;

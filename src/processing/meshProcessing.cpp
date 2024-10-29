@@ -165,8 +165,8 @@ void indexDelaunay(dataHolder& data, runningOptions options){
 #include <random>
 typedef CGAL::Side_of_triangle_mesh<SurfaceMesh, EPICK> Point_inside;
 typedef CGAL::AABB_face_graph_triangle_primitive<SurfaceMesh> Primitive;
-typedef CGAL::AABB_traits<EPICK, Primitive> AABB_Traits;
-typedef CGAL::AABB_tree<AABB_Traits> Tree;
+typedef CGAL::AABB_traits_3<EPICK, Primitive> Traits;
+typedef CGAL::AABB_tree<Traits> Tree;
 typedef Tree::Point_and_primitive_id Point_and_primitive_id;
 //typedef boost::optional<Tree::Intersection_and_primitive_id<Ray>::Type> Ray_intersection;
 typedef std::optional< Tree::Intersection_and_primitive_id<Ray>::Type > Ray_intersection;
@@ -259,6 +259,7 @@ bool scanObjectClosed(dataHolder& data, runningOptions& options){
         Point closest_intersection_point;
 
         Ray_intersection intersection = tree.first_intersection(ray);
+
         if(intersection){
           if(std::get_if<Point>(&(intersection->first))){
             const Point* p = std::get_if<Point>(&(intersection->first) );
