@@ -70,7 +70,7 @@ Apply the edge collapse algorithm implemented in [CGAL](https://www.cgal.org/) t
 
 ### Required
 - [Boost](https://www.boost.org/) (>= v1.6.5, install with `sudo apt install libboost-all-dev`)
-- [CGAL](https://www.cgal.org/) (>= v5.1.1)
+- [CGAL](https://www.cgal.org/) (>= v6.0.1)
 - [ZLIB](https://zlib.net/) (for reading and writing `.npz` files, install with `sudo apt install zlib`)
 - [xtensor](https://xtensor.readthedocs.io/en/latest/) (for reading and writing `.npz` files)
 - [xtensor-io](https://xtensor-io.readthedocs.io/en/latest/) (for reading and writing `.npz` files)
